@@ -1,10 +1,23 @@
 name: Build RPM
+run-name: RPM Build ID ${{ inputs.build_id }}
 
 on:
   workflow_dispatch:
     inputs:
       spec:
         required: true
+        type: string
+      build_id:
+        required: true
+        type: string
+      target_distribution:
+        required: true
+        type: string
+      ref:
+        required: false
+        type: string
+      pr_num:
+        required: false
         type: string
       reclaim:
         required: false
@@ -61,10 +74,11 @@ jobs:
           sudo apt-get clean || true
           sudo rm -rf /var/lib/apt/lists/*
 
-      - name: Determine target branch
+      - name: Determine target branch and distro
         env:
           pr_ref: ${{ github.event.pull_request.base.ref }}
           ref: ${{ github.ref_name }}
+          target_distribution: ${{ inputs.target_distribution }}
         run: |
           if [[ "${{ github.event_name }}" == "pull_request" ]]; then
             branch="${pr_ref}"
@@ -78,6 +92,9 @@ jobs:
             exit 1
           fi
 
+          target_distribution="${target_distribution#fc}"
+          echo "target_distribution=${target_distribution}" >> $GITHUB_ENV
+
       - name: Get pkgname
         id: pkgname
         run: |
@@ -85,9 +102,10 @@ jobs:
           echo "pkgname=${specfile%.*}" >> $GITHUB_ENV
 
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
         with:
           persist-credentials: false
+          ref: ${{ inputs.ref }}
 
       - name: Detect Gear
         id: gear
@@ -124,7 +142,7 @@ jobs:
           name=build
           baseurl=file:///repo/
           skip_if_unavailable=True
-          gpgcheck=1
+          gpgcheck=0
           gpgkey=https://raw.githubusercontent.com/solopasha/kde6-copr/refs/heads/unstable/RPM-GPG-KEY-solopasha
           repo_gpgcheck=0
           enabled=1
@@ -152,15 +170,12 @@ jobs:
       - name: Fetch build deps
         env:
           gear: ${{ steps.gear.outputs.gear }}
+          deps: ${{ inputs.deps }}
         run: |
-          if [[ "${gear}" == "true" ]]; then
-            workflow_file=".github/workflows/packages-gear.yml"
-          else
-            workflow_file=".github/workflows/packages.yml"
+          if [[ "${deps}" != "" ]]; then
+            parallel --halt now,fail=1 oras pull "ghcr.io/${repository}/{}:latest-${target_branch}" -o repo ::: ${deps}
           fi
-          mapfile -t repo_dependencies < <(bash needs.sh "${pkgname}" "${workflow_file}" | sed '/changed-files/d' | tr '[:upper:]' '[:lower:]')
-          if [[ "${repo_dependencies[*]}" != "" ]]; then
-            parallel --halt now,fail=1 oras pull "ghcr.io/${repository}/{}:latest-${target_branch}" -o repo ::: "${repo_dependencies[@]}"
+            mkdir -p repo          
             docker run --rm \
               --cap-drop all \
               --network none \
@@ -169,14 +184,13 @@ jobs:
               -w /work \
               ghcr.io/solopasha/kde6-copr/buildroot:latest \
               createrepo_c .
-          fi
 
       - name: Fetch build deps (PR)
         if: github.event_name == 'pull_request'
         env:
           pr_number: ${{ github.event.number }}
         run: |
-          mkdir pr-repo
+          mkdir -p pr-repo
           if [[ "${gear}" == "true" ]]; then
             workflow_file=".github/workflows/packages-gear.yml"
           else
@@ -237,38 +251,38 @@ jobs:
         run: |
           echo "container_tag=$(echo "${version_release}" | sed 's/\^/_post_/;s/\~/_pre_/')" >> $GITHUB_ENV
 
-      - name: Check NVR
-        run: |
-          if oras manifest fetch ghcr.io/${repository}/${pkgname,,}:${container_tag} &> /dev/null; then
-            echo "NVR already exists"
-            exit 1
-          fi
-          latest_version="$(oras manifest fetch ghcr.io/${repository}/${pkgname,,}:latest-${target_branch} | jq -r '.annotations."rpm.version"')"
-          if [[ -n "${latest_version}" ]]; then
-            export latest_version
-            docker run --rm \
-              --cap-drop all \
-              --network none \
-              --entrypoint="" \
-              -e latest_version \
-              -e version_release \
-              ghcr.io/solopasha/kde6-copr/buildroot:latest \
-              /bin/bash -c '
-                rpmdev-vercmp "${latest_version}" "${version_release}" || ec=$?
-                case $ec in
-                    11) echo "NVR went backwards"; exit 1 ;;
-                    12) ;;
-                    *) exit 1
-                esac
-              '
-          fi
+      # - name: Check NVR
+      #   run: |
+      #     if oras manifest fetch ghcr.io/${repository}/${pkgname,,}:${container_tag} &> /dev/null; then
+      #       echo "NVR already exists"
+      #       exit 1
+      #     fi
+      #     latest_version="$(oras manifest fetch ghcr.io/${repository}/${pkgname,,}:latest-${target_branch} | jq -r '.annotations."rpm.version"')"
+      #     if [[ -n "${latest_version}" ]]; then
+      #       export latest_version
+      #       docker run --rm \
+      #         --cap-drop all \
+      #         --network none \
+      #         --entrypoint="" \
+      #         -e latest_version \
+      #         -e version_release \
+      #         ghcr.io/solopasha/kde6-copr/buildroot:latest \
+      #         /bin/bash -c '
+      #           rpmdev-vercmp "${latest_version}" "${version_release}" || ec=$?
+      #           case $ec in
+      #               11) echo "NVR went backwards"; exit 1 ;;
+      #               12) ;;
+      #               *) exit 1
+      #           esac
+      #         '
+      #     fi
 
       - name: Download sources
         env:
           max_retries: 10
           sleep_seconds: 10
         run: |
-          mkdir "${GITHUB_WORKSPACE}/sources"
+          mkdir -p "${GITHUB_WORKSPACE}/sources"
           docker run --rm \
             --cap-drop all \
             --entrypoint="" \
@@ -303,28 +317,9 @@ jobs:
             '
           find sources -type f -exec mv -t "$(dirname "${spec}")" {} +
 
-      - name: Wait builds
-        if: >-
-          ${{
-            !contains(github.event.head_commit.message, '[skip copr]') &&
-            (
-              github.event_name == 'push' ||
-              github.event_name == 'workflow_dispatch'
-            ) &&
-            steps.gear.outputs.gear != 'true'
-          }}
-        env:
-          DEPS: ${{ inputs.deps }}
-        run: |
-          mapfile -t buildids < <(jq -r '.[].outputs.copr_build_id | values' <<< "$DEPS")
-          if [[ "${buildids[*]}" != "" ]]; then
-          docker run --rm \
-            --cap-drop all \
-            ghcr.io/solopasha/kde6-copr/buildroot:latest \
-            copr watch-build "${buildids[@]}"
-          fi
-
       - name: Create buildroot
+        env:
+          deps: ${{ inputs.deps }}
         run: |
           buildah from -q --retry 15 --retry-delay 5s --name build \
             -v "${GITHUB_WORKSPACE}/fedora-build.repo:/etc/yum.repos.d/fedora-build.repo:ro" \
@@ -332,15 +327,17 @@ jobs:
             -v "${GITHUB_WORKSPACE}/dnf.conf:/etc/dnf/dnf.conf:ro" \
             -v "${GITHUB_WORKSPACE}/repo:/repo:ro" \
             -v "${GITHUB_WORKSPACE}/pr-repo:/pr-repo:ro" \
-            registry.fedoraproject.org/fedora:${{ vars.RELEASEVER }}
-          buildah run -e "pkgname=${pkgname}" build /usr/bin/bash <<'EOF'
+            registry.fedoraproject.org/fedora:${target_distribution}
+          buildah run -e "pkgname=${pkgname}" -e "deps=${deps}" build /usr/bin/bash <<'EOF'
           set -e
           useradd -M -u 1001 builduser
           mkdir /out && chown builduser:builduser /out
           mkdir /build && chown builduser:builduser /build
           rm -f /etc/yum.repos.d/fedora-cisco-openh264.repo
-          dnf -y --disablerepo=updates --disablerepo=fedora install kf6-srpm-macros
           dnf -y install nosync
+          if [[ "${deps}" =~ "kf6" ]]; then
+            dnf -y --disablerepo=updates --disablerepo=fedora install kf6-srpm-macros
+          fi
           LD_PRELOAD=/usr/lib64/nosync/nosync.so dnf -y install @buildsys-build 'dnf5-command(builddep)' ${{ inputs.additional_packages }}
           LD_PRELOAD=/usr/lib64/nosync/nosync.so dnf -y builddep --allowerasing --no-allow-downgrade /work/${pkgname}.spec
           while [[ "$ec" != "0" ]]; do
@@ -395,30 +392,30 @@ jobs:
                 --define "_rpmdir /out" \
                 --define "_rpmfilename %%{NAME}-%%{VERSION}-%%{RELEASE}.%%{ARCH}.rpm" \
                 --define "_topdir /build" \
-                --define "dist .fc${{ vars.RELEASEVER }}" \
+                --define "dist .${{ inputs.target_distribution }}" \
                 --define "vendor ${repository_owner}"
             '
           rm "${GITHUB_WORKSPACE}/${pkgname}-resultdir"/*.src.rpm
 
-      - name: Sign
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        env:
-          repository_owner: ${{ github.repository_owner }}
-        run: |
-          docker run --rm \
-            --cap-drop all \
-            --network none \
-            --entrypoint="" \
-            -v "${GITHUB_WORKSPACE}/${pkgname}-resultdir:/work" \
-            --tmpfs /home/builduser/.gnupg:uid=1001,gid=1001,mode=0700 \
-            -w /work \
-            -e GPGKEY \
-            -e repository_owner \
-            ghcr.io/solopasha/kde6-copr/buildroot:latest \
-            /bin/bash -c '
-              echo "${GPGKEY}" | gpg --import
-              rpm -D "%_gpg_name ${repository_owner}" --addsign ./*.rpm
-            '
+      # - name: Sign
+      #   if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+      #   env:
+      #     repository_owner: ${{ github.repository_owner }}
+      #   run: |
+      #     docker run --rm \
+      #       --cap-drop all \
+      #       --network none \
+      #       --entrypoint="" \
+      #       -v "${GITHUB_WORKSPACE}/${pkgname}-resultdir:/work" \
+      #       --tmpfs /home/builduser/.gnupg:uid=1001,gid=1001,mode=0700 \
+      #       -w /work \
+      #       -e GPGKEY \
+      #       -e repository_owner \
+      #       ghcr.io/solopasha/kde6-copr/buildroot:latest \
+      #       /bin/bash -c '
+      #         echo "${GPGKEY}" | gpg --import
+      #         rpm -D "%_gpg_name ${repository_owner}" --addsign ./*.rpm
+      #       '
 
       - name: Handle debuginfo
         if: steps.arch.outputs.arch != 'noarch'
