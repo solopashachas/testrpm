@@ -1,0 +1,71 @@
+name: Prune old results
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '35 6 * * *'
+
+jobs:
+  prune-registry:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    concurrency:
+      group: repo-prune
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Prune
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPOSITORY: ${{ github.event.repository.name }}
+          REPOSITORY_OWNER: ${{ github.repository_owner }}
+        run: |
+          bash prune.sh
+
+  prune-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    concurrency:
+      group: release-prune
+      cancel-in-progress: true
+    container:
+      image: ghcr.io/solopashachas/testrpm/buildroot:latest
+
+    steps:
+      - name: Get packages to prune
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          for tag in unstable{,-debuginfo}; do
+            dnf -q \
+              --repofrompath="solopashachas,https://solopashachas.github.io/testrpm/${tag}" \
+              --repo=solopashachas rq --location | parallel basename | sort -u > "repo_packages_${tag}.list"
+            gh release view "${tag}" \
+              -R ${{ github.repository }} \
+              --json assets \
+              -q '.assets[].name' | grep -v 'testrpm-.*.repo\|packages.txt' | sort -u > "released_packages_${tag}.list"
+            comm -13 "repo_packages_${tag}.list" "released_packages_${tag}.list" > "prune_${tag}.list"
+          done
+
+      - name: Prune
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mapfile -t rpms < prune_unstable.list
+          for rpm in "${rpms[@]}"; do
+            echo "Deleting ${rpm}"
+            gh release delete-asset unstable "${rpm}" -R ${{ github.repository }} -y
+          done
+          mapfile -t rpms_debug < prune_unstable-debuginfo.list
+          for rpm in "${rpms_debug[@]}"; do
+            echo "Deleting ${rpm}"
+            gh release delete-asset unstable-debuginfo "${rpm}" -R ${{ github.repository }} -y
+          done
