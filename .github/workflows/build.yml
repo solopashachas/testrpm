@@ -458,24 +458,6 @@ jobs:
               python3 /check-abi.py --old old --new new --suppressions /check-abi-suppressions.json
             '
 
-      - name: Wait for the build in Copr to finish
-        if: >-
-          ${{
-            !contains(github.event.head_commit.message, '[skip copr]') &&
-            (
-              github.event_name == 'push' ||
-              github.event_name == 'workflow_dispatch'
-            ) &&
-            steps.gear.outputs.gear != 'true'
-          }}
-        env:
-          copr_build_id: ${{ steps.copr.outputs.buildid }}
-        run: |
-          docker run --rm \
-            --cap-drop all \
-            ghcr.io/solopasha/kde6-copr/buildroot:latest \
-            copr watch-build "${copr_build_id}"
-
       - name: Upload build results
         if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         env:
