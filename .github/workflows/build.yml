@@ -16,7 +16,7 @@ on:
       ref:
         required: false
         type: string
-      pr_num:
+      pr_number:
         required: false
         type: string
       reclaim:
