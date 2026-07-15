@@ -189,6 +189,7 @@ jobs:
           pr_number: ${{ inputs.pr_number }}
           deps: ${{ inputs.deps }}
         run: |
+          mkdir -p pr-repo
           if [[ "${deps}" != "" ]]; then
             download_dep () {
               if oras manifest fetch "ghcr.io/${repository}/$1:pr-${pr_number}" &> /dev/null; then
