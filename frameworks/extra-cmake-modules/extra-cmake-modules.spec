@@ -5,8 +5,8 @@
 %global framework extra-cmake-modules
 
 Name:           extra-cmake-modules
-Version:        6.28.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
-Release:        2%{?dist}
+Version:        6.20.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Release:        1%{?dist}
 Summary:        Extra modules and scripts for CMake
 
 License:        BSD-2-Clause AND BSD-3-Clause AND CC0-1.0 AND GPL-2.0-or-later AND MIT

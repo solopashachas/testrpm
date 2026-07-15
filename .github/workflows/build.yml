@@ -184,7 +184,7 @@ jobs:
               createrepo_c .
 
       - name: Fetch build deps (PR)
-        if: github.event_name == 'pull_request'
+        if: inputs.pr_number != ''
         env:
           pr_number: ${{ inputs.pr_number }}
           deps: ${{ inputs.deps }}
@@ -390,7 +390,7 @@ jobs:
           rm "${GITHUB_WORKSPACE}/${pkgname}-resultdir"/*.src.rpm
 
       # - name: Sign
-      #   if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+      #   if: inputs.pr_number == ''
       #   env:
       #     repository_owner: ${{ github.repository_owner }}
       #   run: |
@@ -419,7 +419,7 @@ jobs:
           fi
 
       - name: Check ABI
-        if: ${{  steps.arch.outputs.arch != 'noarch' && inputs.abidiff != false }}
+        if: ${{ steps.arch.outputs.arch != 'noarch' && inputs.abidiff != false }}
         continue-on-error: true
         run: |
           mkdir -p abi_check
@@ -448,7 +448,7 @@ jobs:
             '
 
       - name: Upload build results
-        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        if: inputs.pr_number == ''
         env:
           max_retries: 7
           sleep_seconds: 7
@@ -473,7 +473,7 @@ jobs:
           exit 1
 
       - name: Upload build results (PR)
-        if: github.event_name == 'pull_request'
+        if: inputs.pr_number != ''
         env:
           pr_number: ${{ github.event.number }}
           max_retries: 7
