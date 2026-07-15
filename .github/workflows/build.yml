@@ -14,9 +14,12 @@ on:
         required: true
         type: string
       ref:
-        required: false
+        required: true
         type: string
       pr_number:
+        required: false
+        type: string
+      branch:
         required: false
         type: string
       reclaim:
@@ -76,14 +79,14 @@ jobs:
 
       - name: Determine target branch and distro
         env:
-          pr_ref: ${{ github.event.pull_request.base.ref }}
-          ref: ${{ github.ref_name }}
+          pr_number: ${{ inputs.pr_number }}
+          branch: ${{ inputs.branch }}
           target_distribution: ${{ inputs.target_distribution }}
         run: |
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            branch="${pr_ref}"
+          if [[ "${pr_number}" != "" ]]; then
+            branch="pr-${pr_number}"
           else
-            branch="${ref}"
+            branch="${branch}"
           fi
 
           if [[ "${branch}" == "unstable" || "${branch}" == "beta" ]]; then
@@ -121,6 +124,7 @@ jobs:
       - name: Configs
         env:
           gear: ${{ steps.gear.outputs.gear }}
+          pr_number: ${{ inputs.pr_number }}
         run: |
 
           cat << 'EOF' > dnf.conf
@@ -150,7 +154,7 @@ jobs:
           priority=97
           EOF
 
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          if [[ "${pr_number}" != "" ]]; then
           cat << 'EOF' >> fedora-build.repo
           [pr-build]
           name=pr-build
@@ -165,11 +169,10 @@ jobs:
           fi
 
       - name: Set up ORAS
-        uses: oras-project/setup-oras@8d34698a59f5ffe24821f0b48ab62a3de8b64b20
+        uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d
 
       - name: Fetch build deps
         env:
-          gear: ${{ steps.gear.outputs.gear }}
           deps: ${{ inputs.deps }}
         run: |
           if [[ "${deps}" != "" ]]; then
@@ -188,23 +191,17 @@ jobs:
       - name: Fetch build deps (PR)
         if: github.event_name == 'pull_request'
         env:
-          pr_number: ${{ github.event.number }}
+          pr_number: ${{ inputs.pr_number }}
+          deps: ${{ inputs.deps }}
         run: |
-          mkdir -p pr-repo
-          if [[ "${gear}" == "true" ]]; then
-            workflow_file=".github/workflows/packages-gear.yml"
-          else
-            workflow_file=".github/workflows/packages.yml"
-          fi
-          mapfile -t repo_dependencies < <(bash needs.sh "${pkgname}" "${workflow_file}" | sed '/changed-files/d' | tr '[:upper:]' '[:lower:]')
-          if [[ "${repo_dependencies[*]}" != "" ]]; then
+          if [[ "${deps}" != "" ]]; then
             download_dep () {
               if oras manifest fetch "ghcr.io/${repository}/$1:pr-${pr_number}" &> /dev/null; then
                 oras pull "ghcr.io/${repository}/$1:pr-${pr_number}" -o pr-repo
               fi
             }
             export -f download_dep
-            parallel --halt now,fail=1 download_dep ::: "${repo_dependencies[@]}"
+            parallel --halt now,fail=1 download_dep ::: ${deps}
           fi
           docker run --rm \
               --cap-drop all \
@@ -427,7 +424,7 @@ jobs:
           fi
 
       - name: Check ABI
-        if: ${{ !contains(github.event.head_commit.message, '[skip abi]') && steps.arch.outputs.arch != 'noarch' && inputs.abidiff != false }}
+        if: ${{  steps.arch.outputs.arch != 'noarch' && inputs.abidiff != false }}
         continue-on-error: true
         run: |
           mkdir -p abi_check
