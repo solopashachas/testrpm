@@ -88,12 +88,7 @@ jobs:
           else
             branch="${branch}"
           fi
-
-          if [[ "${branch}" == "unstable" || "${branch}" == "beta" ]]; then
-            echo "target_branch=${branch}" >> $GITHUB_ENV
-          else
-            exit 1
-          fi
+          echo "target_branch=${branch}" >> $GITHUB_ENV
 
           target_distribution="${target_distribution#fc}"
           echo "target_distribution=${target_distribution}" >> $GITHUB_ENV
