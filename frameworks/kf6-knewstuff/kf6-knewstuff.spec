@@ -1,11 +1,11 @@
-%global commit0 698b2bc5662596540993b388dad1abdc2f279ee4
+%global commit0 e16dde52e5516176713f45fcf97a6003208f5d52
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 1
 
 %global framework knewstuff
 
 Name:           kf6-%{framework}
-Version:        6.20.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.29.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 3 module for downloading application assets
 License:        BSD-2-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-3.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND LGPL-3.0-only AND LicenseRef-KDE-Accepted-GPL AND LicenseRef-KDE-Accepted-LGPL

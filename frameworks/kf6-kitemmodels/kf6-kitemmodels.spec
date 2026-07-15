@@ -1,11 +1,11 @@
-%global commit0 e8b9fc97a99f33b9d8070c3913151644657d15cc
+%global commit0 4a68abcc689fc75ad104337eb4495c2956fc2827
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 1
 
 %global framework kitemmodels
 
 Name:           kf6-%{framework}
-Version:        6.20.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.29.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 1 addon with item models
 

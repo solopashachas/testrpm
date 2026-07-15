@@ -1,11 +1,11 @@
-%global commit0 ef6bc421dac2b55755cdd427cdae1f89bb0447ab
+%global commit0 db1b27947881725d3742eb4558948815002db6db
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 %global framework kded
 
 Name:           kf6-%{framework}
-Version:        6.20.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.29.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 3 addon with extensible daemon for system-level services
 

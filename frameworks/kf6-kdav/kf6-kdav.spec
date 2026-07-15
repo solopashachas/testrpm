@@ -1,11 +1,11 @@
-%global commit0 010845492ccb2c8b2f944cc312f1454833b982e7
+%global commit0 8cf0792c649f7123a065990b570fb8ab95f787ba
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 %global framework kdav
 
 Name:           kf6-%{framework}
-Version:        6.20.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.29.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        A DAV protocol implementation with KJobs
 
