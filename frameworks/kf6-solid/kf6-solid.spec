@@ -1,6 +1,6 @@
-%global commit0 2ec1e0efbcea24150c7b4392e2276b4d1a7a1bee
+%global commit0 13de1d863c7dd52d20ebcfad8c88943685b9e870
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 3
 
 %global framework solid
 

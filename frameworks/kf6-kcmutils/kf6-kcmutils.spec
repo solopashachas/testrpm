@@ -1,6 +1,6 @@
-%global commit0 64793d85e45fff3b074209f7f424099ed04c8229
+%global commit0 3699adf6856c64489a90b0006583fe70e288aa81
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 3
 
 %global framework kcmutils
 
@@ -19,8 +19,10 @@ BuildRequires:  cmake(KF6GuiAddons)
 BuildRequires:  cmake(KF6I18n)
 BuildRequires:  cmake(KF6ItemViews)
 BuildRequires:  cmake(KF6KIO)
+BuildRequires:  cmake(KF6KirigamiAddons)
 BuildRequires:  cmake(KF6WidgetsAddons)
 BuildRequires:  cmake(KF6XmlGui)
+BuildRequires:  qt6qml(org.kde.kirigami)
 
 BuildRequires:  cmake(Qt6Core)
 BuildRequires:  cmake(Qt6DBus)
@@ -29,6 +31,8 @@ BuildRequires:  cmake(Qt6Quick)
 BuildRequires:  cmake(Qt6QuickWidgets)
 BuildRequires:  cmake(Qt6Test)
 BuildRequires:  cmake(Qt6Widgets)
+
+Requires:       kf6-kirigami%{?_isa}
 
 %description
 KCMUtils provides various classes to work with KCModules. KCModules can be

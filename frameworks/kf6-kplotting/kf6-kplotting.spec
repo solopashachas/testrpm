@@ -1,6 +1,6 @@
 %global commit0 947d978a519257cb382024f964a726d8a13e70e1
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kplotting
 

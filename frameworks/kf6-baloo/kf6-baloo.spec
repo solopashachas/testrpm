@@ -1,6 +1,6 @@
-%global commit0 f7f37bdf41e2c9367882f9edb51318becd62849d
+%global commit0 22a1714ca1f2aad94dc3fbb85184082402cdc436
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 3
 
 %global framework baloo
 
@@ -100,6 +100,7 @@ cat baloo_file6.lang baloo_file_extractor6.lang \
 
 %files libs
 %license LICENSES/*
+%{_kf6_datadir}/config.kcfg/baloosettings.kcfg
 %{_kf6_libdir}/libKF6Baloo.so.%{version_no_git}
 %{_kf6_libdir}/libKF6Baloo.so.6
 %{_kf6_libdir}/libKF6BalooEngine.so.%{version_no_git}

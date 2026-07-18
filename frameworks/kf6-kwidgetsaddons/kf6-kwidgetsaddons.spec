@@ -1,6 +1,6 @@
-%global commit0 7742c65cb1e8a979c5146361d5a714fc3c0d5d4b
+%global commit0 1078245d95a3cb9e9526b218273ad9264157b0f7
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 3
 
 %global framework kwidgetsaddons
 
@@ -35,6 +35,8 @@ developing applications that use %{name}.
 %{_kf6_libdir}/libKF6WidgetsAddons.so.6
 
 %files devel
+%{_includedir}/PySide6/KWidgetsAddons/kwidgetsaddons_python.h
+%{_kf6_datadir}/PySide6/typesystems/typesystem_kwidgetsaddons.xml
 %{_kf6_includedir}/KWidgetsAddons/
 %{_kf6_libdir}/cmake/KF6WidgetsAddons/
 %{_kf6_libdir}/libKF6WidgetsAddons.so

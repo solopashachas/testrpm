@@ -1,6 +1,6 @@
 %global commit0 179675bea0eb11edb3bcf6c09998050193462ab9
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kpty
 

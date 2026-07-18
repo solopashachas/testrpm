@@ -1,6 +1,6 @@
-%global commit0 75e722826ada4b4c4ed9bbcb021859866a41fbe9
+%global commit0 973a52a4a8d7a25b7ac46c158ed4c88a89d4afb0
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 4
 
 %global framework karchive
 
@@ -42,6 +42,7 @@ developing applications that use %{name}.
 %{_kf6_includedir}/KArchive/
 %{_kf6_libdir}/cmake/KF6Archive/
 %{_kf6_libdir}/libKF6Archive.so
+%{_kf6_libdir}/pkgconfig/KF6Archive.pc
 
 %changelog
 %{?kde_snapshot_changelog_entry}

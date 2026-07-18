@@ -1,6 +1,6 @@
-%global commit0 1fe0ab5ecd01e958081c20b24de697cca31f5403
+%global commit0 5b9ccd793e31f2a6e4034161ba0e79850b756215
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 4
 
 %global framework kconfig
 
@@ -55,6 +55,7 @@ developing applications that use %{name}.
 %{_kf6_libdir}/libKF6ConfigCore.so
 %{_kf6_libdir}/libKF6ConfigGui.so
 %{_kf6_libdir}/libKF6ConfigQml.so
+%{_qt6_metatypesdir}/qt6kf6config*_metatypes.json
 
 %changelog
 %{?kde_snapshot_changelog_entry}

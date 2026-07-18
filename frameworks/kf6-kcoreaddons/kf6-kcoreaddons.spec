@@ -1,6 +1,6 @@
-%global commit0 5b30bd9e081cbc32bb5f1044eaa0a80dbf3b0e8f
+%global commit0 0a767016dbb83cc8423037a084ab9fc0c45eb0da
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 3
 
 %global framework kcoreaddons
 
@@ -17,6 +17,7 @@ BuildRequires:  cmake(Qt6DBus)
 BuildRequires:  cmake(Qt6Network)
 BuildRequires:  cmake(Qt6Qml)
 
+BuildRequires:  pkgconfig(mount)
 BuildRequires:  pkgconfig(libudev)
 
 %description
@@ -52,6 +53,7 @@ developing applications that use %{name}.
 %{_kf6_libdir}/cmake/KF6CoreAddons/
 %{_kf6_libdir}/libKF6CoreAddons.so
 %{_kf6_libdir}/pkgconfig/KF6CoreAddons.pc
+%{_qt6_metatypesdir}/qt6kf6coreaddons_metatypes.json
 
 %changelog
 %{?kde_snapshot_changelog_entry}

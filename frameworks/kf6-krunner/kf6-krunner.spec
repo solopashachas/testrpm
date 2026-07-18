@@ -1,6 +1,6 @@
 %global commit0 d1c5769a0d28c8a985ea7c65ff119929a1159a80
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework krunner
 
@@ -47,6 +47,7 @@ developing applications that use %{name}.
 %{_kf6_includedir}/KRunner/
 %{_kf6_libdir}/cmake/KF6Runner/
 %{_kf6_libdir}/libKF6Runner.so
+%{_qt6_metatypesdir}/qt6kf6runner_metatypes.json
 
 %changelog
 %{?kde_snapshot_changelog_entry}

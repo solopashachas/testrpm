@@ -1,6 +1,6 @@
-%global commit0 b7ee0958e7ffb608db355c6b38c8935840ce502e
+%global commit0 16775a41f7f74bfaa4aa7fb9bf62e6aabbfc60f7
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 3
 
 %global framework kguiaddons
 
@@ -51,7 +51,8 @@ developing applications that use %{name}.
 %{_kf6_includedir}/KGuiAddons/
 %{_kf6_libdir}/cmake/KF6GuiAddons/
 %{_kf6_libdir}/libKF6GuiAddons.so
-%{_kf6_libdir}/pkgconfig/KF6GuiAddons.pc
+%{_kf6_libdir}/pkgconfig/KF6GuiAddons.pc	
+%{_qt6_metatypesdir}/qt6kf6guiaddons_metatypes.json
 
 %changelog
 %{?kde_snapshot_changelog_entry}

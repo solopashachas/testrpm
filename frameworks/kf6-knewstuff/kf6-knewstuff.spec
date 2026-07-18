@@ -1,6 +1,6 @@
 %global commit0 e16dde52e5516176713f45fcf97a6003208f5d52
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework knewstuff
 

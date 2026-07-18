@@ -1,6 +1,6 @@
-%global commit0 42287816e3294e3239421c30da11f43f829d18ae
+%global commit0 da8c22add61cc0f3b52f456bb2d447b5b1572836
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 3
 
 %global framework kirigami
 
@@ -48,10 +48,20 @@ developing applications that use %{name}.
 %{_kf6_datadir}/qlogging-categories6/kirigami.categories
 %{_kf6_libdir}/libKirigami.so.%{version_no_git}
 %{_kf6_libdir}/libKirigami.so.6
+%{_kf6_libdir}/libKirigamiControls.so.%{version_no_git}
+%{_kf6_libdir}/libKirigamiControls.so.6
 %{_kf6_libdir}/libKirigamiDelegates.so.%{version_no_git}
 %{_kf6_libdir}/libKirigamiDelegates.so.6
 %{_kf6_libdir}/libKirigamiDialogs.so.%{version_no_git}
 %{_kf6_libdir}/libKirigamiDialogs.so.6
+%{_kf6_libdir}/libKirigamiForms.so.%{version_no_git}
+%{_kf6_libdir}/libKirigamiForms.so.6
+%{_kf6_libdir}/libKirigamiFormsPrivateCards.so.%{version_no_git}
+%{_kf6_libdir}/libKirigamiFormsPrivateCards.so.6
+%{_kf6_libdir}/libKirigamiFormsPrivateFlat.so.%{version_no_git}
+%{_kf6_libdir}/libKirigamiFormsPrivateFlat.so.6
+%{_kf6_libdir}/libKirigamiFormsPrivateTemplates.so.%{version_no_git}
+%{_kf6_libdir}/libKirigamiFormsPrivateTemplates.so.6
 %{_kf6_libdir}/libKirigamiLayouts.so.%{version_no_git}
 %{_kf6_libdir}/libKirigamiLayouts.so.6
 %{_kf6_libdir}/libKirigamiLayoutsPrivate.so.%{version_no_git}
@@ -75,8 +85,13 @@ developing applications that use %{name}.
 %{_kf6_libdir}/cmake/KF6Kirigami2/
 %{_kf6_libdir}/cmake/KF6KirigamiPlatform/
 %{_kf6_libdir}/libKirigami.so
+%{_kf6_libdir}/libKirigamiControls.so
 %{_kf6_libdir}/libKirigamiDelegates.so
 %{_kf6_libdir}/libKirigamiDialogs.so
+%{_kf6_libdir}/libKirigamiForms.so
+%{_kf6_libdir}/libKirigamiFormsPrivateCards.so
+%{_kf6_libdir}/libKirigamiFormsPrivateFlat.so
+%{_kf6_libdir}/libKirigamiFormsPrivateTemplates.so
 %{_kf6_libdir}/libKirigamiLayouts.so
 %{_kf6_libdir}/libKirigamiLayoutsPrivate.so
 %{_kf6_libdir}/libKirigamiPlatform.so
@@ -84,6 +99,7 @@ developing applications that use %{name}.
 %{_kf6_libdir}/libKirigamiPrimitives.so
 %{_kf6_libdir}/libKirigamiPrivate.so
 %{_kf6_libdir}/libKirigamiTemplates.so
+%{_qt6_metatypesdir}/qt6kirigamiplatform_metatypes.json
 
 %changelog
 %{?kde_snapshot_changelog_entry}
