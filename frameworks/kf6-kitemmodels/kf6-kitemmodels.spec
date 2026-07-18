@@ -1,6 +1,6 @@
 %global commit0 4a68abcc689fc75ad104337eb4495c2956fc2827
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kitemmodels
 

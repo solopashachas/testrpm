@@ -1,6 +1,6 @@
-%global commit0 28a8a8d62e3abd5be10aa5bee797c17c54b4415e
+%global commit0 ff8f452e7779228bbce5e8be2158c02b12b706e6
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 3
 
 %global framework kcalendarcore
 
@@ -30,6 +30,8 @@ Requires:       cmake(Qt6Gui)
 The %{name}-devel package contains libraries and header files for
 developing applications that use %{name}.
 
+%kf6_python_bindings_package
+
 %files
 %license LICENSES/*.txt
 %{_kf6_datadir}/qlogging-categories6/*kcalendarcore.*
@@ -38,6 +40,8 @@ developing applications that use %{name}.
 %{_kf6_qmldir}/org/kde/calendarcore/
 
 %files devel
+%{_includedir}/PySide6/KCalendarCore/kcalendarcore_python.h
+%{_kf6_datadir}/PySide6/typesystems/typesystem_kcalendarcore.xml
 %{_kf6_includedir}/KCalendarCore/
 %{_kf6_libdir}/cmake/KF6CalendarCore/
 %{_kf6_libdir}/libKF6CalendarCore.so

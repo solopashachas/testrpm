@@ -1,6 +1,6 @@
 %global commit0 b966bcca24bcd8abe2b7b07a59a83e1195f38091
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kdoctools
 

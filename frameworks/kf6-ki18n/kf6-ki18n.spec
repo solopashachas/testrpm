@@ -1,6 +1,6 @@
 %global commit0 3a8584bccb98b7dd78b1bc2b2697cdcbbbd6d754
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework ki18n
 
@@ -46,6 +46,7 @@ developing applications that use %{name}.
 %{_kf6_libdir}/libKF6I18nQml.so.%{version_no_git}
 %{_kf6_libdir}/libKF6I18nQml.so.6
 %{_kf6_qmldir}/org/kde/i18n/
+%{_kf6_qmldir}/org/kde/ki18n/
 %{_kf6_qtplugindir}/kf6/ktranscript.so
 %lang(ca) %{_datadir}/locale/ca/LC_SCRIPTS/ki18n6/
 %lang(ca@valencia) %{_datadir}/locale/ca@valencia/LC_SCRIPTS/ki18n6/

@@ -1,6 +1,6 @@
 %global commit0 566f513495aa7c9181d1996d65f9d63d7b89d1be
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kauth
 

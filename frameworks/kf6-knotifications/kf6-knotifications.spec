@@ -1,6 +1,6 @@
-%global commit0 e3a7c3efe0bd43876bd1b73b64469de87561b180
+%global commit0 88cd2e2bb4093a77389e6ba92db03edbf510137c
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 3
 
 %global framework knotifications
 
@@ -39,7 +39,7 @@ developing applications that use %{name}.
 # We own the folder
 mkdir -p %{buildroot}/%{_kf6_datadir}/knotifications6
 
-%files -f knotifications6_qt.lang
+%files
 %doc README.md
 %license LICENSES/*.txt
 %{_kf6_datadir}/qlogging-categories6/%{framework}.*

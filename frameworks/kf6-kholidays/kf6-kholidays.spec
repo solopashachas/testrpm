@@ -1,6 +1,6 @@
 %global commit0 931637d9d94cc9ff679ab58e0e4d22789866ac3f
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kholidays
 
@@ -15,6 +15,9 @@ URL:            https://invent.kde.org/frameworks/%{framework}
 
 BuildRequires:  cmake(Qt6Core)
 BuildRequires:  cmake(Qt6Qml)
+	
+BuildRequires:  bison
+BuildRequires:  flex
 
 %description
 The KHolidays library provides a C++ API that determines holiday
