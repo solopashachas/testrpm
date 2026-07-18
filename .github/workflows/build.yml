@@ -20,7 +20,7 @@ on:
         required: false
         type: string
       branch:
-        required: false
+        required: true
         type: string
       reclaim:
         required: false
@@ -79,15 +79,9 @@ jobs:
 
       - name: Determine target branch and distro
         env:
-          pr_number: ${{ inputs.pr_number }}
           branch: ${{ inputs.branch }}
           target_distribution: ${{ inputs.target_distribution }}
         run: |
-          if [[ "${pr_number}" != "" ]]; then
-            branch="pr-${pr_number}"
-          else
-            branch="${branch}"
-          fi
           echo "target_branch=${branch}" >> $GITHUB_ENV
 
           target_distribution="${target_distribution#fc}"
