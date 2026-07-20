@@ -165,7 +165,7 @@ jobs:
           deps: ${{ inputs.deps }}
         run: |
           if [[ "${deps}" != "" ]]; then
-            parallel --halt now,fail=1 oras pull "ghcr.io/${repository}/{}:latest-${target_branch}" -o repo ::: ${deps}
+            parallel oras pull "ghcr.io/${repository}/{}:latest-${target_branch}" -o repo ::: ${deps} || :
           fi
             mkdir -p repo          
             docker run --rm \
