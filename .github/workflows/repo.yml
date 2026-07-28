@@ -99,14 +99,10 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         run: |
           dnf repoclosure \
-            --disablerepo=copr:copr.fedorainfracloud.org:solopasha:playground \
-            --disablerepo=copr:copr.fedorainfracloud.org:solopasha:plasma-unstable \
             --repofrompath=n,repo/${repository}/ \
             --check n --newest
 
           dnf repoclosure \
-            --disablerepo=copr:copr.fedorainfracloud.org:solopasha:playground \
-            --disablerepo=copr:copr.fedorainfracloud.org:solopasha:plasma-unstable \
             --repofrompath=n,repo/${repository}/ \
             --check n --newest --best
 
@@ -114,15 +110,11 @@ jobs:
         if: github.event_name == 'workflow_run'
         run: |
           dnf repoclosure \
-            --disablerepo=copr:copr.fedorainfracloud.org:solopasha:playground \
-            --disablerepo=copr:copr.fedorainfracloud.org:solopasha:plasma-unstable \
             --repofrompath=o,https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${branch}/ \
             --repofrompath=n,repo/${repository}/ \
             --check n --newest
 
           dnf repoclosure \
-            --disablerepo=copr:copr.fedorainfracloud.org:solopasha:playground \
-            --disablerepo=copr:copr.fedorainfracloud.org:solopasha:plasma-unstable \
             --repofrompath=o,https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/${branch}/ \
             --repofrompath=n,repo/${repository}/ \
             --check n --newest --best
@@ -167,7 +159,7 @@ jobs:
           type=rpm-md
           skip_if_unavailable=True
           gpgcheck=1
-          gpgkey=https://raw.githubusercontent.com/solopashachas/kde-master/refs/heads/unstable/RPM-GPG-KEY-solopashachas
+          gpgkey=https://raw.githubusercontent.com/solopashachas/testrpm/refs/heads/unstable/RPM-GPG-KEY-solopashachas
           repo_gpgcheck=0
           enabled=1
           enabled_metadata=1
@@ -179,7 +171,7 @@ jobs:
           type=rpm-md
           skip_if_unavailable=True
           gpgcheck=1
-          gpgkey=https://raw.githubusercontent.com/solopashachas/kde-master/refs/heads/unstable/RPM-GPG-KEY-solopashachas
+          gpgkey=https://raw.githubusercontent.com/solopashachas/testrpm/refs/heads/unstable/RPM-GPG-KEY-solopashachas
           repo_gpgcheck=0
           enabled=0
           enabled_metadata=0
@@ -191,7 +183,7 @@ jobs:
           type=rpm-md
           skip_if_unavailable=True
           gpgcheck=1
-          gpgkey=https://raw.githubusercontent.com/solopashachas/kde-master/refs/heads/unstable/RPM-GPG-KEY-solopashachas
+          gpgkey=https://raw.githubusercontent.com/solopashachas/testrpm/refs/heads/unstable/RPM-GPG-KEY-solopashachas
           repo_gpgcheck=0
           enabled=0
           enabled_metadata=0
@@ -203,7 +195,7 @@ jobs:
           type=rpm-md
           skip_if_unavailable=True
           gpgcheck=1
-          gpgkey=https://raw.githubusercontent.com/solopashachas/kde-master/refs/heads/unstable/RPM-GPG-KEY-solopashachas
+          gpgkey=https://raw.githubusercontent.com/solopashachas/testrpm/refs/heads/unstable/RPM-GPG-KEY-solopashachas
           repo_gpgcheck=0
           enabled=0
           enabled_metadata=0
@@ -217,7 +209,7 @@ jobs:
           type=rpm-md
           skip_if_unavailable=True
           gpgcheck=1
-          gpgkey=https://raw.githubusercontent.com/solopashachas/kde-master/refs/heads/unstable/RPM-GPG-KEY-solopashachas
+          gpgkey=https://raw.githubusercontent.com/solopashachas/testrpm/refs/heads/unstable/RPM-GPG-KEY-solopashachas
           repo_gpgcheck=0
           enabled=1
           enabled_metadata=1
@@ -229,7 +221,7 @@ jobs:
           type=rpm-md
           skip_if_unavailable=True
           gpgcheck=1
-          gpgkey=https://raw.githubusercontent.com/solopashachas/kde-master/refs/heads/unstable/RPM-GPG-KEY-solopashachas
+          gpgkey=https://raw.githubusercontent.com/solopashachas/testrpm/refs/heads/unstable/RPM-GPG-KEY-solopashachas
           repo_gpgcheck=0
           enabled=0
           enabled_metadata=0
@@ -241,7 +233,7 @@ jobs:
           type=rpm-md
           skip_if_unavailable=True
           gpgcheck=1
-          gpgkey=https://raw.githubusercontent.com/solopashachas/kde-master/refs/heads/unstable/RPM-GPG-KEY-solopashachas
+          gpgkey=https://raw.githubusercontent.com/solopashachas/testrpm/refs/heads/unstable/RPM-GPG-KEY-solopashachas
           repo_gpgcheck=0
           enabled=0
           enabled_metadata=0
@@ -253,7 +245,7 @@ jobs:
           type=rpm-md
           skip_if_unavailable=True
           gpgcheck=1
-          gpgkey=https://raw.githubusercontent.com/solopashachas/kde-master/refs/heads/unstable/RPM-GPG-KEY-solopashachas
+          gpgkey=https://raw.githubusercontent.com/solopashachas/testrpm/refs/heads/unstable/RPM-GPG-KEY-solopashachas
           repo_gpgcheck=0
           enabled=0
           enabled_metadata=0
