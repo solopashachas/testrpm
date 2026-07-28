@@ -135,8 +135,8 @@ jobs:
           name=build
           baseurl=file:///repo/
           skip_if_unavailable=True
-          gpgcheck=0
-          gpgkey=https://raw.githubusercontent.com/solopasha/kde6-copr/refs/heads/unstable/RPM-GPG-KEY-solopasha
+          gpgcheck=1
+          gpgkey=https://raw.githubusercontent.com/solopashachas/testrpm/refs/heads/unstable/RPM-GPG-KEY-solopashachas
           repo_gpgcheck=0
           enabled=1
           enabled_metadata=1
@@ -165,7 +165,7 @@ jobs:
           deps: ${{ inputs.deps }}
         run: |
           if [[ "${deps}" != "" ]]; then
-            parallel oras pull "ghcr.io/${repository}/{}:latest-${target_branch}" -o repo ::: ${deps} || :
+            parallel --halt now,fail=1 oras pull "ghcr.io/${repository}/{}:latest-${target_branch}" -o repo ::: ${deps} || :
           fi
             mkdir -p repo          
             docker run --rm \
@@ -174,7 +174,7 @@ jobs:
               --entrypoint="" \
               -v "${GITHUB_WORKSPACE}/repo:/work" \
               -w /work \
-              ghcr.io/solopasha/kde6-copr/buildroot:latest \
+              ghcr.io/solopashachas/testrpm/buildroot:latest \
               createrepo_c .
 
       - name: Fetch build deps (PR)
@@ -199,7 +199,7 @@ jobs:
               --entrypoint="" \
               -v "${GITHUB_WORKSPACE}/pr-repo:/work" \
               -w /work \
-              ghcr.io/solopasha/kde6-copr/buildroot:latest \
+              ghcr.io/solopashachas/testrpm/buildroot:latest \
               createrepo_c .
 
       - name: Get arch
@@ -212,7 +212,7 @@ jobs:
             -v "${GITHUB_WORKSPACE}/$(dirname "${spec}"):/work:ro" \
             -w /work \
             -e pkgname \
-            ghcr.io/solopasha/kde6-copr/buildroot:latest \
+            ghcr.io/solopashachas/testrpm/buildroot:latest \
             /bin/bash -c '
               rpmspec -q --srpm --qf '%{ARCH}' "${pkgname}.spec"
             ' > arch
@@ -228,7 +228,7 @@ jobs:
             -v "${GITHUB_WORKSPACE}/$(dirname "${spec}"):/work:ro" \
             -w /work \
             -e pkgname \
-            ghcr.io/solopasha/kde6-copr/buildroot:latest \
+            ghcr.io/solopashachas/testrpm/buildroot:latest \
             /bin/bash -c '
               rpmspec -q --srpm --qf '%{VERSION}-%{RELEASE}' "${pkgname}.spec"
             ' > version_release
@@ -253,7 +253,7 @@ jobs:
       #         --entrypoint="" \
       #         -e latest_version \
       #         -e version_release \
-      #         ghcr.io/solopasha/kde6-copr/buildroot:latest \
+      #         ghcr.io/solopashachas/testrpm/buildroot:latest \
       #         /bin/bash -c '
       #           rpmdev-vercmp "${latest_version}" "${version_release}" || ec=$?
       #           case $ec in
@@ -279,7 +279,7 @@ jobs:
             -e pkgname \
             -e max_retries \
             -e sleep_seconds \
-            ghcr.io/solopasha/kde6-copr/buildroot:latest \
+            ghcr.io/solopashachas/testrpm/buildroot:latest \
             /bin/bash -c '
               sourcetar="$(spectool --lf -s0 "${pkgname}.spec" | xargs -I ,, basename ,,)"
               if [[ ! "${sourcetar}" =~ \.tar(\..+)?$ ]]; then
@@ -384,25 +384,26 @@ jobs:
             '
           rm "${GITHUB_WORKSPACE}/${pkgname}-resultdir"/*.src.rpm
 
-      # - name: Sign
-      #   if: inputs.pr_number == ''
-      #   env:
-      #     repository_owner: ${{ github.repository_owner }}
-      #   run: |
-      #     docker run --rm \
-      #       --cap-drop all \
-      #       --network none \
-      #       --entrypoint="" \
-      #       -v "${GITHUB_WORKSPACE}/${pkgname}-resultdir:/work" \
-      #       --tmpfs /home/builduser/.gnupg:uid=1001,gid=1001,mode=0700 \
-      #       -w /work \
-      #       -e GPGKEY \
-      #       -e repository_owner \
-      #       ghcr.io/solopasha/kde6-copr/buildroot:latest \
-      #       /bin/bash -c '
-      #         echo "${GPGKEY}" | gpg --import
-      #         rpm -D "%_gpg_name ${repository_owner}" --addsign ./*.rpm
-      #       '
+      - name: Sign
+        if: inputs.pr_number == ''
+        env:
+          GPGKEY: ${{ secrets.gpgkey }}
+          repository_owner: 268826384+solopashachas@users.noreply.github.com
+        run: |
+          docker run --rm \
+            --cap-drop all \
+            --network none \
+            --entrypoint="" \
+            -v "${GITHUB_WORKSPACE}/${pkgname}-resultdir:/work" \
+            --tmpfs /home/builduser/.gnupg:uid=1001,gid=1001,mode=0700 \
+            -w /work \
+            -e GPGKEY \
+            -e repository_owner \
+            ghcr.io/solopashachas/testrpm/buildroot:latest \
+            /bin/bash -c '
+              echo "${GPGKEY}" | gpg --import
+              rpm -D "%_gpg_name ${repository_owner}" --addsign ./*.rpm
+            '
 
       - name: Handle debuginfo
         if: steps.arch.outputs.arch != 'noarch'
@@ -433,7 +434,7 @@ jobs:
             -v "${GITHUB_WORKSPACE}/abi_check:/work" \
             -w /work \
             -e pkgname \
-            ghcr.io/solopasha/kde6-copr/buildroot:latest \
+            ghcr.io/solopashachas/testrpm/buildroot:latest \
             /bin/bash -c '
               find old_pkgs -name '*.rpm' -exec bsdtar xf {} -C old \;
 
