@@ -338,6 +338,8 @@ EOL
 %install
 %cmake_install
 
+rm %{buildroot}%{_kf6_datadir}/config.kcfg/nightlightsettings.kcfg
+
 # General startplasma symlink
 ln -sr %{buildroot}%{_kf6_bindir}/startplasma-wayland %{buildroot}%{_kf6_bindir}/startplasma
 
