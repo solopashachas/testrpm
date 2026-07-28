@@ -53,7 +53,7 @@ jobs:
 
       - name: Download packages
         run: |
-          mapfile -t packages < <(yq -r '.jobs | keys[]' < .github/workflows/packages.yml | sort -u | grep -v 'changed-files')
+          mapfile -t packages < <(find 'plasma' 'related' 'frameworks' -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
           curl -LO -Ss https://github.com/${{ github.repository }}/releases/download/${branch}/packages.txt || :
           download_package() {
             version="$(oras manifest fetch ghcr.io/${{ github.repository }}/${1,,}:latest-${branch} | jq -r '.annotations."rpm.version"')"
