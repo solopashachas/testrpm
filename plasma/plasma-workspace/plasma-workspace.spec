@@ -1,6 +1,6 @@
 %global commit0 f31f55618c3d129cb02eec2bbeb65d8ae52136cc
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 Name:           plasma-workspace
 Summary:        Plasma workspace, applications and applets
@@ -217,7 +217,7 @@ Requires:       ocean-sound-theme
 Requires:       polkit-kde
 
 # onscreen keyboard
-Recommends:     maliit-keyboard
+Recommends:     plasma-keyboard
 
 # lockscreen look-and-feel imports qml: QtQuick.VirtualKeyboard
 Requires:       qt6-qtvirtualkeyboard
