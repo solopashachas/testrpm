@@ -46,12 +46,12 @@ jobs:
         run: |
           for tag in unstable{,-debuginfo}; do
             dnf -q \
-              --repofrompath="solopashachas,https://solopashachas.github.io/kde-master/${tag}" \
+              --repofrompath="solopashachas,https://solopashachas.github.io/testrpm/${tag}" \
               --repo=solopashachas rq --location | parallel basename | sort -u > "repo_packages_${tag}.list"
             gh release view "${tag}" \
               -R ${{ github.repository }} \
               --json assets \
-              -q '.assets[].name' | grep -v 'kde-master-.*.repo\|packages.txt' | sort -u > "released_packages_${tag}.list"
+              -q '.assets[].name' | grep -v 'testrpm-.*.repo\|packages.txt' | sort -u > "released_packages_${tag}.list"
             comm -13 "repo_packages_${tag}.list" "released_packages_${tag}.list" > "prune_${tag}.list"
           done
 
