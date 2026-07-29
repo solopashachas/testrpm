@@ -1,6 +1,6 @@
-%global commit0 21c4d47b3e7e8b6023154d21cb50627e122c11e2
+%global commit0 f3e47aad33749b043f25118429a6d6874429d005
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 %global base_name discover
 # enable snap support (or not)
@@ -229,6 +229,7 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 
 %files libs -f libdiscover.lang
 %license LICENSES/*.txt
+%{_kf6_datadir}/config.kcfg/discover-appstream-settings.kcfg
 %{_kf6_datadir}/qlogging-categories6/discover.categories
 %dir %{_libdir}/plasma-discover/
 %{_libdir}/plasma-discover/libDiscoverNotifiers.so
