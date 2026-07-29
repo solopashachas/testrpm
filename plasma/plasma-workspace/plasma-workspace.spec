@@ -1,6 +1,6 @@
-%global commit0 f31f55618c3d129cb02eec2bbeb65d8ae52136cc
+%global commit0 a2707f58ebd8ce46bc548e2093c4b554e915d3c7
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 Name:           plasma-workspace
 Summary:        Plasma workspace, applications and applets
@@ -337,8 +337,6 @@ EOL
 
 %install
 %cmake_install
-
-rm %{buildroot}%{_kf6_datadir}/config.kcfg/nightlightsettings.kcfg
 
 # General startplasma symlink
 ln -sr %{buildroot}%{_kf6_bindir}/startplasma-wayland %{buildroot}%{_kf6_bindir}/startplasma

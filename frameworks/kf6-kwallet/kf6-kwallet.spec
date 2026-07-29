@@ -1,6 +1,6 @@
-%global commit0 87a0f734e4846c449df0dc032ae6ec281df9a953
+%global commit0 d8bbd87f7cfe7d1580945e70fbe2ae50b4310b54
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 %global framework kwallet
 

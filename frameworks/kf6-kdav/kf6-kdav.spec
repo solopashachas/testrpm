@@ -1,6 +1,6 @@
-%global commit0 69d31019eef975e0ad9661e7f367528ba7761b5f
+%global commit0 cf782b4b37013dece8dbf2abfeadf4b8880acdca
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 %global framework kdav
 
@@ -15,11 +15,12 @@ URL:            https://invent.kde.org/frameworks/%{framework}
 
 BuildRequires:  cmake(KF6CoreAddons)
 BuildRequires:  cmake(KF6I18n)
-BuildRequires:  cmake(KF6KIO)
 
 BuildRequires:  cmake(Qt6Core)
 BuildRequires:  cmake(Qt6Gui)
+BuildRequires:  cmake(Qt6Network)
 BuildRequires:  cmake(Qt6Test)
+BuildRequires:  cmake(Qt6Xml)
 
 %description
 %{summary}.

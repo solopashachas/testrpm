@@ -1,6 +1,6 @@
-%global commit0 687914f2e715d3ee776f3f054ad32a88bb95fa7c
+%global commit0 2e199eea806a7cf627b4ac54acbde1ff041fa383
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 %global framework kimageformats
 
@@ -56,7 +56,6 @@ image formats.
 %{_kf6_qtplugindir}/imageformats/kimg_jp2.so
 %{_kf6_qtplugindir}/imageformats/kimg_jxl.so
 %{_kf6_qtplugindir}/imageformats/kimg_kra.so
-%{_kf6_qtplugindir}/imageformats/kimg_ora.so
 %{_kf6_qtplugindir}/imageformats/kimg_pcx.so
 %{_kf6_qtplugindir}/imageformats/kimg_pfm.so
 %{_kf6_qtplugindir}/imageformats/kimg_pic.so
