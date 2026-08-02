@@ -1,6 +1,6 @@
 %global commit0 41b9c32dbf1825b14c3467131d3b307c431fa252
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 Name:           libplasma
 Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -61,6 +61,7 @@ Summary:        Development files for %{name}
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 Requires:       cmake(KF6Package)
 Requires:       qt6-qtbase-devel
+Requires:       cmake(KF6KirigamiPlatform)
 Requires:       cmake(KF6WindowSystem)
 Obsoletes:      kf6-plasma-devel < 1:%{version}-%{release}
 Provides:       kf6-plasma-devel = 1:%{version}-%{release}
