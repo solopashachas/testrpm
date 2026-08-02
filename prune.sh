@@ -14,7 +14,6 @@ packages=(
 aurorae
 bluedevil
 breeze-gtk
-buildroot
 extra-cmake-modules
 flatpak-kcm
 grub2-breeze-theme
@@ -137,7 +136,6 @@ plasma-oxygen
 plasma-pa
 plasma-print-manager
 plasma-sdk
-plasma-setup
 plasma-systemmonitor
 plasma-systemsettings
 plasma-thunderbolt
@@ -153,7 +151,6 @@ plymouth-theme-breeze
 polkit-kde
 powerdevil
 qqc2-breeze-style
-repodata
 sddm-kcm
 spectacle
 xdg-desktop-portal-kde
@@ -183,7 +180,7 @@ for pkg in "${packages[@]}"; do
         fi
 
         if echo "$tags" | grep -Eq '\bpr-[0-9]+\b'; then
-          pr_num=$(echo "$tags" | grep -o '[0-9]\+')
+          pr_num=$(echo "$tags" | grep -oP '(?<=^pr-)\d+(?=-\d+$)')
           state=$(gh api "/repos/$REPOSITORY_OWNER/$REPOSITORY/pulls/$pr_num" -q '.state')
           if [[ "$state" == "closed" ]]; then
             echo "🗑 Deleting PRs artifacts: $pkgname $tags (ID: $id)"
