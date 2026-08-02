@@ -1,7 +1,7 @@
 Name:           kf6
 # This version MUST remain in sync with KF6 versions!
 Version:        6.29.0~
-Release:        10%{?dist}
+Release:        11%{?dist}
 Summary:        Filesystem and RPM macros for KDE Frameworks 6
 License:        BSD-3-Clause
 URL:            http://www.kde.org
