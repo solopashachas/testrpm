@@ -1,6 +1,6 @@
-%global commit0 dba1000068c5d94a805a0614d76cb575e02d8037
+%global commit0 c7dc23d11faddb45d074111da83ead57da4ff649
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 7
+%global bumpver 8
 
 %global framework kfilemetadata
 
@@ -23,6 +23,7 @@ BuildRequires:  cmake(Qt6Gui)
 BuildRequires:  cmake(Qt6Xml)
 
 BuildRequires:  catdoc
+BuildRequires:  cmake(libzip)
 BuildRequires:  cmake(QMobipocket6)
 BuildRequires:  ebook-tools-devel
 BuildRequires:  ffmpeg-free-devel
