@@ -59,6 +59,7 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/org.kde.plasma.keyboa
 %doc README.md
 %{_kf6_bindir}/plasma-keyboard
 %{_kf6_datadir}/applications/org.kde.plasma.keyboard.desktop
+%{_kf6_datadir}/config.kcfg/plasmakeyboardsettings.kcfg
 %{_kf6_datadir}/plasma/keyboard/
 %{_kf6_metainfodir}/org.kde.plasma.keyboard.metainfo.xml
 %{_kf6_qmldir}/org/kde/plasma/keyboard/
