@@ -8,7 +8,7 @@ done
 shift "$((OPTIND-1))"
 
 export GH_PAGER=
-DAYS_OLD=1
+DAYS_OLD=2
 
 packages=(
 aurorae
@@ -194,7 +194,7 @@ for pkg in "${packages[@]}"; do
           fi
         fi
 
-        if [[ "$tags" =~ latest-[0-9]{2} ]]; then
+        if [[ "$tags" =~ latest-[[:alpha:]]+-[0-9]{2} ]]; then
           # echo "⏩ Skipping: $pkgname $tags (contains 'latest')"
           continue
         fi
