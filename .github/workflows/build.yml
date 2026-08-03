@@ -366,7 +366,7 @@ jobs:
           mkdir "${GITHUB_WORKSPACE}/${pkgname}-resultdir"
           docker run --rm \
             --cap-drop all \
-            --network none \
+            --network ${{ inputs.enable_internet && 'bridge' || 'none' }} \
             --entrypoint="" \
             -v "${GITHUB_WORKSPACE}/$(dirname "${spec}"):/work:ro" \
             -v "${GITHUB_WORKSPACE}/${pkgname}-resultdir:/out" \
@@ -396,7 +396,7 @@ jobs:
         run: |
           docker run --rm \
             --cap-drop all \
-            --network ${{ inputs.enable_internet && 'bridge' || 'none' }} \
+            --network none \
             --entrypoint="" \
             -v "${GITHUB_WORKSPACE}/${pkgname}-resultdir:/work" \
             --tmpfs /home/builduser/.gnupg:uid=1001,gid=1001,mode=0700 \

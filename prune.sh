@@ -8,7 +8,7 @@ done
 shift "$((OPTIND-1))"
 
 export GH_PAGER=
-DAYS_OLD=2
+DAYS_OLD=7
 
 packages=(
 aurorae
@@ -156,7 +156,7 @@ spectacle
 xdg-desktop-portal-kde
 )
 
-packages+=(buildroot repodata)
+packages+=(buildroot)
 
 now=$(date +%s)
 
