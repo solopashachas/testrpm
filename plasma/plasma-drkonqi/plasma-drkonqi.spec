@@ -1,6 +1,6 @@
-%global commit0 2ca6185578429393166fdfc420a6947ae56264d7
+%global commit0 68b4f6a3264cf33954e790adb2d831759888660d
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 %global base_name drkonqi
 
@@ -83,6 +83,7 @@ desktop-file-validate %{buildroot}/%{_kf6_datadir}/applications/*.desktop
 %{_kf6_bindir}/drkonqi-coredump-gui
 %{_kf6_bindir}/drkonqi-sentry-data
 %{_kf6_datadir}/applications/org.kde.*.desktop
+%{_kf6_datadir}/config.kcfg/drkonqi.kcfg
 %{_kf6_datadir}/dbus-1/system-services/org.kde.drkonqi.service
 %{_kf6_datadir}/dbus-1/system.d/org.kde.drkonqi.conf
 %{_kf6_datadir}/drkonqi/
