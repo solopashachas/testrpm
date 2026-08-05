@@ -2,9 +2,6 @@
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
-%global libquotient_commit 4e517b39ee0e1ab3b888aa3fb2696a331ca5d69a
-%global libquotient_shortcommit %{sub %{libquotient_commit} 1 7}
-
 Name:    neochat
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release: 1%{?dist}
@@ -13,9 +10,6 @@ License: GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only AND GPL-3.0-or-later
 URL: https://invent.kde.org/network/%{name}
 Summary: Client for matrix, the decentralized communication protocol
 %apps_source
-Patch: fix-build.diff
-
-Source10: https://github.com/quotient-im/libQuotient/archive/%{libquotient_commit}/libQuotient-%{libquotient_shortcommit}.tar.gz
 
 BuildRequires: cmake(Qt6Core)
 BuildRequires: cmake(Qt6Quick)
@@ -55,7 +49,7 @@ BuildRequires: cmake(KQuickImageEditor)
 BuildRequires: cmake(KUnifiedPush)
 BuildRequires: cmake(QCoro6Core)
 BuildRequires: cmake(QCoro6Network)
-#BuildRequires: cmake(QuotientQt6)
+BuildRequires: cmake(QuotientQt6)
 
 BuildRequires: pkgconfig(icu-uc)
 BuildRequires: pkgconfig(libcmark)
@@ -74,8 +68,6 @@ BuildRequires: cmake(Qt6Keychain)
 BuildRequires: cmake(Qt6Sql)
 BuildRequires: pkgconfig(openssl)
 BuildRequires: qt6-qtbase-private-devel
-
-Provides:      bundled(libquotient) = 0.10.0~1.git%{libquotient_shortcommit}
 
 Requires: breeze-icon-theme
 Requires: hicolor-icon-theme
@@ -111,18 +103,10 @@ notably Kirigami, KConfig and KI18n.
 
 %prep
 %{!?bumpver:%{gpgverify} --keyring='%{SOURCE2}' --signature='%{SOURCE1}' --data='%{SOURCE0}'}
-%autosetup -n %{sourcerootdir} -p1 -a10
+%autosetup -n %{sourcerootdir} -p1
 
 %build
-pushd libQuotient-%{libquotient_commit}
-%cmake -GNinja \
-    -DCMAKE_INSTALL_PREFIX=%{_builddir}/libQuotient-build \
-    -DCMAKE_BUILD_TYPE=Release \
-    -DBUILD_SHARED_LIBS=OFF
-%cmake_build
-cmake --install %{__cmake_builddir}
-popd
-%cmake_kf6 -DQuotientQt6_DIR=%{_builddir}/libQuotient-build/%{_lib}/cmake/QuotientQt6
+%cmake_kf6
 %cmake_build
 
 %install
@@ -138,10 +122,11 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %doc README.md
 %{_kf6_bindir}/%{name}
 %{_kf6_datadir}/applications/org.kde.neochat.desktop
+%{_kf6_datadir}/config.kcfg/neochatconfig.kcfg
 %{_kf6_datadir}/dbus-1/services/org.kde.neochat.service
 %{_kf6_datadir}/icons/hicolor/*/apps/org.kde.neochat.*
 %{_kf6_datadir}/knotifications6/%{name}.notifyrc
-%{_kf6_datadir}/krunner/dbusplugins/plasma-runner-neochat.desktop
+%{_kf6_datadir}/krunner/dbusplugins/org.kde.neochat.desktop
 %{_kf6_datadir}/qlogging-categories6/neochat.categories
 %{_kf6_mandir}/man1/neochat.1.*
 %{_kf6_metainfodir}/org.kde.neochat.appdata.xml
