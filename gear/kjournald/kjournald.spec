@@ -1,6 +1,6 @@
 %global commit0 ce6e238bc0d4a52eebef1fba5a5d5c312fa9e4ac
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:          kjournald
 Version:       26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -38,7 +38,7 @@ Requires:      kf6-kirigami-addons%{?_isa}
 Requires:      kf6-kirigami%{?_isa}
 Requires:      kf6-qqc2-desktop-style%{?_isa}
 
-Obsoletes:     %{name}-libs < 25.11.70
+Obsoletes:     %{name}-libs < %{version}-%{release}
 Provides:      %{name} = %{version}-%{release}
 Provides:      %{name}%{?_isa} = %{version}-%{release}
 
