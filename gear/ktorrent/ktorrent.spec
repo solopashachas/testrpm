@@ -19,14 +19,14 @@ BuildRequires: gettext
 BuildRequires: kf6-rpm-macros
 BuildRequires: libappstream-glib
 BuildRequires: pkgconfig(libmaxminddb)
-BuildRequires: pkgconfig(phonon4qt6)
 BuildRequires: pkgconfig(taglib)
 
 BuildRequires: cmake(Qt6Core)
+BuildRequires: cmake(Qt6Core5Compat)
 BuildRequires: cmake(Qt6DBus)
+BuildRequires: cmake(Qt6Multimedia)
 BuildRequires: cmake(Qt6Network)
 BuildRequires: cmake(Qt6Widgets)
-BuildRequires: cmake(Qt6Core5Compat)
 
 BuildRequires: cmake(KF6Completion)
 BuildRequires: cmake(KF6Config)
