@@ -111,31 +111,29 @@ Supplements:    korganizer
 
 %files -f %{name}.lang
 %license LICENSES/*
+%{_kf6_bindir}/kmail_*.sh
+%{_kf6_datadir}/config.kcfg/webengineurlinterceptoradblock.kcfg
 %{_kf6_datadir}/qlogging-categories6/*%{name}.*
 %{_kf6_libdir}/libadblockplugin.so.6{,.*}
 %{_kf6_libdir}/libakonadidatasetools.so.6{,.*}
 %{_kf6_libdir}/libdkimverifyconfigure.so.6{,.*}
 %{_kf6_libdir}/libexpireaccounttrashfolderconfig.so.6{,.*}
 %{_kf6_libdir}/libfolderconfiguresettings.so.6{,.*}
-%{_kf6_libdir}/libkmailconfirmbeforedeleting.so.6{,.*}
-%{_kf6_libdir}/libKPim6AutoGenerateText.so.6{,.*}
-%{_kf6_libdir}/libopenurlwithconfigure.so.6{,.*}
-%{_kf6_qtplugindir}/pim6/
-
-%{_kf6_qmldir}/org/kde/plasma/PimCalendars/
-%{_kf6_qtplugindir}/plasmacalendarplugins/pimevents.so
-%{_kf6_qtplugindir}/plasmacalendarplugins/pimevents/
 %{_kf6_libdir}/libkaddressbookmergelibprivate.so*
-
-# KMail
-%{_kf6_bindir}/kmail_*.sh
+%{_kf6_libdir}/libkmailconfirmbeforedeleting.so.6{,.*}
 %{_kf6_libdir}/libkmailmarkdown.so.*
 %{_kf6_libdir}/libkmailquicktextpluginprivate.so.*
+%{_kf6_libdir}/libKPim6AutoGenerateText.so.6{,.*}
+%{_kf6_libdir}/libopenurlwithconfigure.so.6{,.*}
+%{_kf6_libdir}/libshorturlpluginprivate.so*
+%{_kf6_qmldir}/org/kde/plasma/PimCalendars/
+%{_kf6_qtplugindir}/autogeneratetext/toolplugins/kaichat_addressbookplugin.so
+%{_kf6_qtplugindir}/autogeneratetext/toolplugins/kaichat_calendarplugin.so
+%{_kf6_qtplugindir}/pim6/
+%{_kf6_qtplugindir}/plasmacalendarplugins/pimevents.so
+%{_kf6_qtplugindir}/plasmacalendarplugins/pimevents/
 %{_kf6_sysconfdir}/xdg/kmail.antispamrc
 %{_kf6_sysconfdir}/xdg/kmail.antivirusrc
-
-# PimCommon
-%{_kf6_libdir}/libshorturlpluginprivate.so*
 
 
 %changelog
