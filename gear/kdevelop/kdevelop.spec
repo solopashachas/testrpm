@@ -25,7 +25,6 @@ BuildRequires:  shared-mime-info
 BuildRequires:  llvm-devel
 BuildRequires:  clang-devel
 BuildRequires:  okteta-devel
-BuildRequires:  pcre-devel
 BuildRequires:  subversion-devel
 BuildRequires:  astyle-devel
 
