@@ -1,6 +1,6 @@
-%global commit0 12dd5a3d136827ba1928b1d78b5bc04860fea5d9
+%global commit0 92f57e25c33b790f4d72fc88029d56cb204e151f
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:           kgraphviewer
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

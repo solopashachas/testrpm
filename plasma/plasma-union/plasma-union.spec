@@ -1,6 +1,6 @@
-%global commit0 ec720aa45b617f34391947b89b597d825e4fcb0a
+%global commit0 81cada581a0fd781d145fcec84267e4cea289e06
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 %global base_name union
 
@@ -45,6 +45,7 @@ developing applications that use %{name}.
 %files
 %license LICENSES/*
 %doc README.md
+%{_kf6_bindir}/union-styletool
 %{_kf6_datadir}/kstyle/themes/union.themerc
 %{_kf6_datadir}/qlogging-categories6/union.categories
 %{_kf6_datadir}/union/

@@ -1,6 +1,6 @@
-%global commit0 304fca9f8bdaccaab794d2255c9c7f5ec8efbb22
+%global commit0 81b6d2c5b2641836c3d506d85bf50c350ed120a3
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 7
+%global bumpver 8
 
 %global framework kxmlgui
 

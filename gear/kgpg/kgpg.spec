@@ -1,6 +1,6 @@
-%global commit0 e686ac3584a133e952eecb7af64eb65f28de16e9
+%global commit0 9491359ee6878611c894714c98173b7b9ae12378
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:    kgpg
 Summary: Manage GPG encryption keys
@@ -75,7 +75,7 @@ KGpg is a simple interface for GnuPG, a powerful encryption utility.
 # everywhere else, see also https://bugzilla.redhat.com/1427707
 desktop-file-edit \
   --add-only-show-in=KDE \
-  %{buildroot}%{_kf6_sysconfdir}/xdg/autostart/org.kde.kgpg.desktop
+  %{buildroot}%{_kf6_sysconfdir}/xdg/autostart/kgpg.autostart.desktop
 
 
 %check
@@ -94,7 +94,7 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/org.kde.%{name}.d
 %{_kf6_datadir}/kio/servicemenus/*.desktop
 %{_kf6_datadir}/qlogging-categories6/%{name}*
 %{_kf6_metainfodir}/org.kde.kgpg.appdata.xml
-%{_kf6_sysconfdir}/xdg/autostart/org.kde.kgpg.desktop
+%{_kf6_sysconfdir}/xdg/autostart/kgpg.autostart.desktop
 
 
 %changelog
