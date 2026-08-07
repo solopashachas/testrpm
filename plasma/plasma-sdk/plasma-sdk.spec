@@ -1,6 +1,6 @@
-%global commit0 ac57a5564d0573b6fa44fdf61ca6fb97c169a800
+%global commit0 042ca0a64edb22299f73d98a7eec0c420cf477fc
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 7
 
 Name:           plasma-sdk
 Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
