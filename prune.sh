@@ -62,7 +62,6 @@ kaccounts-integration
 kaccounts-providers
 kactivitymanagerd
 kaddressbook
-kajongg
 kalarm
 kalk
 kalm
@@ -141,6 +140,7 @@ kf6-kidletime
 kf6-kimageformats
 kf6-kio
 kf6-kirigami
+kf6-kirigami-addons
 kf6-kitemmodels
 kf6-kitemviews
 kf6-kjobwidgets
@@ -194,6 +194,7 @@ kinfocenter
 kio-admin
 kio-extras
 kio-gdrive
+kirigami-app-components
 kirigami-gallery
 kiten
 kitinerary
@@ -244,6 +245,7 @@ ksshaskpass
 ksystemlog
 ksystemstats
 kteatime
+ktextaddons
 ktimer
 ktnef
 ktorrent
@@ -312,6 +314,7 @@ plasma-oxygen
 plasma-pa
 plasma-print-manager
 plasma-sdk
+plasma-setup
 plasma-systemmonitor
 plasma-systemsettings
 plasma-thunderbolt

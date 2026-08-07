@@ -103,20 +103,8 @@ jobs:
           persist-credentials: false
           ref: ${{ inputs.ref }}
 
-      - name: Detect Gear
-        id: gear
-        run: |
-          baseName="$(sed -n 's/%\(global\|define\)[[:space:]]\+\b\(framework\|base_name\)\b[[:space:]]\+\(.*\)/\3/p' "${spec}")"
-          if [[ -z "$baseName" ]]; then
-              baseName="${pkgname}"
-          fi
-          if grep "\"${baseName}\"" frameworks/kf6/kde_gear.lua; then
-            echo "gear=true" >> $GITHUB_OUTPUT
-          fi
-
       - name: Configs
         env:
-          gear: ${{ steps.gear.outputs.gear }}
           pr_number: ${{ inputs.pr_number }}
         run: |
 
@@ -262,31 +250,31 @@ jobs:
         run: |
           echo "container_tag=$(echo "${version_release}" | sed 's/\^/_post_/;s/\~/_pre_/')" >> $GITHUB_ENV
 
-      # - name: Check NVR
-      #   run: |
-      #     if oras manifest fetch ghcr.io/${repository}/${pkgname,,}:${container_tag} &> /dev/null; then
-      #       echo "NVR already exists"
-      #       exit 1
-      #     fi
-      #     latest_version="$(oras manifest fetch ghcr.io/${repository}/${pkgname,,}:latest-${target_branch}-${target_distribution} | jq -r '.annotations."rpm.version"')"
-      #     if [[ -n "${latest_version}" ]]; then
-      #       export latest_version
-      #       docker run --rm \
-      #         --cap-drop all \
-      #         --network none \
-      #         --entrypoint="" \
-      #         -e latest_version \
-      #         -e version_release \
-      #         ghcr.io/solopashachas/testrpm/buildroot:latest \
-      #         /bin/bash -c '
-      #           rpmdev-vercmp "${latest_version}" "${version_release}" || ec=$?
-      #           case $ec in
-      #               11) echo "NVR went backwards"; exit 1 ;;
-      #               12) ;;
-      #               *) exit 1
-      #           esac
-      #         '
-      #     fi
+      - name: Check NVR
+        run: |
+          if oras manifest fetch ghcr.io/${repository}/${pkgname,,}:${container_tag} &> /dev/null; then
+            echo "NVR already exists"
+            exit 1
+          fi
+          latest_version="$(oras manifest fetch ghcr.io/${repository}/${pkgname,,}:latest-${target_branch}-${target_distribution} | jq -r '.annotations."rpm.version"')"
+          if [[ -n "${latest_version}" ]]; then
+            export latest_version
+            docker run --rm \
+              --cap-drop all \
+              --network none \
+              --entrypoint="" \
+              -e latest_version \
+              -e version_release \
+              ghcr.io/solopashachas/testrpm/buildroot:latest \
+              /bin/bash -c '
+                rpmdev-vercmp "${latest_version}" "${version_release}" || ec=$?
+                case $ec in
+                    11) echo "NVR went backwards"; exit 1 ;;
+                    12) ;;
+                    *) exit 1
+                esac
+              '
+          fi
 
       - name: Download sources
         env:
