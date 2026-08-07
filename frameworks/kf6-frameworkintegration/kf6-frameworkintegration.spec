@@ -1,11 +1,11 @@
-%global commit0 b53aa0f3929d2b71761b1b8f2a735e9486026e38
+%global commit0 a0360c4f9aff7a74f67e28ffcedbb990be2353da
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 1
 
 %global framework frameworkintegration
 
 Name:           kf6-%{framework}
-Version:        6.29.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 4 workspace and cross-framework integration plugins
 License:        CC0-1.0 AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-3.0-only AND LicenseRef-KDE-Accepted-LGPL

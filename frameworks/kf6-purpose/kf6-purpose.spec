@@ -1,12 +1,12 @@
-%global commit0 86835739851d415b6a79701efbb4612dfb5ac377
+%global commit0 c1c2adc3778d6d772902408aaa42b0db82b2de95
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 7
+%global bumpver 1
 
 %global framework purpose
 
 Name:           kf6-purpose
 Summary:        Framework for providing abstractions to get the developer's purposes fulfilled
-Version:        6.29.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 
 License:        CC0-1.0 AND GPL-2.0-or-later AND LGPL-2.0-or-later AND LGPL-2.1-or-later

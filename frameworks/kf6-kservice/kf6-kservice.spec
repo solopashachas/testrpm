@@ -1,12 +1,12 @@
-%global commit0 aa945786b59beceaa705916eeebddb3b5a54abdf
+%global commit0 3f4e061d4d77aa0f455648d395c248995c9c80ac
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 8
+%global bumpver 1
 
 %global framework kservice
 
 Name:           kf6-%{framework}
 Summary:        KDE Frameworks 6 Tier 3 solution for advanced plugin and service introspection
-Version:        6.29.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 
 # The following licenses are in the LICENSES folder but go unused: GPL-2.0-only, GPL-2.0-or-later, GPL-3.0-only, LicenseRef-KDE-Accepted-GPL

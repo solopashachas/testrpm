@@ -1,11 +1,11 @@
-%global commit0 9cd67eaaf74aaca54a8b63d3bc1ca94a04c0ca7d
+%global commit0 34890cf28fc40d074b4644a68747aa81ed532c53
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 1
 
 %global framework kdnssd
 
 Name:           kf6-%{framework}
-Version:        6.29.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 1 integration module for DNS-SD services (Zeroconf)
 License:        BSD-3-Clause AND CC0-1.0 AND LGPL-2.0-or-later

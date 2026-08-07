@@ -1,11 +1,11 @@
-%global commit0 c0ff47ce81057b515b52188fad36553460959d53
+%global commit0 09f85564bd7539c325262a3450d22800045151da
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 7
+%global bumpver 1
 
 %global framework kiconthemes
 
 Name:           kf6-%{framework}
-Version:        6.29.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 3 integration module with icon themes
 

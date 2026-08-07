@@ -1,6 +1,6 @@
-%global commit0 deea53f925da6f7208a13ee2cde5cbefbd0a6c1e
+%global commit0 930d8f99c4176878e054eeb0db400d5d2a312ad4
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 %global orgname org.kde.plasmasetup
 
