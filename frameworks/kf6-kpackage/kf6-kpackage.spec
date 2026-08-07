@@ -1,11 +1,11 @@
-%global commit0 0498777ffd6c0f0601fc20ee56245dd6d53633f7
+%global commit0 d6ecd1d3be1e713e765a2495c1276cdf0f328e19
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 1
 
 %global framework kpackage
 
 Name:           kf6-%{framework}
-Version:        6.29.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 2 library to load and install packages as plugins
 License:        CC0-1.0 AND GPL-2.0-or-later AND LGPL-2.0-or-later

@@ -1,11 +1,11 @@
-%global commit0 3d2fa491524012fd06fef285fbe78e1e627f1df5
+%global commit0 4cd97f09f4a93e84775672055b3a919539ada5dd
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 1
 
 %global framework kglobalaccel
 
 Name:           kf6-%{framework}
-Version:        6.29.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 3 integration module for global shortcuts
 
