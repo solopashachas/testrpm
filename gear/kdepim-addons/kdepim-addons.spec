@@ -1,6 +1,6 @@
-%global commit0 dae60c854531cb86a4d9ba65995a299a918e90c8
+%global commit0 cd2772472b1bc0267cea751d481d724921533f69
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 Name:    kdepim-addons
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -98,6 +98,7 @@ Supplements:    korganizer
 
 
 %build
+export CARGO_HOME=.cargo
 %cmake_kf6 \
   -DKDEPIMADDONS_BUILD_EXAMPLES:BOOL=FALSE
 %cmake_build
