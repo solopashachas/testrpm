@@ -167,9 +167,19 @@ jobs:
       - name: Fetch build deps
         env:
           deps: ${{ inputs.deps }}
+          additional_packages: ${{ inputs.additional_packages }}
         run: |
           if [[ "${deps}" != "" ]]; then
-            parallel oras pull "ghcr.io/${repository}/{}:latest-${target_branch}-${target_distribution}" -o repo ::: ${deps} || :
+            parallel --halt now,fail=1 oras pull "ghcr.io/${repository}/{}:latest-${target_branch}-${target_distribution}" -o repo ::: ${deps}
+          fi
+          if [[ "${additional_packages}" != "" ]]; then
+            download_additional_package () {
+              if oras manifest fetch "ghcr.io/${repository}/$1:latest-${target_branch}-${target_distribution}" &> /dev/null; then
+                oras pull "ghcr.io/${repository}/$1:latest-${target_branch}-${target_distribution}" -o repo
+              fi
+            }
+            export -f download_additional_package
+            parallel --halt now,fail=1 download_additional_package ::: ${additional_packages}
           fi
             mkdir -p repo          
             docker run --rm \
@@ -186,6 +196,7 @@ jobs:
         env:
           pr_number: ${{ inputs.pr_number }}
           deps: ${{ inputs.deps }}
+          additional_packages: ${{ inputs.additional_packages }}
         run: |
           mkdir -p pr-repo
           if [[ "${deps}" != "" ]]; then
@@ -196,6 +207,15 @@ jobs:
             }
             export -f download_dep
             parallel --halt now,fail=1 download_dep ::: ${deps}
+          fi
+          if [[ "${additional_packages}" != "" ]]; then
+            download_additional_package () {
+              if oras manifest fetch "ghcr.io/${repository}/$1:pr-${pr_number}-${target_distribution}" &> /dev/null; then
+                oras pull "ghcr.io/${repository}/$1:pr-${pr_number}-${target_distribution}" -o pr-repo
+              fi
+            }
+            export -f download_additional_package
+            parallel --halt now,fail=1 download_additional_package ::: ${additional_packages}
           fi
           docker run --rm \
               --cap-drop all \
