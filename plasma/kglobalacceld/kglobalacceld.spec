@@ -1,6 +1,6 @@
-%global commit0 017dcc7c0c9f23f30c1113e87663d9a808b86a95
+%global commit0 c246b3263e4dd8cbf3dc85f6e47630b88b90484f
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:           kglobalacceld
 Summary:        Daemon providing Global Keyboard Shortcut functionality
@@ -53,6 +53,11 @@ Requires:       cmake(Qt6Widgets)
 %{_kf6_datadir}/qlogging-categories6/kglobalacceld.categories
 %{_kf6_libdir}/libKGlobalAccelD.so.%{version_no_git}
 %{_kf6_libdir}/libKGlobalAccelD.so.0
+
+/usr/lib/systemd/user/plasma-kglobalaccel.service
+/usr/lib64/qt6/plugins/org.kde.kglobalacceld.platforms/KGlobalAccelDXcb.so
+/usr/libexec/kglobalacceld
+/etc/xdg/autostart/kglobalacceld.desktop
 
 %files devel
 %{_includedir}/KGlobalAccelD/
