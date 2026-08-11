@@ -1,6 +1,6 @@
-%global commit0 cb7037d9cd60156515cf90cc071bf5da0c16ab69
+%global commit0 c35241800c1247a8a421c405dd16fd477d9dd22d
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:           kunifiedpush
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
