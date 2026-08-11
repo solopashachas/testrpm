@@ -1,6 +1,6 @@
-%global commit0 479b862fc4f714a4a87a6399d39070e6d12dacfc
+%global commit0 55d85c7e16bb246ceb8ea5b176a3e439b103de18
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 %global framework kcalendarcore
 
@@ -32,7 +32,7 @@ developing applications that use %{name}.
 
 %kf6_python_bindings_package
 
-%files
+%files -f kcalendarcore6_qt.lang
 %license LICENSES/*.txt
 %{_kf6_datadir}/qlogging-categories6/*kcalendarcore.*
 %{_kf6_libdir}/libKF6CalendarCore.so.%{version_no_git}
