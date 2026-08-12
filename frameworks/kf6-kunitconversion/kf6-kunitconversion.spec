@@ -1,6 +1,6 @@
-%global commit0 3dbc6041c37ac16334c0903d8ef44c6532949bdf
+%global commit0 012372a2f301a55e0b958d5570eb4e856a15c9fe
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kunitconversion
 
