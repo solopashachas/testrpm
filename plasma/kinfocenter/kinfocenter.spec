@@ -1,6 +1,6 @@
-%global commit0 5bd87de7981ee5924f248e0a1ae245d871355319
+%global commit0 037594cff27d4aaf0e768c690f4b2de75ad886d1
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:           kinfocenter
 Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -37,18 +37,19 @@ BuildRequires:  pkgconfig(libusb-1.0)
 Requires:       kf6-kirigami%{?_isa}
 
 # Runtime Dependancies
-Requires:       plasma-systemsettings
-Requires:       wayland-utils
-Requires:       dmidecode
-Requires:       vulkan-tools
-Requires:       xdpyinfo
-Requires:       egl-utils
-Requires:       fwupd
 Requires:       aha
 Requires:       clinfo
-Requires:       pulseaudio-utils
+Requires:       dmidecode
+Requires:       egl-utils
+Requires:       fwupd
 Requires:       hwdata
 Requires:       libdisplay-info-tools
+Requires:       libva-utils
+Requires:       plasma-systemsettings
+Requires:       pulseaudio-utils
+Requires:       vulkan-tools
+Requires:       wayland-utils
+Requires:       xdpyinfo
 Recommends:     lm_sensors
 
 %description
