@@ -1,6 +1,6 @@
-%global commit0 c1c2adc3778d6d772902408aaa42b0db82b2de95
+%global commit0 69519f7ce98712183bca13c99a988e9e3f01b9d8
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework purpose
 

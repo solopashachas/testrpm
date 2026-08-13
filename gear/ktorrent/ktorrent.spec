@@ -1,6 +1,6 @@
-%global commit0 c0e3fc623c39604d24d33fee08b784ac332e66b3
+%global commit0 52940606046c5b3d9fb163e2fdd68b530ff1af2c
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 Name:    ktorrent
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -11,7 +11,6 @@ License: GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only AND LGPL-2.0-only AN
 URL:     https://www.kde.org/applications/internet/ktorrent/
 %apps_source
 
-BuildRequires: boost-devel
 BuildRequires: cmake(KTorrent6)
 BuildRequires: desktop-file-utils
 BuildRequires: extra-cmake-modules

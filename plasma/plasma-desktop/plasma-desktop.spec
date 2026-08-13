@@ -1,6 +1,6 @@
-%global commit0 18cd295a21744580255f78eaacf39cb08f945c50
+%global commit0 af1d5612caae27db6a19cfa197ae643551803f02
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 13
+%global bumpver 14
 
 Name:           plasma-desktop
 Summary:        Plasma Desktop shell
@@ -19,7 +19,6 @@ Source20:       https://src.fedoraproject.org/lookaside/pkgs/plasma-workspace/br
 ## downstream patches
 # default kickoff/kicker favorites: +kwrite +konsole
 Patch100:       plasma-desktop-6.4.80-default_favorites.patch
-Patch101:       hide-virtual-keyboard-indicator-on-sddm.patch
 
 BuildRequires:  desktop-file-utils
 BuildRequires:  systemd-rpm-macros
