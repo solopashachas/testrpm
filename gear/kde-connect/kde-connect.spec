@@ -1,6 +1,6 @@
-%global commit0 8d267de6a5aa11695026bb3e4cda2331a7b3d0a7
+%global commit0 d939f1df7cd2aab10e8dd6e3b5fe7adb84643afc
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 %global base_name kdeconnect-kde
 
