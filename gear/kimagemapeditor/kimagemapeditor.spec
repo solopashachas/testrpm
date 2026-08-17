@@ -1,6 +1,6 @@
 %global commit0 ed482bde1b73c8340cab8e75212ba5eac37f2e69
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:           kimagemapeditor
 Summary:        HTML Image Map Editor

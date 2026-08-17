@@ -1,6 +1,6 @@
 %global commit0 f8aad92426e582e7053ddf7ffe7df3d62cb68a7f
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:           svgpart
 Summary:        SVG KPart

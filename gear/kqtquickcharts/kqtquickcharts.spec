@@ -1,6 +1,6 @@
 %global commit0 0fd541c37d208cbc93aaf7768a908fc95b136a2b
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:           kqtquickcharts
 Summary:        A QtQuick plugin to render beautiful and interactive charts

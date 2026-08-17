@@ -1,6 +1,6 @@
 %global commit0 d5f9322ddb4759b30c4d8ece4aa798a82287783c
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 
 Name:           kmplot

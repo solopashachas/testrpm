@@ -1,6 +1,6 @@
 %global commit0 874e2958d9efc644cb32bcd460f5b3035241113d
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kded
 

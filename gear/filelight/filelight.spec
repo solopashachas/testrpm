@@ -1,6 +1,6 @@
 %global commit0 8c3a39533ea87689fac72a22e661acc724f24cef
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:    filelight
 Summary: Graphical disk usage statistics

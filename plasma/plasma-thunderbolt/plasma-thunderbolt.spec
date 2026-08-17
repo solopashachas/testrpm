@@ -1,6 +1,6 @@
 %global commit0 4e273edddeea352d3fcb7f59df8972a5ab746c06
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 Name:           plasma-thunderbolt
 Summary:        Plasma integration for controlling Thunderbolt devices

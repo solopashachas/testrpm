@@ -1,6 +1,6 @@
 %global commit0 370d7fbf36ff8c4b89d36cd28b79ae4acb8cdcd6
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 %global base_name kdev-php
 

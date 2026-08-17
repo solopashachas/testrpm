@@ -1,6 +1,6 @@
 %global commit0 33c2e49e93855c94cfc274ac95bffc478bd6e701
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:          kde-inotify-survey
 Version:       26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

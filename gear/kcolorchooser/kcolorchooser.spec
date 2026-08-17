@@ -1,6 +1,6 @@
 %global commit0 0b5e01e07d8b96a48eac3e3524947a67fdf0b7d0
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:    kcolorchooser
 Summary: A color chooser 

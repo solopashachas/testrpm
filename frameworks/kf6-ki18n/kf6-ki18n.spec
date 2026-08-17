@@ -1,6 +1,6 @@
 %global commit0 68d9a718bbb4dc7c063b2f63b678ac354f2f0eb6
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework ki18n
 

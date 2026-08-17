@@ -1,6 +1,6 @@
 %global commit0 d13049250c0ea1afc279aa8dc99243565c0d83e8
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:           kdecoration
 Summary:        A plugin-based library to create window decorations

@@ -1,6 +1,6 @@
 %global commit0 158f7012c7875724c1629c743755e200d85bb47d
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global app_id  org.kde.markdownpart
 

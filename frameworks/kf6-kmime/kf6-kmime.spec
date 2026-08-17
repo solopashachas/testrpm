@@ -1,6 +1,6 @@
 %global commit0 6830068b7a26ed035554a6f64cd6747ef8a24c71
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kmime
 

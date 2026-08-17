@@ -1,6 +1,6 @@
 %global commit0 db179f071cbb92dc4cee6814a03c5d7ed5c56edb
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework sonnet
 

@@ -1,6 +1,6 @@
 %global commit0 da783f11b97527ed1700605fb1b269b1ab5ede1c
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 
 Name:    signon-kwallet-extension

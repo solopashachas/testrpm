@@ -1,6 +1,6 @@
 %global commit0 eb6a55a2c63f70acedac5ef291c7a15e3a60e85e
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 Name:           oxygen-sounds
 Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}

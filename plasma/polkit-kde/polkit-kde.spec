@@ -1,6 +1,6 @@
 %global commit0 aea2368f10835a90db83a2c38d0e8ff2e5153bd8
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 %global base_name polkit-kde-agent-1
 

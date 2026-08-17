@@ -1,6 +1,6 @@
 %global commit0 7c27b20e7927a07aac61d709fb9c3eded1582cdd
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework solid
 

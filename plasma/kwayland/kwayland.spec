@@ -1,6 +1,6 @@
 %global commit0 9115224d3ed5e78803e4c97900a8205d2b7af1ef
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:           kwayland
 Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}

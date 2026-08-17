@@ -1,6 +1,6 @@
 %global commit0 59fed31dab77239bf22e936e27d43a9be868ca8f
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:    kdialog
 Summary: Nice dialog boxes from shell scripts

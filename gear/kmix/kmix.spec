@@ -1,6 +1,6 @@
 %global commit0 38a204346737462e6f60bb0eaae325765e687e25
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:           kmix
 Summary:        KDE volume control

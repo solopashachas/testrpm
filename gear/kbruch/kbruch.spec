@@ -1,6 +1,6 @@
 %global commit0 dd669382ecb906e6bc22794254d48aa226bd6a67
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:    kbruch
 Summary: Practice Fractions 
