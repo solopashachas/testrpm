@@ -1,6 +1,6 @@
-%global commit0 bcb9d751bcb7e50921ce657b29e5ba1cb3e5b083
+%global commit0 8ff4bef613b6a2d65ac3518d09c37039490b6d25
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:    incidenceeditor
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
