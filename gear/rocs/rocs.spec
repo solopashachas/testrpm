@@ -1,6 +1,6 @@
 %global commit0 f211e83ce00279ff3b8d4da8fb5e5e4bcdef5ff0
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:           rocs
 Summary:        Graph Theory IDE
