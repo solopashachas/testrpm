@@ -1,6 +1,6 @@
-%global commit0 9236cca1125a624c847956f5bd0a05d2a63648a6
+%global commit0 4a02b82af0d3b6f047dc6ea86bf605cd5785c3c1
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 16
+%global bumpver 17
 
 %global base_name discover
 # enable snap support (or not)
@@ -186,6 +186,12 @@ Supplements:    (%{name} and plasma-workspace%{?_isa})
 %description    kns
 %{summary}.
 
+%package        appstream-preview
+Summary:        Preview AppStream files in Discover
+Requires:       %{name} = %{version}-%{release}
+%description    appstream-preview
+%{summary}.
+
 %install
 %cmake_install
 
@@ -283,6 +289,11 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 
 %files kns
 %{_kf6_qtplugindir}/discover/kns-backend.so
+
+%files appstream-preview
+%{_kf6_datadir}/applications/org.kde.discover.appstreampreview.desktop
+%{_kf6_metainfodir}/org.kde.discover.appstreampreview.metainfo.xml
+%{_kf6_qtplugindir}/discover/appstream-preview-backend.so
 
 %changelog
 %{?kde_snapshot_changelog_entry}
