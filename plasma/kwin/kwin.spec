@@ -1,6 +1,6 @@
-%global commit0 212915b84daaebef22e6352b16eeb0399192218d
+%global commit0 7be6afab3fe49a3129a08e82506cc96d14c6e2b5
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 22
+%global bumpver 23
 
 Name:           kwin
 Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -168,7 +168,7 @@ ln -sr %{buildroot}%{_kf6_bindir}/kwin_wayland %{buildroot}%{_bindir}/kwin
 %{_kf6_datadir}/knotifications6/kwin.notifyrc
 %{_kf6_datadir}/knsrcfiles/*.knsrc
 %{_kf6_datadir}/krunner/dbusplugins/kwin-runner-windows.desktop
-%{_kf6_datadir}/kwin-wayland/
+%{_kf6_datadir}/kwin/
 %{_kf6_datadir}/qlogging-categories6/org_kde_kwin.categories
 %{_kf6_libdir}/kconf_update_bin/kwin-6.0-delete-desktop-switching-shortcuts
 %{_kf6_libdir}/kconf_update_bin/kwin-6.0-remove-breeze-tabbox-default
