@@ -1,6 +1,6 @@
-%global commit0 505e3784d28bc31042bff05e9656f54a428be3ac
+%global commit0 63dd6d0e5ca3ee8cc2c46098c5cefb7b627285a1
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 5
+%global bumpver 6
 
 Name:           kscreenlocker
 Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -67,6 +67,7 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %{_kf6_qmldir}/org/kde/kscreenlocker/
 %{_kf6_qtplugindir}/plasma/kcms/systemsettings/kcm_screenlocker.so
 %{_libexecdir}/kscreenlocker_greet
+%{_libexecdir}/kscreenlocker_worker
 
 %files devel
 %{_includedir}/KScreenLocker/
