@@ -13,6 +13,7 @@ URL:            https://invent.kde.org/plasma/ksshaskpass
 
 BuildRequires:  desktop-file-utils
 
+BuildRequires:  cmake(KF6Config)
 BuildRequires:  cmake(KF6CoreAddons)
 BuildRequires:  cmake(KF6DocTools)
 BuildRequires:  cmake(KF6I18n)
