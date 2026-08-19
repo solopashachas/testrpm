@@ -1,6 +1,6 @@
-%global commit0 3b2c11903f54102f9dc8e07db0d0970d7df52599
+%global commit0 374a84b85d0159c980e4e004b7f002c8609a20a3
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 7
+%global bumpver 8
 
 #global tests 1
 
@@ -45,7 +45,6 @@ BuildRequires: cmake(KPim6CalendarUtils)
 BuildRequires: cmake(KPim6EventViews)
 BuildRequires: cmake(KPim6IncidenceEditor)
 BuildRequires: cmake(KPim6KontactInterface)
-BuildRequires: cmake(KPim6LdapWidgets)
 BuildRequires: cmake(KPim6Libkdepim)
 BuildRequires: cmake(KPim6MailTransport)
 BuildRequires: cmake(KF6Mime)
