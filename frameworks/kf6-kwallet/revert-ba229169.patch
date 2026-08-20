@@ -1,0 +1,463 @@
+diff --git a/src/kwalletsettings.kcfg b/src/kwalletsettings.kcfg
+index 273d79a4..b2b974d2 100644
+--- a/src/kwalletsettings.kcfg
++++ b/src/kwalletsettings.kcfg
+@@ -13,6 +13,9 @@
+         <entry key="Close When Idle" type="Bool">
+             <default>false</default>
+         </entry>
++        <entry key="Prompt on Open" type="Bool">
++            <default>false</default>
++        </entry>
+         <entry key="Leave Open" type="Bool">
+             <default>true</default>
+         </entry>
+diff --git a/src/runtime/ksecretd/CMakeLists.txt b/src/runtime/ksecretd/CMakeLists.txt
+index 28554d53..b49877d1 100644
+--- a/src/runtime/ksecretd/CMakeLists.txt
++++ b/src/runtime/ksecretd/CMakeLists.txt
+@@ -48,6 +48,7 @@ ecm_setup_version(${KF_VERSION} VARIABLE_PREFIX KSECRETD
+ 
+ target_sources(ksecretd PRIVATE
+    main.cpp
++   kbetterthankdialog.cpp
+    ksecretd.cpp
+    kwalletwizard.cpp
+    ktimeout.cpp
+@@ -71,6 +72,7 @@ ecm_qt_declare_logging_category(ksecretd
+ )
+ 
+ ki18n_wrap_ui(ksecretd
++   kbetterthankdialogbase.ui
+    kwalletwizardpageexplanation.ui
+    kwalletwizardpageintro.ui
+    kwalletwizardpageoptions.ui
+diff --git a/src/runtime/ksecretd/kbetterthankdialog.cpp b/src/runtime/ksecretd/kbetterthankdialog.cpp
+new file mode 100644
+index 00000000..f5830265
+--- /dev/null
++++ b/src/runtime/ksecretd/kbetterthankdialog.cpp
+@@ -0,0 +1,69 @@
++/*
++    This file is part of the KDE libraries
++    SPDX-FileCopyrightText: 2004 George Staikos <staikos@kde.org>
++
++    SPDX-License-Identifier: LGPL-2.1-or-later
++*/
++
++#include "kbetterthankdialog.h"
++#include <QIcon>
++
++KBetterThanKDialog::KBetterThanKDialog(QWidget *parent)
++    : QDialog(parent)
++{
++    setupUi(this);
++    connect(_allowOnce, &QPushButton::clicked, this, &KBetterThanKDialog::allowOnceClicked);
++    connect(_allowAlways, &QPushButton::clicked, this, &KBetterThanKDialog::allowAlwaysClicked);
++    connect(_deny, &QPushButton::clicked, this, &KBetterThanKDialog::denyClicked);
++    connect(_denyForever, &QPushButton::clicked, this, &KBetterThanKDialog::denyForeverClicked);
++
++    init();
++}
++
++void KBetterThanKDialog::init()
++{
++    _allowOnce->setIcon(QIcon::fromTheme(QStringLiteral("dialog-ok")));
++    _allowAlways->setIcon(QIcon::fromTheme(QStringLiteral("dialog-ok")));
++    _deny->setIcon(QIcon::fromTheme(QStringLiteral("dialog-cancel")));
++    _denyForever->setIcon(QIcon::fromTheme(QStringLiteral("dialog-cancel")));
++
++    _allowOnce->setFocus();
++}
++
++void KBetterThanKDialog::setLabel(const QString &label)
++{
++    _label->setText(label);
++}
++
++void KBetterThanKDialog::accept()
++{
++    setResult(0);
++}
++
++void KBetterThanKDialog::reject()
++{
++    QDialog::reject();
++    setResult(2);
++}
++
++void KBetterThanKDialog::allowOnceClicked()
++{
++    done(0);
++}
++
++void KBetterThanKDialog::allowAlwaysClicked()
++{
++    done(1);
++}
++
++void KBetterThanKDialog::denyClicked()
++{
++    done(2);
++}
++
++void KBetterThanKDialog::denyForeverClicked()
++{
++    done(3);
++}
++
++#include "moc_kbetterthankdialog.cpp"
+diff --git a/src/runtime/ksecretd/kbetterthankdialog.h b/src/runtime/ksecretd/kbetterthankdialog.h
+new file mode 100644
+index 00000000..b99e748b
+--- /dev/null
++++ b/src/runtime/ksecretd/kbetterthankdialog.h
+@@ -0,0 +1,36 @@
++/*
++    This file is part of the KDE libraries
++    SPDX-FileCopyrightText: 2004 George Staikos <staikos@kde.org>
++
++    SPDX-License-Identifier: LGPL-2.1-or-later
++*/
++
++#ifndef KBETTERTHANKDIALOG_H
++#define KBETTERTHANKDIALOG_H
++
++#include <QDialog>
++
++#include "ui_kbetterthankdialogbase.h"
++
++class KBetterThanKDialog : public QDialog, private Ui_KBetterThanKDialogBase
++{
++    Q_OBJECT
++
++public:
++    explicit KBetterThanKDialog(QWidget *parent = nullptr);
++
++    void init();
++    void setLabel(const QString &label);
++
++protected Q_SLOTS:
++    void accept() override;
++    void reject() override;
++
++private Q_SLOTS:
++    void allowOnceClicked();
++    void allowAlwaysClicked();
++    void denyClicked();
++    void denyForeverClicked();
++};
++
++#endif
+diff --git a/src/runtime/ksecretd/kbetterthankdialogbase.ui b/src/runtime/ksecretd/kbetterthankdialogbase.ui
+new file mode 100644
+index 00000000..a0a19e56
+--- /dev/null
++++ b/src/runtime/ksecretd/kbetterthankdialogbase.ui
+@@ -0,0 +1,100 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<ui version="4.0">
++ <class>KBetterThanKDialogBase</class>
++ <widget class="QDialog" name="KBetterThanKDialogBase">
++  <property name="geometry">
++   <rect>
++    <x>0</x>
++    <y>0</y>
++    <width>479</width>
++    <height>109</height>
++   </rect>
++  </property>
++  <layout class="QGridLayout">
++   <property name="margin">
++    <number>11</number>
++   </property>
++   <property name="spacing">
++    <number>6</number>
++   </property>
++   <item row="0" column="0" colspan="3">
++    <widget class="QLabel" name="_label"/>
++   </item>
++   <item row="1" column="2">
++    <spacer>
++     <property name="orientation">
++      <enum>Qt::Horizontal</enum>
++     </property>
++     <property name="sizeType">
++      <enum>QSizePolicy::Expanding</enum>
++     </property>
++     <property name="sizeHint" stdset="0">
++      <size>
++       <width>41</width>
++       <height>21</height>
++      </size>
++     </property>
++    </spacer>
++   </item>
++   <item row="1" column="1">
++    <layout class="QHBoxLayout">
++     <property name="spacing">
++      <number>6</number>
++     </property>
++     <property name="margin">
++      <number>0</number>
++     </property>
++     <item>
++      <widget class="QPushButton" name="_allowOnce">
++       <property name="text">
++        <string>Allow &amp;Once</string>
++       </property>
++       <property name="default">
++        <bool>true</bool>
++       </property>
++      </widget>
++     </item>
++     <item>
++      <widget class="QPushButton" name="_allowAlways">
++       <property name="text">
++        <string>Allow &amp;Always</string>
++       </property>
++      </widget>
++     </item>
++     <item>
++      <widget class="QPushButton" name="_deny">
++       <property name="text">
++        <string>&amp;Deny</string>
++       </property>
++      </widget>
++     </item>
++     <item>
++      <widget class="QPushButton" name="_denyForever">
++       <property name="text">
++        <string>Deny &amp;Forever</string>
++       </property>
++      </widget>
++     </item>
++    </layout>
++   </item>
++   <item row="1" column="0">
++    <spacer>
++     <property name="orientation">
++      <enum>Qt::Horizontal</enum>
++     </property>
++     <property name="sizeType">
++      <enum>QSizePolicy::Expanding</enum>
++     </property>
++     <property name="sizeHint" stdset="0">
++      <size>
++       <width>61</width>
++       <height>21</height>
++      </size>
++     </property>
++    </spacer>
++   </item>
++  </layout>
++ </widget>
++ <resources/>
++ <connections/>
++</ui>
+diff --git a/src/runtime/ksecretd/ksecretd.cpp b/src/runtime/ksecretd/ksecretd.cpp
+index 4bbda3df..6143cbcd 100644
+--- a/src/runtime/ksecretd/ksecretd.cpp
++++ b/src/runtime/ksecretd/ksecretd.cpp
+@@ -9,6 +9,7 @@
+ #include "ksecretd.h"
+ #include "ksecretd_debug.h"
+ 
++#include "kbetterthankdialog.h"
+ #include "kwalletfreedesktopcollection.h"
+ #include "kwalletfreedesktopitem.h"
+ #include "kwalletfreedesktopprompt.h"
+@@ -476,6 +477,10 @@ int KSecretD::internalOpen(const QString &appid, const QString &wallet, bool isP
+         thisApp = appid;
+     }
+ 
++    if (implicitDeny(wallet, thisApp)) {
++        return -1;
++    }
++
+     QPair<int, KWallet::Backend *> walletInfo = findWallet(wallet);
+     int rc = walletInfo.first;
+     if (rc == -1) {
+@@ -667,7 +672,7 @@ int KSecretD::internalOpen(const QString &appid, const QString &wallet, bool isP
+             return -1;
+         }
+ 
+-        if (emptyPass) {
++        if (emptyPass && !isAuthorizedApp(appid, wallet, w)) {
+             delete b;
+             return -1;
+         }
+@@ -697,7 +702,7 @@ int KSecretD::internalOpen(const QString &appid, const QString &wallet, bool isP
+         // the
+         // authorization dialog is being shown.
+         walletInfo.second->ref();
+-        bool isAuthorized = _sessions.hasSession(appid, rc);
++        bool isAuthorized = _sessions.hasSession(appid, rc) || isAuthorizedApp(appid, wallet, w);
+         // as the wallet might have been forcefully closed, find it again to
+         // make sure it's
+         // still available (isAuthorizedApp might show a dialog).
+@@ -722,6 +727,69 @@ int KSecretD::internalOpen(const QString &appid, const QString &wallet, bool isP
+     return rc;
+ }
+ 
++bool KSecretD::isAuthorizedApp(const QString &appid, const QString &wallet, WId w)
++{
++    if (!_openPrompt) {
++        return true;
++    }
++
++    int response = 0;
++
++    QString thisApp;
++    if (appid.isEmpty()) {
++        thisApp = QStringLiteral("KDE System");
++    } else {
++        thisApp = appid;
++    }
++
++    if (!implicitAllow(wallet, thisApp)) {
++        KConfigGroup cfg = KSharedConfig::openConfig(QStringLiteral("kwalletrc"))->group("Auto Allow");
++        if (!cfg.isEntryImmutable(wallet)) {
++            KBetterThanKDialog *dialog = new KBetterThanKDialog;
++            dialog->setWindowTitle(i18n("KDE Wallet Service"));
++            if (appid.isEmpty()) {
++                dialog->setLabel(i18n("<qt>KDE has requested access to the open wallet '<b>%1</b>'.</qt>", wallet.toHtmlEscaped()));
++            } else {
++                dialog->setLabel(i18n("<qt>The application '<b>%1</b>' has requested access to the open wallet '<b>%2</b>'.</qt>",
++                                      appid.toHtmlEscaped(),
++                                      wallet.toHtmlEscaped()));
++            }
++            setupDialog(dialog, w, appid, false);
++            response = dialog->exec();
++            delete dialog;
++        }
++    }
++
++    if (response == 0 || response == 1) {
++        if (response == 1) {
++            KConfigGroup cfg = KSharedConfig::openConfig(QStringLiteral("kwalletrc"))->group("Auto Allow");
++            QStringList apps = cfg.readEntry(wallet, QStringList());
++            if (!apps.contains(thisApp)) {
++                if (cfg.isEntryImmutable(wallet)) {
++                    return false;
++                }
++                apps += thisApp;
++                _implicitAllowMap[wallet] += thisApp;
++                cfg.writeEntry(wallet, apps);
++                cfg.sync();
++            }
++        }
++    } else if (response == 3) {
++        KConfigGroup cfg = KSharedConfig::openConfig(QStringLiteral("kwalletrc"))->group("Auto Deny");
++        QStringList apps = cfg.readEntry(wallet, QStringList());
++        if (!apps.contains(thisApp)) {
++            apps += thisApp;
++            _implicitDenyMap[wallet] += thisApp;
++            cfg.writeEntry(wallet, apps);
++            cfg.sync();
++        }
++        return false;
++    } else {
++        return false;
++    }
++    return true;
++}
++
+ int KSecretD::deleteWallet(const QString &wallet)
+ {
+     int result = -1;
+@@ -733,6 +801,12 @@ int KSecretD::deleteWallet(const QString &wallet)
+         internalClose(walletInfo.second, walletInfo.first, true);
+         QFile::remove(path);
+         Q_EMIT walletDeleted(wallet);
++        // also delete access control entries
++        KConfigGroup cfgAllow = KSharedConfig::openConfig(QStringLiteral("kwalletrc"))->group("Auto Allow");
++        cfgAllow.deleteEntry(wallet);
++
++        KConfigGroup cfgDeny = KSharedConfig::openConfig(QStringLiteral("kwalletrc"))->group("Auto Deny");
++        cfgDeny.deleteEntry(wallet);
+ 
+         if (QFile::exists(pathSalt)) {
+             QFile::remove(pathSalt);
+@@ -1296,6 +1370,7 @@ void KSecretD::reconfigure()
+     _leaveOpen = settings.leaveOpen();
+     bool idleSave = _closeIdle;
+     _closeIdle = settings.closeWhenIdle();
++    _openPrompt = settings.promptonOpen();
+     int timeSave = _idleTime;
+     // in minutes!
+     _idleTime = settings.idleTimeout() * 60 * 1000;
+@@ -1320,6 +1395,23 @@ void KSecretD::reconfigure()
+         _closeTimers.clear();
+     }
+ 
++    KConfig cfg(QStringLiteral("kwalletrc"));
++    // Update the implicit allow stuff
++    _implicitAllowMap.clear();
++    const KConfigGroup autoAllowGroup(&cfg, "Auto Allow");
++    QStringList entries = autoAllowGroup.entryMap().keys();
++    for (QStringList::const_iterator i = entries.constBegin(); i != entries.constEnd(); ++i) {
++        _implicitAllowMap[*i] = autoAllowGroup.readEntry(*i, QStringList());
++    }
++
++    // Update the implicit allow stuff
++    _implicitDenyMap.clear();
++    const KConfigGroup autoDenyGroup(&cfg, "Auto Deny");
++    entries = autoDenyGroup.entryMap().keys();
++    for (QStringList::const_iterator i = entries.constBegin(); i != entries.constEnd(); ++i) {
++        _implicitDenyMap[*i] = autoDenyGroup.readEntry(*i, QStringList());
++    }
++
+     // Update if wallet was enabled/disabled
+     if (!isEnabled()) { // close all wallets
+         while (!_wallets.isEmpty()) {
+@@ -1340,6 +1432,16 @@ bool KSecretD::isEnabled()
+     return settings.kSecretDEnabled() && settings.kWalletDEnabled();
+ }
+ 
++bool KSecretD::implicitAllow(const QString &wallet, const QString &app)
++{
++    return _implicitAllowMap[wallet].contains(app);
++}
++
++bool KSecretD::implicitDeny(const QString &wallet, const QString &app)
++{
++    return _implicitDenyMap[wallet].contains(app);
++}
++
+ void KSecretD::timedOutClose(int id)
+ {
+     KWallet::Backend *w = _wallets.value(id);
+diff --git a/src/runtime/ksecretd/ksecretd.h b/src/runtime/ksecretd/ksecretd.h
+index 57d0890f..5d3ffadf 100644
+--- a/src/runtime/ksecretd/ksecretd.h
++++ b/src/runtime/ksecretd/ksecretd.h
+@@ -136,6 +136,7 @@ private:
+     // Internal - close this wallet.
+     int internalClose(KWallet::Backend *const w, const int handle, const bool force, const bool saveBeforeClose = true);
+ 
++    bool isAuthorizedApp(const QString &appid, const QString &wallet, WId w);
+     // This also validates the handle.  May return NULL.
+     KWallet::Backend *getWallet(const QString &appid, int handle);
+     // Generate a new unique handle.
+@@ -145,6 +146,9 @@ private:
+     void emitEntryUpdated(const QString &, const QString &, const QString &);
+     void emitEntryRenamed(const QString &, const QString &, const QString &, const QString &);
+     void emitEntryDeleted(const QString &, const QString &, const QString &);
++    // Implicitly allow access for this application
++    bool implicitAllow(const QString &wallet, const QString &app);
++    bool implicitDeny(const QString &wallet, const QString &app);
+ 
+     void doTransactionChangePassword(const QString &appid, const QString &wallet, qlonglong wId);
+     void doTransactionOpenCancelled(const QString &appid, const QString &wallet, const QString &service);
+@@ -163,8 +167,9 @@ private:
+ 
+     // configuration values
+     bool _leaveOpen, _closeIdle, _launchManager;
+-    bool _firstUse, _showingFailureNotify;
++    bool _openPrompt, _firstUse, _showingFailureNotify;
+     int _idleTime;
++    QMap<QString, QStringList> _implicitAllowMap, _implicitDenyMap;
+     KTimeout _closeTimers;
+     KTimeout _syncTimers;
+     const int _syncTime;
