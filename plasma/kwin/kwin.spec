@@ -1,6 +1,6 @@
-%global commit0 5171287ee6c372c6aea2a24e0196c1f915750105
+%global commit0 648ab210b214df399ad3ea55ec1c45652d9afdb5
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 26
+%global bumpver 27
 
 Name:           kwin
 Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -175,7 +175,6 @@ ln -sr %{buildroot}%{_kf6_bindir}/kwin_wayland %{buildroot}%{_bindir}/kwin
 %{_kf6_libdir}/kconf_update_bin/kwin-6.0-reset-active-mouse-screen
 %{_kf6_libdir}/kconf_update_bin/kwin-6.1-remove-gridview-expose-shortcuts
 %{_kf6_libdir}/kconf_update_bin/kwin-6.5-showpaint-changes
-%{_kf6_libdir}/kconf_update_bin/kwin5_update_default_rules
 %{_kf6_libdir}/libkcmkwincommon.so.6{,.*}
 %{_kf6_libdir}/libkwin.so.6{,.*}
 %{_kf6_qtplugindir}/kf6/packagestructure/kwin_*.so
