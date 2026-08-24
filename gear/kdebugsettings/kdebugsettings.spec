@@ -3,12 +3,12 @@
 %global bumpver 8
 
 Name:    kdebugsettings
-Summary: Configure debug output from Qt5 applications
+Summary: Application to choose which QLoggingCategory are displayed
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release: 1%{?dist}
 
 License: LGPL-2.0-or-later
-URL:     https://www.kde.org/applications/utilities/
+URL:     https://invent.kde.org/utilities/kdebugsettings
 %apps_source
 
 BuildRequires:  desktop-file-utils
@@ -33,7 +33,7 @@ Requires:       kf6-qqc2-desktop-style%{?_isa}
 
 
 %description
-An application to enable/disable qCDebug
+%{summary}.
 
 
 %prep
@@ -61,6 +61,7 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %{_kf6_bindir}/kdebugsettings
 %{_kf6_datadir}/applications/kcm_debugsettings.desktop
 %{_kf6_datadir}/applications/org.kde.kdebugsettings.desktop
+%{_kf6_datadir}/icons/hicolor/*/apps/kdebugsettings.png
 %{_kf6_datadir}/kdebugsettings/
 %{_kf6_datadir}/qlogging-categories6/kde*
 %{_kf6_libdir}/libkdebugsettings.so.*
