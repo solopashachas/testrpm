@@ -1,6 +1,6 @@
-%global commit0 068d7d07ad4fa2ce126cc9565c39529926d58c93
+%global commit0 02869e156f7bdc69b760ec535804774ff31fb88a
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 7
 
 %global framework kwallet
 
@@ -12,7 +12,6 @@ Summary:        KDE Frameworks 6 Tier 3 solution for password management
 License:        BSD-3-Clause AND CC0-1.0 AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-or-later AND LGPL-3.0-or-later
 URL:            https://invent.kde.org/frameworks/%{framework}
 %frameworks_meta
-Patch:          revert-ba229169.patch
 
 BuildRequires:  cmake(KF6ColorScheme)
 BuildRequires:  cmake(KF6Config)

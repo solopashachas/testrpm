@@ -1,6 +1,6 @@
-%global commit0 dfa45521fe9d1713f193686940bd1c255894c776
+%global commit0 2ea8216b38dfc1c4c18aed729b91aeede41bb1ca
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:           audiotube
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

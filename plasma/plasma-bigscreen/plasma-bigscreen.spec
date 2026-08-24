@@ -1,6 +1,6 @@
-%global commit0 d796e6c37c0041f462f7d9e613b22f5c54c22a05
+%global commit0 7fa98357693b0fcb036a3d46c0cfe972b8bd11ba
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 7
+%global bumpver 8
 
 Name:           plasma-bigscreen
 Summary:        Plasma shell for TVs
@@ -50,6 +50,7 @@ BuildRequires:  cmake(QCoro6Quick)
 
 BuildRequires:  cmake(SDL3)
 BuildRequires:  pkgconfig(libcec)
+BuildRequires:  qt6qml(org.kde.kdeconnect)
 
 Requires:       kde-connect%{?_isa}
 Requires:       kf6-kdeclarative%{?_isa}

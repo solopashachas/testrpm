@@ -1,6 +1,6 @@
 %global commit0 2799cfcb275c2ffd580e50a525ca78d3d269bd2a
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 Name:           plasma-integration
 Summary:        Qt Platform Theme integration plugin for Plasma
@@ -69,6 +69,7 @@ Requires:       font(notosans)
 Requires:       font(hack)
 
 Requires:       (%{name}-qt5 if qt5-qtbase-gui)
+%{?_qt6:Requires: %{_qt6}%{?_isa} = %{_qt6_version}}
 
 %description
 %{summary}.

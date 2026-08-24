@@ -1,6 +1,6 @@
-%global commit0 11975f879f02e9034f0281082a86a3d27156d49f
+%global commit0 89eb371ed73c6d3fb0cba15ece615fbd775632bb
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 21
+%global bumpver 22
 
 Name:           plasma-workspace
 Summary:        Plasma workspace, applications and applets
@@ -163,6 +163,7 @@ Requires:       kwin >= %{majmin_ver_kf6}
 Requires:       qt6-qt5compat%{?_isa}
 Requires:       qt6-qtlocation%{?_isa}
 Requires:       xdg-desktop-portal-kde >= %{majmin_ver_kf6}
+%{?_qt6:Requires: %{_qt6}%{?_isa} = %{_qt6_version}}
 
 Recommends:     plasma-pa
 Recommends:     plasma-welcome
