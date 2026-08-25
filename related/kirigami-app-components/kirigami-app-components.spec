@@ -1,6 +1,6 @@
-%global commit0 e1d53090ee369fae24803d95e15af6826143c492
+%global commit0 59e1dd39a6cf43ef9b320fa22d9b91d0219092e6
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 Name:           kirigami-app-components
 Version:        1.0.2%{?bumpver:^%{bumpver}.git%{shortcommit0}}

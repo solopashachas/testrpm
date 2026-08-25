@@ -1,6 +1,6 @@
-%global commit0 f234c0c0b196475a540adf6fcfeeb8ed93a783d6
+%global commit0 1f0a65af72aad00f6215c43af9d30f2e4c6e47e2
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 12
+%global bumpver 13
 
 Name:    kitinerary
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
