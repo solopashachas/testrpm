@@ -1,6 +1,6 @@
-%global commit0 15c36a279419703f3b752ae6932b97fdb9063eb2
+%global commit0 7911fabf3468b297d8c1e29adcd686f89062ccf8
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 18
+%global bumpver 19
 
 Name:    kdepim-addons
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -127,12 +127,11 @@ export CARGO_HOME=.cargo
 %{_kf6_libdir}/libKPim6AutoGenerateText.so.6{,.*}
 %{_kf6_libdir}/libopenurlwithconfigure.so.6{,.*}
 %{_kf6_libdir}/libshorturlpluginprivate.so*
-%{_kf6_qmldir}/org/kde/plasma/PimCalendars/
+%{_kf6_qmldir}/org/kde/CalendarEventsPlugin/
 %{_kf6_qtplugindir}/autogeneratetext/toolplugins/kaichat_addressbookplugin.so
 %{_kf6_qtplugindir}/autogeneratetext/toolplugins/kaichat_calendarplugin.so
 %{_kf6_qtplugindir}/pim6/
 %{_kf6_qtplugindir}/plasmacalendarplugins/pimevents.so
-%{_kf6_qtplugindir}/plasmacalendarplugins/pimevents/
 %{_kf6_sysconfdir}/xdg/kmail.antispamrc
 %{_kf6_sysconfdir}/xdg/kmail.antivirusrc
 
