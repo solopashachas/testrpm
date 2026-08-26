@@ -466,7 +466,9 @@ jobs:
           for (( retry_count=0; retry_count<max_retries; retry_count++ )); do
               if oras push \
                   --annotation "rpm.version=${version_release}" \
-                  "ghcr.io/${repository}/${pkgname,,}:latest-${target_branch}-${target_distribution},${container_tag}" \
+                  --annotation "rpm.branch=${target_branch}" \
+                  --annotation "rpm.releasever=${target_distribution}" \
+                  "ghcr.io/${repository}/${pkgname,,}:latest-${target_branch}-${target_distribution},${container_tag},${container_tag}-${target_branch}-${target_distribution}" \
                   ./"${pkgname}"-resultdir/*.rpm; then
                   exit 0
               fi

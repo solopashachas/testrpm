@@ -33,39 +33,75 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      packages: read
     concurrency:
-      group: release-prune
-      cancel-in-progress: true
+      # Do not delete assets while a repository publish is in progress.
+      group: repo-publish
+      cancel-in-progress: false
     container:
       image: ghcr.io/solopashachas/testrpm/buildroot:latest
 
     steps:
-      - name: Get packages to prune
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          for tag in unstable{,-debuginfo}; do
-            dnf -q \
-              --repofrompath="solopashachas,https://solopashachas.github.io/testrpm/${tag}" \
-              --repo=solopashachas rq --location | parallel basename | sort -u > "repo_packages_${tag}.list"
-            gh release view "${tag}" \
-              -R ${{ github.repository }} \
-              --json assets \
-              -q '.assets[].name' | grep -v 'testrpm-.*.repo\|packages.txt' | sort -u > "released_packages_${tag}.list"
-            comm -13 "repo_packages_${tag}.list" "released_packages_${tag}.list" > "prune_${tag}.list"
-          done
+      - name: Checkout
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
-      - name: Prune
+      - name: Set up ORAS
+        uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d
+
+      - name: Restore repository inventories
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          mapfile -t rpms < prune_unstable.list
-          for rpm in "${rpms[@]}"; do
-            echo "Deleting ${rpm}"
-            gh release delete-asset unstable "${rpm}" -R ${{ github.repository }} -y
-          done
-          mapfile -t rpms_debug < prune_unstable-debuginfo.list
-          for rpm in "${rpms_debug[@]}"; do
-            echo "Deleting ${rpm}"
-            gh release delete-asset unstable-debuginfo "${rpm}" -R ${{ github.repository }} -y
-          done
+          set -euo pipefail
+          retry() {
+            local attempt=1 delay=1
+            until "$@"; do
+              if (( attempt >= 5 )); then return 1; fi
+              echo "Attempt ${attempt}/5 failed; retrying in ${delay}s" >&2
+              sleep "${delay}"
+              attempt=$((attempt + 1))
+              delay=$((delay * 2))
+            done
+          }
+          retry oras login ghcr.io --password "${GH_TOKEN}" -u "${{ github.actor }}"
+          mkdir -p state
+          retry oras repo tags --format json "ghcr.io/${{ github.repository }}/repodata" |
+            jq -r '.tags[]? | select(startswith("latest-"))' | sort -u > repodata-tags
+          while IFS= read -r tag; do
+            retry oras pull "ghcr.io/${{ github.repository }}/repodata:${tag}" -o .
+          done < repodata-tags
+
+      - name: Delete retired release assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          find state -name retired.tsv -type f -exec cat {} + | sort -u > retired.tsv
+          export GITHUB_REPOSITORY="${{ github.repository }}"
+          delete_asset() {
+            local rpm="$1" tag="$2" attempt=1 delay=1 assets
+            while (( attempt <= 5 )); do
+              if assets="$(gh release view "${tag}" -R "${GITHUB_REPOSITORY}" \
+                  --json assets -q '.assets[].name')"; then
+                if ! grep -Fqx "${rpm}" <<< "${assets}"; then
+                  echo "${rpm} is no longer present in ${tag}"
+                  return 0
+                fi
+                echo "Deleting ${rpm} from ${tag} (attempt ${attempt}/5)"
+                if gh release delete-asset "${tag}" "${rpm}" \
+                    -R "${GITHUB_REPOSITORY}" --yes; then
+                  return 0
+                fi
+              fi
+              if (( attempt >= 5 )); then return 1; fi
+              echo "Retrying ${rpm} in ${delay}s" >&2
+              sleep "${delay}"
+              attempt=$((attempt + 1))
+              delay=$((delay * 2))
+            done
+          }
+          export -f delete_asset
+          awk -F '\t' 'NF == 5 { print $1 "\t" $4 }' retired.tsv | sort -u |
+            parallel --halt soon,fail=1 --jobs 8 --colsep '\t' delete_asset {1} {2}
