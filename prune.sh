@@ -47,7 +47,7 @@ for pkg in "${packages[@]}"; do
           fi
         fi
 
-        if [[ "$tags" =~ latest-[[:alpha:]]+-44 ]]; then
+        if [[ "$tags" =~ latest-[[:alpha:]]+-[0-9]{2} ]]; then
           # echo "⏩ Skipping: $pkgname $tags (contains 'latest')"
           continue
         fi
