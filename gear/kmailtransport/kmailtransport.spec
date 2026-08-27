@@ -1,6 +1,6 @@
-%global commit0 4c6d7da06c0b9c4eb9bd26572b6b99f8a3d2e472
+%global commit0 71bf326d0e3ceb365a8d82104be24f153c783cbc
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 Name:    kmailtransport
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

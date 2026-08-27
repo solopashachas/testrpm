@@ -1,6 +1,6 @@
-%global commit0 355cff97dae990f80482dbc271695eb1d966dd78
+%global commit0 44520c49f19b641ecd81345f16989bd00905b415
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 5
+%global bumpver 6
 
 Name:           keepsecret
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
