@@ -1,6 +1,6 @@
 %global commit0 13f57fc4cbb92bb8f6d07e677952bb64ca57bc13
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 Name:    kruler
 Summary: A screen ruler and color measurement tool
