@@ -1,6 +1,6 @@
-%global commit0 c6ec2e1cabd7fc25333847e48ae2b84033a6a667
+%global commit0 5ae0e190dbab0130a5d1d4b3da7601a62e62acf5
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 Name:    libkexiv2
 Summary: A wrapper around Exiv2 library

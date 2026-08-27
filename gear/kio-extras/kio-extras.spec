@@ -1,6 +1,6 @@
-%global commit0 866e64354786f89ac154c3cd5948b63306771179
+%global commit0 c726a9daf76b782be9a957835a407d97beff43c0
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 7
+%global bumpver 8
 
 Name:    kio-extras
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -117,6 +117,7 @@ Requires:       %{name}%{?_isa} = %{version}-%{release}
 %{_kf6_plugindir}/thumbcreator/
 %{_kf6_qtplugindir}/kcm_trash.so
 %{_kf6_qtplugindir}/plasma/kcms/systemsettings_qwidgets/kcm_*.so
+%{_kf6_qtplugindir}/plasma/kcms/systemsettings/kcm_proxy.so
 %{_libexecdir}/wpad-detector-helper
 
 %files info

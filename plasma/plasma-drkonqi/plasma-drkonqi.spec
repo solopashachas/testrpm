@@ -1,6 +1,6 @@
-%global commit0 621e53262faa720aa8a17e3c30aadca4f3c6848f
+%global commit0 af23df73e8e21e273f3ccfb81105ad4a2e1ecbb6
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 8
+%global bumpver 9
 
 %global base_name drkonqi
 
@@ -99,12 +99,9 @@ desktop-file-validate %{buildroot}/%{_kf6_datadir}/applications/*.desktop
 %{_libexecdir}/installdbgsymbols.sh
 %{_unitdir}/drkonqi-coredump-processor@.service
 %{_unitdir}/systemd-coredump@.service.wants/drkonqi-coredump-processor@.service
-%{_userunitdir}/default.target.wants/*
 %{_userunitdir}/drkonqi-coredump-*
 %{_userunitdir}/drkonqi-sentry-postman.*
 %{_userunitdir}/plasma-core.target.wants/drkonqi-*
-%{_userunitdir}/sockets.target.wants/drkonqi-coredump-launcher.socket
-%{_userunitdir}/timers.target.wants/drkonqi-*
 
 %changelog
 %{?kde_snapshot_changelog_entry}

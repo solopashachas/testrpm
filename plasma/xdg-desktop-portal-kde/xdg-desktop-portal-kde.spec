@@ -1,6 +1,6 @@
-%global commit0 ccfc60d51dc3cb6587b2ca83d408b740da59738e
+%global commit0 ea33694e88596e000e800eb31accb0cf102e8cc0
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 10
+%global bumpver 11
 
 Name:           xdg-desktop-portal-kde
 Summary:        Backend implementation for xdg-desktop-portal using Qt/KF5
@@ -41,6 +41,7 @@ BuildRequires:  cmake(KF6StatusNotifierItem)
 BuildRequires:  cmake(KF6WidgetsAddons)
 BuildRequires:  cmake(KF6WindowSystem)
 
+BuildRequires:  cmake(KPipeWire)
 BuildRequires:  cmake(KWayland)
 BuildRequires:  cmake(PlasmaWaylandProtocols)
 BuildRequires:  pkgconfig(wayland-client)
