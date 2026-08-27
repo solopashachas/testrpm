@@ -444,10 +444,21 @@ def download(config: Config) -> None:
         for path in (config.inventory, config.retired_inventory)
         for row in read_tsv(path, 5)
     }
+    stable_names: set[str] = set()
+    if config.testing:
+        for repository_name in (
+            config.normal_repository,
+            f"{config.normal_repository}-debuginfo",
+        ):
+            stable_names.update(
+                repository_package_names(Path("repo") / repository_name)
+            )
     new_rpms: list[Row] = []
     for name, reference, digest in sorted(set(candidates)):
         if not rpm_matches_releasever(rpms / name, config.releasever):
             LOGGER.info("Skipping %s: not built for Fedora %s", name, config.releasever)
+        elif name in stable_names:
+            LOGGER.info("Skipping %s: already present in the stable repository", name)
         elif name not in known:
             kind = (
                 "debuginfo"
@@ -672,9 +683,11 @@ def generate_repository(config: Config, kind: str, output: str) -> None:
         generated.replace(repository / "repodata")
 
 
-def repository_package_names(repository: Path, latest_limit: int) -> set[str]:
+def repository_package_names(
+    repository: Path, latest_limit: int | None = None
+) -> set[str]:
     repo_id = f"retention-{repository.name}"
-    output = command(
+    arguments: list[PathArgument] = [
         "dnf",
         "-q",
         "--refresh",
@@ -682,10 +695,10 @@ def repository_package_names(repository: Path, latest_limit: int) -> set[str]:
         f"--repo={repo_id}",
         "rq",
         "--location",
-        "--latest-limit",
-        str(latest_limit),
-        capture_output=True,
-    )
+    ]
+    if latest_limit is not None:
+        arguments.extend(("--latest-limit", str(latest_limit)))
+    output = command(*arguments, capture_output=True)
     names: set[str] = set()
     for location in output.splitlines():
         name = unquote(Path(urlparse(location).path).name)
@@ -810,9 +823,25 @@ def retain_repository_packages(repository: Path, retained_names: set[str]) -> No
 
 def apply_retention(config: Config) -> None:
     retained_names: set[str] = set()
-    for repository_name in (config.logical_repository, config.debug_repository):
+    repositories = (
+        (config.logical_repository, config.normal_repository),
+        (config.debug_repository, f"{config.normal_repository}-debuginfo"),
+    )
+    for repository_name, stable_repository_name in repositories:
         repository = Path("repo") / repository_name
         retained = repository_package_names(repository, MAX_PACKAGE_VERSIONS)
+        if config.testing:
+            stable_names = repository_package_names(
+                Path("repo") / stable_repository_name
+            )
+            duplicates = retained & stable_names
+            retained.difference_update(duplicates)
+            if duplicates:
+                LOGGER.info(
+                    "Excluded %d RPMs already present in %s",
+                    len(duplicates),
+                    stable_repository_name,
+                )
         retain_repository_packages(repository, retained)
         retained_names.update(retained)
 
