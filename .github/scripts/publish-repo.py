@@ -746,6 +746,8 @@ def repository_package_names(
     for line in output.splitlines():
         source_name, separator, location = line.partition("\t")
         if not separator:
+            source_name, separator, location = line.partition("\\t")
+        if not separator:
             raise PublishError(
                 f"Invalid package query output for {repository}: {line!r}"
             )

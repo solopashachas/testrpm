@@ -124,8 +124,14 @@ jobs:
           if [[ "${testing}" == true ]]; then
             args+=(--repofrompath="base,https://${REPOSITORY_OWNER}.github.io/${REPOSITORY}/${normal_repository}/")
           fi
-          dnf repoclosure "${args[@]}"
-          dnf repoclosure "${args[@]}" --best
+          if ! dnf repoclosure "${args[@]}"; then
+            echo '::error::Repository closure check failed'
+            exit 1
+          fi
+          if ! dnf repoclosure "${args[@]}" --best; then
+            echo '::error::Repository closure check with --best failed'
+            exit 1
+          fi
 
       - name: Generate .repo file
         run: .github/scripts/publish-repo.py repofile
