@@ -7,6 +7,7 @@ import argparse
 import bz2
 import csv
 import filecmp
+import fnmatch
 import gzip
 import hashlib
 import json
@@ -37,6 +38,11 @@ PACKAGE_KINDS = ("packages", "debuginfo")
 MAX_PACKAGE_VERSIONS = 3
 MAX_REMOTE_ATTEMPTS = 5
 RPM_NAMESPACE = "http://linux.duke.edu/metadata/rpm"
+DEFAULT_EXCLUDED_SOURCES = (
+    "python-ytmusicapi",
+    "ktextaddons",
+    "kirigami-app-components",
+)
 PACKAGE_DIRECTORIES = (Path("plasma"), Path("related"), Path("frameworks"))
 SAFE_COMPONENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 SAFE_GITHUB_REPOSITORY = re.compile(
@@ -61,6 +67,7 @@ class Config:
     repository_owner: str
     max_assets_per_release: int
     max_parallel_transfers: int
+    excluded_sources: tuple[str, ...]
 
     @property
     def inventory(self) -> Path:
@@ -115,6 +122,21 @@ class Config:
                 raise PublishError(f"{name} contains unsafe characters")
         if not SAFE_GITHUB_REPOSITORY.fullmatch(values["GITHUB_REPOSITORY"]):
             raise PublishError("GITHUB_REPOSITORY must have the form owner/repository")
+        excluded_sources = tuple(
+            pattern
+            for pattern in re.split(
+                r"[\s,]+",
+                os.environ.get("EXCLUDE_SOURCES", ",".join(DEFAULT_EXCLUDED_SOURCES)),
+            )
+            if pattern
+        )
+        for pattern in excluded_sources:
+            if (
+                "/" in pattern
+                or "\\" in pattern
+                or any(character in pattern for character in "\x00\n\r\t")
+            ):
+                raise PublishError(f"Invalid excluded source pattern: {pattern!r}")
         return cls(
             branch=values["branch"],
             releasever=values["releasever"],
@@ -127,6 +149,7 @@ class Config:
             repository_owner=values["REPOSITORY_OWNER"],
             max_assets_per_release=maximum,
             max_parallel_transfers=parallel_transfers,
+            excluded_sources=excluded_sources,
         )
 
 
@@ -321,6 +344,19 @@ def rpm_matches_releasever(path: Path, releasever: str) -> bool:
     return re.search(rf"\.fc{re.escape(releasever)}(?:[._]|$)", release) is not None
 
 
+def rpm_source_name(path: Path) -> str:
+    source_name = command(
+        "dnf", "-q", "rq", "--qf", "%{source_name}", path, capture_output=True
+    ).strip()
+    if not source_name or "\n" in source_name:
+        raise PublishError(f"Unable to determine a unique source name for {path}")
+    return source_name
+
+
+def package_is_excluded(name: str, patterns: Sequence[str]) -> bool:
+    return any(fnmatch.fnmatchcase(name, pattern) for pattern in patterns)
+
+
 def pull_manifest(item: tuple[Path, str, str]) -> tuple[str, Path]:
     manifests_directory, reference, digest = item
     destination = manifests_directory / digest.removeprefix("sha256:")
@@ -455,7 +491,11 @@ def download(config: Config) -> None:
             )
     new_rpms: list[Row] = []
     for name, reference, digest in sorted(set(candidates)):
-        if not rpm_matches_releasever(rpms / name, config.releasever):
+        rpm_path = rpms / name
+        source_name = rpm_source_name(rpm_path)
+        if package_is_excluded(source_name, config.excluded_sources):
+            LOGGER.info("Skipping %s: source package %s is excluded", name, source_name)
+        elif not rpm_matches_releasever(rpm_path, config.releasever):
             LOGGER.info("Skipping %s: not built for Fedora %s", name, config.releasever)
         elif name in stable_names:
             LOGGER.info("Skipping %s: already present in the stable repository", name)
@@ -684,7 +724,9 @@ def generate_repository(config: Config, kind: str, output: str) -> None:
 
 
 def repository_package_names(
-    repository: Path, latest_limit: int | None = None
+    repository: Path,
+    latest_limit: int | None = None,
+    excluded_sources: Sequence[str] = (),
 ) -> set[str]:
     repo_id = f"retention-{repository.name}"
     arguments: list[PathArgument] = [
@@ -694,13 +736,21 @@ def repository_package_names(
         f"--repofrompath={repo_id},{repository}",
         f"--repo={repo_id}",
         "rq",
-        "--location",
+        "--qf",
+        "%{source_name}\\t%{location}\\n",
     ]
     if latest_limit is not None:
         arguments.extend(("--latest-limit", str(latest_limit)))
     output = command(*arguments, capture_output=True)
     names: set[str] = set()
-    for location in output.splitlines():
+    for line in output.splitlines():
+        source_name, separator, location = line.partition("\t")
+        if not separator:
+            raise PublishError(
+                f"Invalid package query output for {repository}: {line!r}"
+            )
+        if package_is_excluded(source_name, excluded_sources):
+            continue
         name = unquote(Path(urlparse(location).path).name)
         if name:
             names.add(safe_rpm_name(name))
@@ -829,7 +879,11 @@ def apply_retention(config: Config) -> None:
     )
     for repository_name, stable_repository_name in repositories:
         repository = Path("repo") / repository_name
-        retained = repository_package_names(repository, MAX_PACKAGE_VERSIONS)
+        retained = repository_package_names(
+            repository,
+            MAX_PACKAGE_VERSIONS,
+            config.excluded_sources,
+        )
         if config.testing:
             stable_names = repository_package_names(
                 Path("repo") / stable_repository_name

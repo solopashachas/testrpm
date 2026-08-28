@@ -19,6 +19,11 @@ on:
         required: false
         default: false
         type: boolean
+      exclude_sources:
+        description: 'Source package names or glob patterns to exclude (comma or space separated)'
+        required: false
+        default: 'python-ytmusicapi ktextaddons kirigami-app-components'
+        type: string
 
 concurrency:
   group: repo-publish
@@ -34,6 +39,7 @@ jobs:
     env:
       MAX_ASSETS_PER_RELEASE: '900'
       MAX_PARALLEL_TRANSFERS: '8'
+      EXCLUDE_SOURCES: ${{ inputs.exclude_sources }}
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.event.repository.name }}
       REPOSITORY_OWNER: ${{ github.repository_owner }}
