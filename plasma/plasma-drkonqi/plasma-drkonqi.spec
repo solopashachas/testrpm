@@ -1,6 +1,6 @@
-%global commit0 af23df73e8e21e273f3ccfb81105ad4a2e1ecbb6
+%global commit0 fdf33be632a18f5e1c0ed2dfb300bf1e1ca10c72
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 10
+%global bumpver 11
 
 %global base_name drkonqi
 
@@ -24,6 +24,7 @@ BuildRequires:  systemd-rpm-macros
 BuildRequires:  cmake(KF6Config)
 BuildRequires:  cmake(KF6CoreAddons)
 BuildRequires:  cmake(KF6Crash)
+BuildRequires:  cmake(KF6DBusAddons)
 BuildRequires:  cmake(KF6GuiAddons)
 BuildRequires:  cmake(KF6I18n)
 BuildRequires:  cmake(KF6IdleTime)

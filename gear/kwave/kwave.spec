@@ -1,6 +1,6 @@
-%global commit0 7571634c1fbe17690c792f0dbffeb020ad36e49c
+%global commit0 a22f6d9cac77ea81b8038f6007c2268ac121055a
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 10
+%global bumpver 11
 
 Name:           kwave
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

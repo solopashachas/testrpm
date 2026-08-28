@@ -1,6 +1,6 @@
-%global commit0 1e77a2df155daec01704ee01395a93cf073015b6
+%global commit0 dd3247de5f917bdfc333d96b57c966362e6a7c79
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 22
+%global bumpver 23
 
 Name:           plasma-desktop
 Summary:        Plasma Desktop shell
@@ -239,6 +239,7 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/*.desktop
 %{_kf6_datadir}/kconf_update/50-krunner-activate-typing.sh
 %{_kf6_datadir}/kconf_update/50-krunner-activate-typing.upd
 %{_kf6_datadir}/kglobalaccel/org.kde.plasma.emojier.desktop
+%{_kf6_datadir}/kglobalaccel/org.kde.screenreader.desktop
 %{_kf6_datadir}/kglobalaccel/org.kde.touchpadshortcuts.desktop
 %{_kf6_datadir}/knotifications6/*.notifyrc
 %{_kf6_datadir}/knsrcfiles/
