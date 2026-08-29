@@ -1,6 +1,6 @@
-%global commit0 33614dfd5121726c1ca357229e38ea003617d8b5
+%global commit0 3565fee7263bfddbd4a43ce765fb93cf7edea8a0
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 Name:    libkdepim
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
