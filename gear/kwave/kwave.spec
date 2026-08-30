@@ -1,6 +1,6 @@
-%global commit0 b1e9ccd41615f0683bd5ad783e47c6de674ce7fd
+%global commit0 335e7664027ed83f163e22ac8418836c8c28ffbf
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 12
+%global bumpver 14
 
 Name:           kwave
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -44,6 +44,7 @@ BuildRequires:  fftw-devel >= 3.0
 BuildRequires:  flac-devel
 BuildRequires:  gettext
 BuildRequires:  id3lib-devel >= 3.8.1
+BuildRequires:  taglib-devel
 
 BuildRequires:  libmad-devel
 BuildRequires:  libsamplerate-devel
