@@ -1,6 +1,6 @@
-%global commit0 335e7664027ed83f163e22ac8418836c8c28ffbf
+%global commit0 5f18bff9074bf51bb265796948c6bac311e7232d
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 14
+%global bumpver 15
 
 Name:           kwave
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -90,7 +90,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_kf6_metainfodir}/org.kde.%{
 desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/org.kde.%{name}.desktop
 
 %files -f %{name}.lang
-%doc AUTHORS README.md TODO CHANGES
+%doc AUTHORS README.md CHANGES
 %license GNU-LICENSE LICENSES
 %{_kf6_bindir}/%{name}
 %{_kf6_datadir}/%{name}/
