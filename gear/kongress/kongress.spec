@@ -1,6 +1,6 @@
-%global commit0 a958820d3ef1e1032f3b6563f342a1095bacc4ea
+%global commit0 b6853729f74645f17ced52170fe9053abb9d6845
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 Name:           kongress
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

@@ -1,6 +1,6 @@
-%global commit0 ff60e606466652bdf7bb919c991256deaada4288
+%global commit0 3330501e723987f45123e7f8de6086ad0a94fb95
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 21
+%global bumpver 22
 
 %global base_name discover
 # enable snap support (or not)
@@ -17,7 +17,6 @@ Release:        1%{?dist}
 License:        BSD-3-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND (GPL-2.0-only OR GPL-3.0-only) AND (LGPL-2.1-only OR LGPL-3.0-only)
 URL:            https://invent.kde.org/plasma/discover
 %plasma_source
-Patch:          revert-4ada01d6.patch
 
 BuildOption(conf): -DPACKAGEKIT_AUTOREMOVE:BOOL=ON
 %if 0%{?fedora}
