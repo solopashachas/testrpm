@@ -1,6 +1,6 @@
-%global commit0 cc91f209e9ba47af7ddadfb9616cf260bba2d182
+%global commit0 4912cdbd99e920d3cd0c9546d0370962babcc020
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 28
+%global bumpver 29
 
 Name:           plasma-workspace
 Summary:        Plasma workspace, applications and applets
@@ -106,6 +106,7 @@ BuildRequires:  cmake(PlasmaActivities)
 BuildRequires:  cmake(PlasmaActivitiesStats)
 BuildRequires:  cmake(PlasmaQuick)
 BuildRequires:  cmake(ScreenSaverDBusInterface)
+BuildRequires:  cmake(Union)
 
 BuildRequires:  cmake(AppStreamQt)
 BuildRequires:  cmake(KExiv2Qt6)
