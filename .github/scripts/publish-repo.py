@@ -366,6 +366,58 @@ def pull_manifest(item: tuple[Path, str, str]) -> tuple[str, Path]:
     return reference, destination
 
 
+def discover_image_tags(item: tuple[Config, str]) -> list[tuple[str, str, str]]:
+    config, package_name = item
+    image = f"ghcr.io/{config.github_repository}/{package_name.lower()}"
+    document = load_mapping(
+        remote_command(
+            "oras",
+            "repo",
+            "tags",
+            "--format",
+            "json",
+            image,
+            capture_output=True,
+        ),
+        f"tags for {image}",
+    )
+    raw_tags = document.get("tags", [])
+    if not isinstance(raw_tags, list) or not all(
+        isinstance(tag, str) for tag in raw_tags
+    ):
+        raise PublishError(f"Invalid tags returned for {image}")
+
+    suffix = re.compile(rf"-{re.escape(config.branch)}-{re.escape(config.releasever)}$")
+    latest = f"latest-{config.branch}-{config.releasever}"
+    tags = {
+        tag
+        for tag in raw_tags
+        if suffix.search(tag) and not tag.startswith(("latest-", "pr-"))
+    }
+    if latest in raw_tags:
+        tags.add(latest)
+    return [(package_name, image, tag) for tag in sorted(tags)]
+
+
+def resolve_manifest(item: tuple[str, str, str]) -> Row:
+    package_name, image, tag = item
+    descriptor = load_mapping(
+        remote_command(
+            "oras",
+            "manifest",
+            "fetch",
+            "--descriptor",
+            f"{image}:{tag}",
+            capture_output=True,
+        ),
+        f"descriptor for {image}:{tag}",
+    )
+    digest = descriptor.get("digest")
+    if not isinstance(digest, str) or not re.fullmatch(r"sha256:[0-9a-f]{64}", digest):
+        raise PublishError(f"Invalid digest returned for {image}:{tag}")
+    return package_name, f"{image}@{digest}", digest
+
+
 def discover(config: Config) -> None:
     packages = sorted(
         {
@@ -376,60 +428,26 @@ def discover(config: Config) -> None:
             if path.is_dir()
         }
     )
-    discovered: list[Row] = []
-    suffix = re.compile(rf"-{re.escape(config.branch)}-{re.escape(config.releasever)}$")
-    latest = f"latest-{config.branch}-{config.releasever}"
-    for package_name in packages:
-        image = f"ghcr.io/{config.github_repository}/{package_name.lower()}"
-        try:
-            document = load_mapping(
-                remote_command(
-                    "oras",
-                    "repo",
-                    "tags",
-                    "--format",
-                    "json",
-                    image,
-                    capture_output=True,
-                ),
-                f"tags for {image}",
-            )
-        except subprocess.CalledProcessError:
-            LOGGER.warning(
-                "Unable to list tags for %s; checking only the latest tag", image
-            )
-            tags: set[str] = set()
-        else:
-            raw_tags = document.get("tags", [])
-            if not isinstance(raw_tags, list) or not all(
-                isinstance(tag, str) for tag in raw_tags
-            ):
-                raise PublishError(f"Invalid tags returned for {image}")
-            tags = {
-                tag
-                for tag in raw_tags
-                if suffix.search(tag) and not tag.startswith(("latest-", "pr-"))
-            }
-        if command_exists("oras", "manifest", "fetch", f"{image}:{latest}"):
-            tags.add(latest)
-        for tag in sorted(tags):
-            descriptor = load_mapping(
-                remote_command(
-                    "oras",
-                    "manifest",
-                    "fetch",
-                    "--descriptor",
-                    f"{image}:{tag}",
-                    capture_output=True,
-                ),
-                f"descriptor for {image}:{tag}",
-            )
-            digest = descriptor.get("digest")
-            if not isinstance(digest, str) or not re.fullmatch(
-                r"sha256:[0-9a-f]{64}", digest
-            ):
-                raise PublishError(f"Invalid digest returned for {image}:{tag}")
-            discovered.append((package_name, f"{image}@{digest}", digest))
+    eligible_packages = [
+        package_name
+        for package_name in packages
+        if not package_is_excluded(package_name, config.excluded_sources)
+    ]
+    excluded_count = len(packages) - len(eligible_packages)
+    if excluded_count:
+        LOGGER.info("Skipping discovery for %d excluded sources", excluded_count)
+
+    tag_groups = parallel_map(
+        discover_image_tags,
+        ((config, package_name) for package_name in eligible_packages),
+        config.max_parallel_transfers,
+    )
+    manifests = [manifest for group in tag_groups for manifest in group]
+    discovered = parallel_map(
+        resolve_manifest,
+        manifests,
+        config.max_parallel_transfers,
+    )
     write_tsv(Path("discovered.tsv"), discovered, unique=True)
     known = {
         row[4]
