@@ -1,6 +1,6 @@
-%global commit0 4b729b09eed6dd407725e3ddbfd28b74cbdbb410
+%global commit0 fb43ab29c9856159ac6e8af1c17dec7e48a87c53
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 14
+%global bumpver 15
 
 %global base_name kdeconnect-kde
 
@@ -129,7 +129,6 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %{_kf6_datadir}/contractor/
 %{_kf6_datadir}/deepin/
 %{_kf6_datadir}/icons/hicolor/*/apps/kdeconnect*
-%{_kf6_datadir}/icons/hicolor/*/status/*
 %{_kf6_datadir}/kdeconnect/kdeconnect_*.qml
 %{_kf6_datadir}/knotifications6/kdeconnect.notifyrc
 %{_kf6_datadir}/plasma/plasmoids/org.kde.kdeconnect/
