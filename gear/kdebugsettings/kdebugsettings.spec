@@ -1,6 +1,6 @@
-%global commit0 9fb407c0126969ce3059efd7a29ee3e652682329
+%global commit0 753d69d91959330c6aa8d95ab6d37b9e6980c801
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 9
+%global bumpver 10
 
 Name:    kdebugsettings
 Summary: Application to choose which QLoggingCategory are displayed
