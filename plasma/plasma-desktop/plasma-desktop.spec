@@ -1,6 +1,6 @@
-%global commit0 494f48ebef6b64baab87d7cd77659520d715ae33
+%global commit0 6467f7988197b214aa7c7d7d8d2ba4a3f9ae7381
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 27
+%global bumpver 28
 
 Name:           plasma-desktop
 Summary:        Plasma Desktop shell
@@ -256,6 +256,7 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/*.desktop
 %{_kf6_qmldir}/org/kde/private/desktopcontainment/*
 %{_kf6_qtplugindir}/attica_kde.so
 %{_kf6_qtplugindir}/plasma/applets/org.kde.panel.so
+%{_kf6_qtplugindir}/plasma/applets/org.kde.plasma.dwellclicker.so
 %{_kf6_qtplugindir}/plasma/applets/org.kde.plasma.keyboardlayout.so
 %{_kf6_qtplugindir}/plasma/applets/org.kde.plasma.kicker.so
 %{_kf6_qtplugindir}/plasma/applets/org.kde.plasma.kickoff.so
