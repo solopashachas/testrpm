@@ -532,29 +532,50 @@ def assign(config: Config) -> None:
     bucket_history = inventory + read_tsv(config.retired_inventory, 5)
     assignments: list[Row] = []
     new_rpms = read_tsv(Path("incoming/new-rpms.tsv"), 4)
+    for _, kind, _, _ in new_rpms:
+        if kind not in PACKAGE_KINDS:
+            raise PublishError(f"Unknown package kind: {kind!r}")
     for kind, repository_name in zip(
         PACKAGE_KINDS, (config.logical_repository, config.debug_repository), strict=True
     ):
+        kind_rows = [row for row in new_rpms if row[1] == kind]
+        if not kind_rows:
+            continue
         try:
-            buckets = [int(row[2]) for row in bucket_history if row[1] == kind]
+            known_buckets = {int(row[2]) for row in bucket_history if row[1] == kind}
         except ValueError as error:
             raise PublishError(
                 f"Invalid bucket number in {config.inventory}"
             ) from error
-        bucket = max(buckets, default=1)
-        count = sum(row[1] == kind and int(row[2]) == bucket for row in bucket_history)
-        for name, row_kind, reference, digest in new_rpms:
-            if row_kind not in PACKAGE_KINDS:
-                raise PublishError(f"Unknown package kind: {row_kind!r}")
-            if row_kind != kind:
-                continue
-            if count >= config.max_assets_per_release:
-                bucket += 1
-                count = 0
+
+        bucket_counts: dict[int, int] = {}
+        for bucket in sorted(known_buckets):
+            tag = f"{repository_name}-rpm-{bucket:04d}"
+            bucket_counts[bucket] = len(release_assets(config, tag))
+            LOGGER.info(
+                "Release bucket %s contains %d/%d assets",
+                tag,
+                bucket_counts[bucket],
+                config.max_assets_per_release,
+            )
+        if not bucket_counts:
+            bucket_counts[1] = 0
+
+        for name, _, reference, digest in kind_rows:
+            available_buckets = [
+                bucket
+                for bucket, count in bucket_counts.items()
+                if count < config.max_assets_per_release
+            ]
+            if available_buckets:
+                bucket = min(available_buckets)
+            else:
+                bucket = max(bucket_counts) + 1
+                bucket_counts[bucket] = 0
             tag = f"{repository_name}-rpm-{bucket:04d}"
             inventory.append((name, kind, str(bucket), tag, digest))
             assignments.append((name, kind, str(bucket), tag, reference))
-            count += 1
+            bucket_counts[bucket] += 1
     write_tsv(config.inventory.with_suffix(".tsv.next"), inventory, unique=True)
     write_tsv(Path("incoming/assignments.tsv"), assignments)
 
