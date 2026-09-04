@@ -1,11 +1,11 @@
-%global commit0 d8144b3f27e32f4e2aaa2c6045fc962c623efbac
+%global commit0 bd77ee0e10e83f36dcd2af30532a42b252da6045
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 1
 
 %global framework kwidgetsaddons
 
 Name:           kf6-%{framework}
-Version:        6.30.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 1 addon with various classes on top of QtWidgets
 License:        BSD-3-Clause AND CC0-1.0 AND GPL-2.0-or-later AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND LGPL-3.0-only AND LGPL-3.0-or-later

@@ -1,12 +1,12 @@
-%global commit0 619b6792fed4b45b45e10c9306f145bba2ed35e2
+%global commit0 80208a6fc7f52b4602bebf5f6e4e46d75327bce2
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 1
 
 %global framework kfilemetadata
 
 Name:           kf6-%{framework}
 Summary:        A Tier 2 KDE Framework for extracting file metadata
-Version:        6.30.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 
 License:        BSD-3-Clause AND CC0-1.0 AND LGPL-2.1-only AND LGPL-2.1-or-later AND LGPL-3.0-only AND LicenseRef-KDE-Accepted-LGPL

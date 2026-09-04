@@ -1,11 +1,11 @@
-%global commit0 ab83c3ca19805ab66b9f0e1f413b4628d2b92ef6
+%global commit0 ffe1c3d06d7ef6411570f723b46fe0ef2885c73b
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 1
 
 %global framework kparts
 
 Name:           kf6-%{framework}
-Version:        6.30.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 3 solution for KParts
 
