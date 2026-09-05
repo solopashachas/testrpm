@@ -1,6 +1,6 @@
-%global commit0 339e6a6c265ceb99b3b976f46b4e66fd54a3eaec
+%global commit0 d9227b574714e6b7da77f0320bf111e6aa001039
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kholidays
 
