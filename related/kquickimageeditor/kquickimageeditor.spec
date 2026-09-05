@@ -1,6 +1,6 @@
 Name:    kquickimageeditor
-Version: 0.7.0
-Release: 2%{?dist}
+Version: 0.7.0.1
+Release: 1%{?dist}
 Summary: QtQuick components providing basic image editing capabilities
 License: BSD-2-Clause AND CC0-1.0 AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND LGPL-3.0-only
 URL:     https://invent.kde.org/libraries/%{name}
@@ -32,6 +32,7 @@ The %{name}-qt6-devel package contains cmake and mkspecs for developing
 applications that use %{name}-qt6.
 
 %prep
+%{!?bumpver:%{gpgverify} --keyring='%{SOURCE2}' --signature='%{SOURCE1}' --data='%{SOURCE0}'}
 %autosetup -n %{name}-%{version}
 
 %build
@@ -54,6 +55,9 @@ applications that use %{name}-qt6.
 %{_kf6_archdatadir}/mkspecs/modules/qt_KQuickImageEditor.pri
 
 %changelog
+* Sat Sep 05 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 0.7.0.1-1
+- new version
+
 * Tue Sep 01 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 0.7.0-1
 - new version
 

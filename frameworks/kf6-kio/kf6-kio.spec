@@ -1,11 +1,8 @@
-%global commit0 741f40da195022b5d426b5459734eae42ec4df5e
-%global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
 
 %global framework kio
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 3 solution for filesystem abstraction
 
@@ -192,7 +189,9 @@ Recommends:     switcheroo-control
 %{_kf6_qtplugindir}/designer/*6widgets.so
 
 %changelog
-%{?kde_snapshot_changelog_entry}
+* Sat Sep 05 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-1
+- new version
+
 * Fri Jan 03 2025 Pavel Solovev <daron439@gmail.com> - 6.10.0-1
 - Update to 6.10.0
 

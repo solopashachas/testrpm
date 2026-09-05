@@ -1,11 +1,8 @@
-%global commit0 541319c72e4c6fccce2ff18c492c82659be46797
-%global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
 
 %global framework sonnet
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 1 solution for spell checking
 License:        BSD-3-Clause AND CC0-1.0 AND LGPL-2.0-or-later AND LGPL-2.1-or-later
@@ -100,7 +97,9 @@ developing applications that use %{name}.
 %{_kf6_qtplugindir}/designer/sonnet6widgets.so
 
 %changelog
-%{?kde_snapshot_changelog_entry}
+* Sat Sep 05 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-1
+- new version
+
 * Fri Jan 03 2025 Pavel Solovev <daron439@gmail.com> - 6.10.0-1
 - Update to 6.10.0
 

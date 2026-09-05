@@ -1,6 +1,6 @@
 Name:           wayland
 Version:        1.26.0
-Release:        1%{?dist}
+Release:        1%{?dist}.1
 Summary:        Wayland Compositor Infrastructure
 
 # SPDX

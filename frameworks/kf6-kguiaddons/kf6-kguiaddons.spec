@@ -1,11 +1,8 @@
-%global commit0 829685c78ff1fa12cfa1a60692c18d0c7e7b7b6b
-%global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
 
 %global framework kguiaddons
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 1 addon with various classes on top of QtGui
 
@@ -55,7 +52,9 @@ developing applications that use %{name}.
 %{_qt6_metatypesdir}/qt6kf6guiaddons_metatypes.json
 
 %changelog
-%{?kde_snapshot_changelog_entry}
+* Sat Sep 05 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-1
+- new version
+
 * Fri Jan 03 2025 Pavel Solovev <daron439@gmail.com> - 6.10.0-1
 - Update to 6.10.0
 

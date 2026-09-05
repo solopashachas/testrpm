@@ -1,11 +1,8 @@
-%global commit0 9894dfad4a5edc3a47962f69266305e66ad677c7
-%global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
 
 %global framework oxygen-icons
 
 Name:           kf6-oxygen-icons
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0
 Release:        1%{?dist}
 Summary:        Oxygen icon theme
 
@@ -71,4 +68,6 @@ appstream-util validate-relax --nonet %{buildroot}%{_kf6_metainfodir}/org.kde.ox
 %{_metainfodir}/org.kde.oxygenicon.metainfo.xml
 
 %changelog
-%{?kde_snapshot_changelog_entry}
+* Sat Sep 05 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-1
+- new version
+

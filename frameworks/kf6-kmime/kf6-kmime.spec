@@ -1,11 +1,8 @@
-%global commit0 5a9ea812b4be17bcb9a41863e1275908e1e21c91
-%global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
 
 %global framework kmime
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0
 Release:        1%{?dist}
 Summary:        Library to assist handling MIME data
 License:        BSD-2-Clause AND BSD-3-Clause AND CC-BY-SA-4.0 AND CC0-1.0 AND LGPL-2.0-only AND LGPL-2.0-or-later
@@ -43,4 +40,6 @@ Requires:       cmake(KF6Codecs)
 %{_kf6_libdir}/libKF6Mime.so
 
 %changelog
-%{?kde_snapshot_changelog_entry}
+* Sat Sep 05 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-1
+- new version
+

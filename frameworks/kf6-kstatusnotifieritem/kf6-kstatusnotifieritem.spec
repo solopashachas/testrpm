@@ -1,11 +1,8 @@
-%global commit0 9c05b0b635ccfbf7102eb731256efad78bb0ba2b
-%global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
 
 %global framework kstatusnotifieritem
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0
 Release:        1%{?dist}
 Summary:        Implementation of Status Notifier Items
 
@@ -49,7 +46,9 @@ developing applications that use %{name}.
 %{_kf6_libdir}/libKF6StatusNotifierItem.so
 
 %changelog
-%{?kde_snapshot_changelog_entry}
+* Sat Sep 05 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-1
+- new version
+
 * Fri Jan 03 2025 Pavel Solovev <daron439@gmail.com> - 6.10.0-1
 - Update to 6.10.0
 

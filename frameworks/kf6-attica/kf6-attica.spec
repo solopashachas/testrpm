@@ -1,11 +1,8 @@
-%global commit0 f45c2e8b70ea09cb64c5b0713744e9c191ca4930
-%global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
 
 %global framework attica
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.30.0
 Release:        1%{?dist}
 Summary:        Open Collaboration Service client library
 License:        CC0-1.0 AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND LicenseRef-KDE-Accepted-LGPL.txt
@@ -41,7 +38,9 @@ Requires:       cmake(Qt6Network)
 %{_kf6_libdir}/pkgconfig/KF6Attica.pc
 
 %changelog
-%{?kde_snapshot_changelog_entry}
+* Sat Sep 05 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-1
+- new version
+
 * Fri Jan 03 2025 Pavel Solovev <daron439@gmail.com> - 6.10.0-1
 - Update to 6.10.0
 
