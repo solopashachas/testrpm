@@ -77,6 +77,10 @@ class Config:
     def retired_inventory(self) -> Path:
         return self.inventory.with_name("retired.tsv")
 
+    @property
+    def pending_inventory(self) -> Path:
+        return self.inventory.with_suffix(".tsv.next")
+
     @classmethod
     def from_environment(cls) -> Config:
         names = (
@@ -357,6 +361,34 @@ def package_is_excluded(name: str, patterns: Sequence[str]) -> bool:
     return any(fnmatch.fnmatchcase(name, pattern) for pattern in patterns)
 
 
+def parse_bucket(row: Row, config: Config, source: Path) -> int:
+    name, kind, bucket_value, tag, _ = row
+    if kind not in PACKAGE_KINDS:
+        raise PublishError(f"Unknown package kind in {source}: {kind!r}")
+    try:
+        bucket = int(bucket_value)
+    except ValueError as error:
+        raise PublishError(
+            f"Invalid bucket number in {source}: {bucket_value!r}"
+        ) from error
+    if bucket < 1:
+        raise PublishError(f"Invalid bucket number in {source}: {bucket}")
+    repository = (
+        config.logical_repository if kind == "packages" else config.debug_repository
+    )
+    expected_tag = f"{repository}-rpm-{bucket:04d}"
+    if tag != expected_tag:
+        raise PublishError(
+            f"Invalid release tag in {source} for {name}: expected {expected_tag}, found {tag}"
+        )
+    return bucket
+
+
+def select_bucket(bucket_counts: dict[int, int], maximum: int) -> int:
+    available = [bucket for bucket, count in bucket_counts.items() if count < maximum]
+    return min(available) if available else max(bucket_counts, default=0) + 1
+
+
 def pull_manifest(item: tuple[Path, str, str]) -> tuple[str, Path]:
     manifests_directory, reference, digest = item
     destination = manifests_directory / digest.removeprefix("sha256:")
@@ -481,7 +513,7 @@ def download(config: Config) -> None:
         transfers,
         config.max_parallel_transfers,
     )
-    candidates: list[Row] = []
+    candidates_by_name: dict[str, Row] = {}
     for reference, destination in downloads:
         digest = f"sha256:{destination.name}"
         for rpm_file in destination.rglob("*.rpm"):
@@ -491,7 +523,11 @@ def download(config: Config) -> None:
                 raise PublishError(f"Conflicting RPM assets have the same name: {name}")
             if not target.exists():
                 shutil.copy2(rpm_file, target)
-            candidates.append((name, reference, digest))
+            candidate = (name, reference, digest)
+            previous = candidates_by_name.get(name)
+            if previous is None or candidate < previous:
+                candidates_by_name[name] = candidate
+    candidates = list(candidates_by_name.values())
     write_tsv(Path("incoming/candidates.tsv"), candidates, unique=True)
     known = {
         row[0]
@@ -529,7 +565,15 @@ def download(config: Config) -> None:
 
 def assign(config: Config) -> None:
     inventory = read_tsv(config.inventory, 5)
-    bucket_history = inventory + read_tsv(config.retired_inventory, 5)
+    retired = read_tsv(config.retired_inventory, 5)
+    bucket_history = [
+        (row, parse_bucket(row, config, source))
+        for source, rows in (
+            (config.inventory, inventory),
+            (config.retired_inventory, retired),
+        )
+        for row in rows
+    ]
     assignments: list[Row] = []
     new_rpms = read_tsv(Path("incoming/new-rpms.tsv"), 4)
     for _, kind, _, _ in new_rpms:
@@ -541,12 +585,7 @@ def assign(config: Config) -> None:
         kind_rows = [row for row in new_rpms if row[1] == kind]
         if not kind_rows:
             continue
-        try:
-            known_buckets = {int(row[2]) for row in bucket_history if row[1] == kind}
-        except ValueError as error:
-            raise PublishError(
-                f"Invalid bucket number in {config.inventory}"
-            ) from error
+        known_buckets = {bucket for row, bucket in bucket_history if row[1] == kind}
 
         bucket_counts: dict[int, int] = {}
         for bucket in sorted(known_buckets):
@@ -562,21 +601,14 @@ def assign(config: Config) -> None:
             bucket_counts[1] = 0
 
         for name, _, reference, digest in kind_rows:
-            available_buckets = [
-                bucket
-                for bucket, count in bucket_counts.items()
-                if count < config.max_assets_per_release
-            ]
-            if available_buckets:
-                bucket = min(available_buckets)
-            else:
-                bucket = max(bucket_counts) + 1
+            bucket = select_bucket(bucket_counts, config.max_assets_per_release)
+            if bucket not in bucket_counts:
                 bucket_counts[bucket] = 0
             tag = f"{repository_name}-rpm-{bucket:04d}"
             inventory.append((name, kind, str(bucket), tag, digest))
             assignments.append((name, kind, str(bucket), tag, reference))
             bucket_counts[bucket] += 1
-    write_tsv(config.inventory.with_suffix(".tsv.next"), inventory, unique=True)
+    write_tsv(config.pending_inventory, inventory, unique=True)
     write_tsv(Path("incoming/assignments.tsv"), assignments)
 
 
@@ -673,38 +705,6 @@ def ensure_release(config: Config, tag: str) -> None:
             time.sleep(delay)
 
 
-def delete_asset(item: tuple[Config, str, str]) -> None:
-    config, tag, name = item
-    for attempt in range(1, MAX_REMOTE_ATTEMPTS + 1):
-        try:
-            command(
-                "gh",
-                "release",
-                "delete-asset",
-                tag,
-                name,
-                "-R",
-                config.github_repository,
-                "--yes",
-            )
-            return
-        except subprocess.CalledProcessError:
-            if name not in release_assets(config, tag):
-                LOGGER.info("Testing asset %s is no longer present in %s", name, tag)
-                return
-            if attempt == MAX_REMOTE_ATTEMPTS:
-                raise
-            delay = 2 ** (attempt - 1)
-            LOGGER.warning(
-                "Deletion of %s failed (attempt %d/%d); retrying in %d seconds",
-                name,
-                attempt,
-                MAX_REMOTE_ATTEMPTS,
-                delay,
-            )
-            time.sleep(delay)
-
-
 def upload(config: Config) -> None:
     grouped: dict[str, list[Row]] = defaultdict(list)
     for row in read_tsv(Path("incoming/assignments.tsv"), 5):
@@ -717,7 +717,7 @@ def upload(config: Config) -> None:
             if name not in existing:
                 transfers.append((config, tag, name))
     parallel_map(upload_asset, transfers, config.max_parallel_transfers)
-    pending = config.inventory.with_suffix(".tsv.next")
+    pending = config.pending_inventory
     if not pending.is_file():
         raise PublishError(f"Missing pending inventory: {pending}")
     pending.replace(config.inventory)
@@ -909,6 +909,9 @@ def retain_repository_packages(repository: Path, retained_names: set[str]) -> No
         if href:
             local_metadata_path(repository, href, repomd).unlink(missing_ok=True)
         root.remove(data)
+    revision = root.find("./{*}revision")
+    if revision is not None:
+        revision.text = str(time.time_ns())
     atomic_write_bytes(repomd, serialize_xml(root))
 
 
@@ -920,31 +923,37 @@ def apply_retention(config: Config) -> None:
     )
     for repository_name, stable_repository_name in repositories:
         repository = Path("repo") / repository_name
-        retained = repository_package_names(
-            repository,
-            MAX_PACKAGE_VERSIONS,
-            config.excluded_sources,
-        )
         if config.testing:
+            testing_names = repository_package_names(
+                repository, excluded_sources=config.excluded_sources
+            )
             stable_names = repository_package_names(
                 Path("repo") / stable_repository_name
             )
-            duplicates = retained & stable_names
-            retained.difference_update(duplicates)
+            duplicates = testing_names & stable_names
+            testing_names.difference_update(duplicates)
             if duplicates:
                 LOGGER.info(
                     "Excluded %d RPMs already present in %s",
                     len(duplicates),
                     stable_repository_name,
                 )
+            retain_repository_packages(repository, testing_names)
+            retained = repository_package_names(repository, MAX_PACKAGE_VERSIONS)
+        else:
+            retained = repository_package_names(
+                repository,
+                MAX_PACKAGE_VERSIONS,
+                config.excluded_sources,
+            )
         retain_repository_packages(repository, retained)
         retained_names.update(retained)
 
-    inventory = read_tsv(config.inventory, 5)
+    inventory = read_tsv(config.pending_inventory, 5)
     active = [row for row in inventory if row[0] in retained_names]
     newly_retired = [row for row in inventory if row[0] not in retained_names]
     retired = read_tsv(config.retired_inventory, 5)
-    write_tsv(config.inventory, active, unique=True)
+    write_tsv(config.pending_inventory, active, unique=True)
     write_tsv(config.retired_inventory, (*retired, *newly_retired), unique=True)
     if newly_retired:
         LOGGER.info("Retired %d RPM assets", len(newly_retired))
@@ -990,15 +999,6 @@ def prune(config: Config) -> None:
     inventory_path = Path("state") / testing_repository / "inventory.tsv"
     retired_path = inventory_path.with_name("retired.tsv")
     inventory = read_tsv(inventory_path, 5)
-    grouped: dict[str, set[str]] = defaultdict(set)
-    for name, _, _, tag, _ in inventory:
-        grouped[tag].add(name)
-    transfers: list[tuple[Config, str, str]] = []
-    for tag, names in sorted(grouped.items()):
-        for name in sorted(names & release_assets(config, tag)):
-            LOGGER.info("Deleting testing asset %s from %s", name, tag)
-            transfers.append((config, tag, name))
-    parallel_map(delete_asset, transfers, config.max_parallel_transfers)
     create_empty_repository(Path("repo") / testing_repository)
     create_empty_repository(Path("repo") / f"{testing_repository}-debuginfo")
     atomic_write_text(Path("repo") / testing_repository / "packages.txt", "")
@@ -1117,7 +1117,9 @@ def validate(config: Config) -> None:
         )
     Path("primary.xml").write_bytes(combined)
     missing = sorted(
-        row[0] for row in read_tsv(config.inventory, 5) if row[0] not in locations
+        row[0]
+        for row in read_tsv(config.pending_inventory, 5)
+        if row[0] not in locations
     )
     if missing:
         raise PublishError(f"Metadata is missing {', '.join(missing)}")

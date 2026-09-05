@@ -90,8 +90,10 @@ jobs:
             done
           }
           mkdir -p repo state
-          retry oras repo tags --format json "ghcr.io/${{ github.repository }}/repodata" 2>/dev/null |
-            jq -r '.tags[]?' | grep '^latest-' > /tmp/repodata-tags || true
+          retry oras repo tags --format json \
+            "ghcr.io/${{ github.repository }}/repodata" > /tmp/repodata-tags.json
+          jq -r '.tags[]? | select(startswith("latest-"))' \
+            /tmp/repodata-tags.json > /tmp/repodata-tags
           while IFS= read -r tag; do
             retry oras pull "ghcr.io/${{ github.repository }}/repodata:${tag}" -o .
           done < /tmp/repodata-tags
@@ -107,9 +109,6 @@ jobs:
 
       - name: Determine physical release buckets
         run: .github/scripts/publish-repo.py assign
-
-      - name: Publish RPM release assets
-        run: .github/scripts/publish-repo.py upload
 
       - name: Generate complete logical repository metadata
         run: .github/scripts/publish-repo.py metadata
@@ -138,6 +137,9 @@ jobs:
 
       - name: Validate logical repository
         run: .github/scripts/publish-repo.py validate
+
+      - name: Publish RPM release assets
+        run: .github/scripts/publish-repo.py upload
 
       - name: Publish GHCR repodata cache
         run: |
