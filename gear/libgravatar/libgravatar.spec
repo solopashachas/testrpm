@@ -1,6 +1,6 @@
-%global commit0 116522bad845cb2f33996360e215e30274aaa8fe
+%global commit0 27a87a81f8366da256e40f019559e241a3012369
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:    libgravatar
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
