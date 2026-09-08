@@ -252,11 +252,15 @@ jobs:
 
       - name: Check NVR
         run: |
-          if oras manifest fetch ghcr.io/${repository}/${pkgname,,}:${container_tag} &> /dev/null; then
-            echo "NVR already exists"
+          scoped_container_tag="${container_tag}-${target_branch}-${target_distribution}"
+          if oras manifest fetch \
+              "ghcr.io/${repository}/${pkgname,,}:${scoped_container_tag}" &> /dev/null; then
+            echo "NVR already exists for ${target_branch}-${target_distribution}"
             exit 1
           fi
-          latest_version="$(oras manifest fetch ghcr.io/${repository}/${pkgname,,}:latest-${target_branch}-${target_distribution} | jq -r '.annotations."rpm.version"')"
+          latest_version="$(oras manifest fetch \
+              "ghcr.io/${repository}/${pkgname,,}:latest-${target_branch}-${target_distribution}" | \
+              jq -r '.annotations."rpm.version"')"
           if [[ -n "${latest_version}" ]]; then
             export latest_version
             docker run --rm \
@@ -468,7 +472,7 @@ jobs:
                   --annotation "rpm.version=${version_release}" \
                   --annotation "rpm.branch=${target_branch}" \
                   --annotation "rpm.releasever=${target_distribution}" \
-                  "ghcr.io/${repository}/${pkgname,,}:latest-${target_branch}-${target_distribution},${container_tag},${container_tag}-${target_branch}-${target_distribution}" \
+                  "ghcr.io/${repository}/${pkgname,,}:latest-${target_branch}-${target_distribution},${container_tag}-${target_branch}-${target_distribution}" \
                   ./"${pkgname}"-resultdir/*.rpm; then
                   exit 0
               fi
