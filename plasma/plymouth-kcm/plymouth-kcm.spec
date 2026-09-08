@@ -1,6 +1,6 @@
-%global commit0 e5c2a7db16ee8dba92d7853fc66c5c686ee37f52
+%global commit0 38513634aed3af5b69277eb60a53dab30b218dab
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 %global base_name plymouth-kcm
 
