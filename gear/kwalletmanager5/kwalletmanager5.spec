@@ -1,6 +1,6 @@
-%global commit0 8411608c7c462494f1f914034cf5f01a710be84c
+%global commit0 167c0a1c92ae9c721a3af4dd4099ae4c3e5a203a
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 5
+%global bumpver 6
 
 %global base_name kwalletmanager
 
@@ -71,6 +71,7 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %license LICENSES/*
 %{_datadir}/dbus-1/services/org.kde.kwalletmanager.service
 %{_kf6_bindir}/kwalletmanager5
+%{_kf6_datadir}/applications/kcm_kwallet.desktop
 %{_kf6_datadir}/applications/kwalletmanager5-kwalletd.desktop
 %{_kf6_datadir}/applications/org.kde.kwalletmanager.desktop
 %{_kf6_datadir}/icons/hicolor/*/actions/wallet-*
@@ -82,7 +83,7 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %{_datadir}/dbus-1/system.d/org.kde.kcontrol.kcmkwallet5.conf
 %{_datadir}/polkit-1/actions/org.kde.kcontrol.kcmkwallet5.policy
 %{_kf6_libexecdir}/kauth/kcm_kwallet_helper5
-%{_kf6_qtplugindir}/plasma/kcms/systemsettings_qwidgets/kcm_kwallet5.so
+%{_kf6_qtplugindir}/plasma/kcms/systemsettings/kcm_kwallet.so
 %endif
 
 
