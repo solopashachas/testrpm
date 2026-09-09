@@ -1,4 +1,4 @@
-%global commit0 c9dbc6e438d3de837f6db4df3375416581a60136
+%global commit0 9e623578249516599d6f5373bb7f4daefe2d59ac
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 4
 
@@ -6,7 +6,7 @@
 
 Name:           kf6-%{framework}
 Version:        6.30.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        KDE Frameworks 6 Tier 3 solution for filesystem abstraction
 
 License:        BSD-2-Clause AND BSD-3-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND LGPL-3.0-only AND LicenseRef-KDE-Accepted-GPL AND LicenseRef-KDE-Accepted-LGPL AND MIT
@@ -192,6 +192,9 @@ Recommends:     switcheroo-control
 %{_kf6_qtplugindir}/designer/*6widgets.so
 
 %changelog
+* Wed Sep 09 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-2
+- rebuilt
+
 * Tue Sep 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-1
 - Update to 6.30.0
 
