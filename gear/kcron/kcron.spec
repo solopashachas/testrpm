@@ -1,6 +1,6 @@
-%global commit0 5e4c7fba10d76665ba4de2299c514316c79eafe4
+%global commit0 0a03a7317ad34299c1cef9f128ffd0b99b98136d
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 Name:    kcron
 Summary: Cron KDE configuration module
