@@ -1,6 +1,6 @@
-%global commit0 1b705475cc181da87ad1af0266cc7ebda3d8e9d5
+%global commit0 c8ad2b3a92a1a12d2ce6084d9fe22fdf53a7d4cc
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:           plasma-workspace-wallpapers
 Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -59,6 +59,7 @@ Requires:       kde-filesystem
 %{_kf6_datadir}/wallpapers/Sub-Arctic/
 %{_kf6_datadir}/wallpapers/summer_1am/
 %{_kf6_datadir}/wallpapers/Volna/
+%{_kf6_datadir}/wallpapers/Waterfall/
 
 %changelog
 %{?kde_snapshot_changelog_entry}

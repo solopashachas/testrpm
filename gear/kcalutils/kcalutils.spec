@@ -1,6 +1,6 @@
-%global commit0 3eac34b37076f36b4ad5b1ba2a09d9da8b6609e5
+%global commit0 15e6c5107db7fc8346c54856b5ff2557d15fc25f
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 13
+%global bumpver 14
 
 Name:           kcalutils
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
