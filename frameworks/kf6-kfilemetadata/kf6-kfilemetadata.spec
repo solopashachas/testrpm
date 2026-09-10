@@ -7,7 +7,7 @@
 Name:           kf6-%{framework}
 Summary:        A Tier 2 KDE Framework for extracting file metadata
 Version:        6.30.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 
 License:        BSD-3-Clause AND CC0-1.0 AND LGPL-2.1-only AND LGPL-2.1-or-later AND LGPL-3.0-only AND LicenseRef-KDE-Accepted-LGPL
 URL:            https://invent.kde.org/frameworks/%{framework}
@@ -61,6 +61,9 @@ Requires:       cmake(Qt6Core)
 %{_kf6_libdir}/libKF6FileMetaData.so
 
 %changelog
+* Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-2
+- rebuilt
+
 * Tue Sep 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-1
 - Update to 6.30.0
 
