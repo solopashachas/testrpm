@@ -1,10 +1,10 @@
-%global commit0 326e8ec349288e6b377168f90c6499dd97f0dccf
+%global commit0 e802295b53d4230e65df9265a0d3eae2921d02fd
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 9
+%global bumpver 1
 
 Name:           kpipewire
 Summary:        Set of convenient classes to use PipeWire in Qt projects
-Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 
 License:        BSD-3-Clause AND CC0-1.0 AND LGPL-2.1-only AND LGPL-3.0-only

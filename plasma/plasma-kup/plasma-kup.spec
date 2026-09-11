@@ -1,11 +1,11 @@
-%global commit0 c886a5496794350d5c233631bdd2dd9d18113d48
+%global commit0 f4cdf24b2d0a28cd27de7ed7ec2795151daff48c
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 %global base_name kup
 
 Name:           plasma-kup
-Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Backup scheduler for the Plasma desktop
 

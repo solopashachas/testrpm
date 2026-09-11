@@ -1,9 +1,9 @@
-%global commit0 10c31f2c6c285106a7dc0836004df5b25eac2fdb
+%global commit0 1605d2ca26c24b887783f4d05b57ec07bcf4ed1a
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 1
 
 Name:           kwayland-integration
-Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Provides integration plugins for various KDE Frameworks for Wayland
 

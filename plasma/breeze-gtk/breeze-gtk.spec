@@ -1,9 +1,9 @@
-%global commit0 21ed9d9ca8d0bf3e588de5a3fde510a7156c19e1
+%global commit0 3a75b57ec3a0168cc4a9628092a8d70dbca50f2c
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 1
 
 Name:           breeze-gtk
-Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Breeze widget theme for GTK
 

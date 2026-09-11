@@ -1,6 +1,6 @@
-%global commit0 28cba25a1ba366d4e22c94bb52c763e726018b81
+%global commit0 f5fe4d50af493a935b0f7b0d4ba86ec1cc8c82c6
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kcompletion
 

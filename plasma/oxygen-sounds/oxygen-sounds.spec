@@ -1,9 +1,9 @@
-%global commit0 eb6a55a2c63f70acedac5ef291c7a15e3a60e85e
+%global commit0 d26c9d4adb2819340a579e03eda5e4dec42e4d60
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 1
 
 Name:           oxygen-sounds
-Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        The Oxygen Sound Theme
 

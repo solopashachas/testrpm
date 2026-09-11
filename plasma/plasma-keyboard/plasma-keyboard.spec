@@ -1,10 +1,10 @@
-%global commit0 bfea2e618d725e4a002629457759c01c248dc04d
+%global commit0 f2df71891ac0c6d19d01d9b6d20d0cd7073aaad2
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 7
+%global bumpver 1
 
 Name:           plasma-keyboard
 Epoch:          1
-Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Virtual Keyboard for Qt based desktops
 

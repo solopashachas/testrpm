@@ -1,9 +1,9 @@
-%global commit0 4488263f9432e86cca7234273f6621ce92d19744
+%global commit0 5f3da56fcbc62474419b982f1b93826518b0c887
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 7
+%global bumpver 1
 
 Name:           layer-shell-qt
-Version:        6.7.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Library to easily use clients based on wlr-layer-shell
 
