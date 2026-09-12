@@ -1,6 +1,6 @@
 %global commit0 ceff02a3be2e5e9e0d3d9c1ee77356cb178f553b
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 8
+%global bumpver 9
 
 #global tests 1
 
