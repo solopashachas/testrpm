@@ -1,6 +1,6 @@
 %global commit0 1605d2ca26c24b887783f4d05b57ec07bcf4ed1a
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:           kwayland-integration
 Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -19,7 +19,6 @@ BuildRequires:  qt5-qtwayland-devel
 BuildRequires:  kf5-rpm-macros
 BuildRequires:  gnupg2
 
-BuildRequires:  kf5-kidletime-devel
 BuildRequires:  kf5-kwindowsystem-devel
 BuildRequires:  kf5-kwayland-devel
 BuildRequires:  cmake(KF5GuiAddons)
