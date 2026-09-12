@@ -1,6 +1,6 @@
-%global commit0 4f8927000c3f5c5caa52f775580487b5c782132a
+%global commit0 620e093723f646efb473117b80a1d5958f3d6340
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:           kscreenlocker
 Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -41,7 +41,6 @@ BuildRequires:  pam-devel
 BuildRequires:  pkgconfig(xcb-keysyms)
 BuildRequires:  pkgconfig(xcb-xtest)
 BuildRequires:  pkgconfig(xi)
-BuildRequires:  wayland-devel
 
 %description
 %{summary}.
