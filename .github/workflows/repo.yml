@@ -101,6 +101,9 @@ jobs:
           touch "state/${logical_repository}/inventory.tsv"
           touch "state/${logical_repository}/retired.tsv"
 
+      - name: Snapshot current package list
+        run: .github/scripts/publish-repo.py snapshot
+
       - name: Discover package versions
         run: .github/scripts/publish-repo.py discover
 
@@ -170,8 +173,11 @@ jobs:
               "state/${testing_repository}/retired.tsv"
           fi
 
+      - name: Write repository update summary
+        run: .github/scripts/publish-repo.py summary
+
       - name: Prepare Pages artifact
-        run: rm -rf incoming metadata-fragments merged-* primary.xml state
+        run: rm -rf incoming metadata-fragments merged-* state
 
       - name: Upload repository metadata to Pages
         uses: actions/upload-pages-artifact@v3

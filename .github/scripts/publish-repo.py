@@ -10,6 +10,7 @@ import filecmp
 import fnmatch
 import gzip
 import hashlib
+import html
 import json
 import logging
 import lzma
@@ -35,8 +36,10 @@ Row: TypeAlias = tuple[str, ...]
 Input = TypeVar("Input")
 Output = TypeVar("Output")
 PACKAGE_KINDS = ("packages", "debuginfo")
+DEBUG_PACKAGE_SUFFIXES = ("-debuginfo", "-debugsource")
 MAX_PACKAGE_VERSIONS = 3
 MAX_REMOTE_ATTEMPTS = 5
+PACKAGE_SNAPSHOT = Path("packages-before.tsv")
 RPM_NAMESPACE = "http://linux.duke.edu/metadata/rpm"
 DEFAULT_EXCLUDED_SOURCES = (
     "python-ytmusicapi",
@@ -52,6 +55,41 @@ SAFE_GITHUB_REPOSITORY = re.compile(
 
 class PublishError(RuntimeError):
     """An expected publishing failure with a user-facing message."""
+
+
+@dataclass(frozen=True, order=True, slots=True)
+class SourcePackage:
+    name: str
+    epoch: str
+    version: str
+    release: str
+
+    @classmethod
+    def from_row(cls, row: Row, source: Path) -> SourcePackage:
+        name, epoch, version, release = row
+        if not all(row):
+            raise PublishError(f"Empty source package field in {source}: {row!r}")
+        if epoch == "(none)":
+            epoch = "0"
+        if not epoch.isdigit():
+            raise PublishError(f"Invalid package epoch in {source}: {epoch!r}")
+        return cls(name, epoch, version, release)
+
+    @property
+    def evr(self) -> str:
+        epoch = "" if self.epoch == "0" else f"{self.epoch}:"
+        return f"{epoch}{self.version}-{self.release}"
+
+    @property
+    def nvr(self) -> str:
+        return f"{self.name}-{self.version}-{self.release}"
+
+    @property
+    def nevr(self) -> str:
+        return f"{self.name}-{self.evr}"
+
+    def as_row(self) -> Row:
+        return self.name, self.epoch, self.version, self.release
 
 
 @dataclass(frozen=True, slots=True)
@@ -81,6 +119,17 @@ class Config:
     def pending_inventory(self) -> Path:
         return self.inventory.with_suffix(".tsv.next")
 
+    @property
+    def package_list(self) -> Path:
+        return Path("repo") / self.logical_repository / "packages.txt"
+
+    def repository_for_kind(self, kind: str) -> str:
+        if kind == "packages":
+            return self.logical_repository
+        if kind == "debuginfo":
+            return self.debug_repository
+        raise PublishError(f"Unknown package kind: {kind!r}")
+
     @classmethod
     def from_environment(cls) -> Config:
         names = (
@@ -100,18 +149,12 @@ class Config:
         testing = values["testing"].lower()
         if testing not in {"true", "false"}:
             raise PublishError("testing must be either 'true' or 'false'")
-        try:
-            maximum = int(values["MAX_ASSETS_PER_RELEASE"])
-        except ValueError as error:
-            raise PublishError("MAX_ASSETS_PER_RELEASE must be an integer") from error
-        if maximum < 1:
-            raise PublishError("MAX_ASSETS_PER_RELEASE must be greater than zero")
-        try:
-            parallel_transfers = int(values["MAX_PARALLEL_TRANSFERS"])
-        except ValueError as error:
-            raise PublishError("MAX_PARALLEL_TRANSFERS must be an integer") from error
-        if parallel_transfers < 1:
-            raise PublishError("MAX_PARALLEL_TRANSFERS must be greater than zero")
+        maximum = positive_integer(
+            "MAX_ASSETS_PER_RELEASE", values["MAX_ASSETS_PER_RELEASE"]
+        )
+        parallel_transfers = positive_integer(
+            "MAX_PARALLEL_TRANSFERS", values["MAX_PARALLEL_TRANSFERS"]
+        )
         if not values["releasever"].isdigit():
             raise PublishError("releasever must be numeric")
         for name in (
@@ -162,6 +205,16 @@ def require_environment(name: str) -> str:
     if value is None or not value.strip():
         raise PublishError(f"{name} is required")
     return value
+
+
+def positive_integer(name: str, value: str) -> int:
+    try:
+        parsed = int(value)
+    except ValueError as error:
+        raise PublishError(f"{name} must be an integer") from error
+    if parsed < 1:
+        raise PublishError(f"{name} must be greater than zero")
+    return parsed
 
 
 def command(*arguments: PathArgument, capture_output: bool = False) -> str:
@@ -343,8 +396,19 @@ def safe_rpm_name(name: str) -> str:
     return safe_name
 
 
-def rpm_matches_releasever(path: Path, releasever: str) -> bool:
-    release = command("rpm", "-qp", "--qf", "%{RELEASE}", path, capture_output=True)
+def rpm_name_and_release(path: Path) -> tuple[str, str]:
+    output = command(
+        "rpm", "-qp", "--qf", "%{NAME}\t%{RELEASE}", path, capture_output=True
+    ).strip()
+    fields = output.split("\t")
+    if len(fields) != 2 or any(
+        not field or any(character in field for character in "\n\r") for field in fields
+    ):
+        raise PublishError(f"Unable to determine package name and release for {path}")
+    return fields[0], fields[1]
+
+
+def release_matches_releasever(release: str, releasever: str) -> bool:
     return re.search(rf"\.fc{re.escape(releasever)}(?:[._]|$)", release) is not None
 
 
@@ -355,6 +419,12 @@ def rpm_source_name(path: Path) -> str:
     if not source_name or "\n" in source_name:
         raise PublishError(f"Unable to determine a unique source name for {path}")
     return source_name
+
+
+def package_kind(package_name: str) -> str:
+    if package_name.endswith(DEBUG_PACKAGE_SUFFIXES):
+        return "debuginfo"
+    return "packages"
 
 
 def package_is_excluded(name: str, patterns: Sequence[str]) -> bool:
@@ -373,9 +443,7 @@ def parse_bucket(row: Row, config: Config, source: Path) -> int:
         ) from error
     if bucket < 1:
         raise PublishError(f"Invalid bucket number in {source}: {bucket}")
-    repository = (
-        config.logical_repository if kind == "packages" else config.debug_repository
-    )
+    repository = config.repository_for_kind(kind)
     expected_tag = f"{repository}-rpm-{bucket:04d}"
     if tag != expected_tag:
         raise PublishError(
@@ -549,16 +617,14 @@ def download(config: Config) -> None:
         source_name = rpm_source_name(rpm_path)
         if package_is_excluded(source_name, config.excluded_sources):
             LOGGER.info("Skipping %s: source package %s is excluded", name, source_name)
-        elif not rpm_matches_releasever(rpm_path, config.releasever):
+            continue
+        package_name, release = rpm_name_and_release(rpm_path)
+        if not release_matches_releasever(release, config.releasever):
             LOGGER.info("Skipping %s: not built for Fedora %s", name, config.releasever)
         elif name in stable_names:
             LOGGER.info("Skipping %s: already present in the stable repository", name)
         elif name not in known:
-            kind = (
-                "debuginfo"
-                if "debuginfo-" in name or "debugsource-" in name
-                else "packages"
-            )
+            kind = package_kind(package_name)
             new_rpms.append((name, kind, reference, digest))
     write_tsv(Path("incoming/new-rpms.tsv"), new_rpms, unique=True)
 
@@ -579,9 +645,8 @@ def assign(config: Config) -> None:
     for _, kind, _, _ in new_rpms:
         if kind not in PACKAGE_KINDS:
             raise PublishError(f"Unknown package kind: {kind!r}")
-    for kind, repository_name in zip(
-        PACKAGE_KINDS, (config.logical_repository, config.debug_repository), strict=True
-    ):
+    for kind in PACKAGE_KINDS:
+        repository_name = config.repository_for_kind(kind)
         kind_rows = [row for row in new_rpms if row[1] == kind]
         if not kind_rows:
             continue
@@ -963,20 +1028,118 @@ def metadata(config: Config) -> None:
     generate_repository(config, "packages", config.logical_repository)
     generate_repository(config, "debuginfo", config.debug_repository)
     apply_retention(config)
+    packages = repository_source_packages(Path("repo") / config.logical_repository)
+    content = "".join(
+        f"{nvr}\n" for nvr in sorted({package.nvr for package in packages})
+    )
+    atomic_write_text(config.package_list, content)
+
+
+def repository_source_packages(repository: Path) -> set[SourcePackage]:
+    if not (repository / "repodata/repomd.xml").is_file():
+        return set()
+    repo_id = f"summary-{repository.name}"
     output = command(
         "dnf",
         "-q",
-        f"--repofrompath=logical,repo/{config.logical_repository}",
-        "--repo=logical",
+        "--refresh",
+        f"--repofrompath={repo_id},{repository}",
+        f"--repo={repo_id}",
         "rq",
         "--qf",
-        "%{source_name}-%{version}-%{release}\\n",
+        "%{source_name}\\t%{epoch}\\t%{version}\\t%{release}\\n",
         capture_output=True,
     )
-    content = "".join(f"{line}\n" for line in sorted(set(output.splitlines())))
-    atomic_write_text(
-        Path("repo") / config.logical_repository / "packages.txt", content
+    packages: set[SourcePackage] = set()
+    for line in output.splitlines():
+        fields = line.split("\t")
+        if len(fields) != 4:
+            fields = line.split("\\t")
+        if len(fields) != 4:
+            raise PublishError(
+                f"Invalid source package query output for {repository}: {line!r}"
+            )
+        packages.add(SourcePackage.from_row(tuple(fields), repository))
+    return packages
+
+
+def snapshot(config: Config) -> None:
+    repository = Path("repo") / config.logical_repository
+    packages = repository_source_packages(repository)
+    write_tsv(PACKAGE_SNAPSHOT, (package.as_row() for package in packages), unique=True)
+
+
+def summary_section(title: str, entries: Sequence[str]) -> str:
+    lines = [f"<details><summary>{title} ({len(entries)})</summary>", ""]
+    lines.extend(f"- <code>{html.escape(entry)}</code>" for entry in entries)
+    if not entries:
+        lines.append("None.")
+    lines.extend(("", "</details>"))
+    return "\n".join(lines)
+
+
+def package_version_groups(packages: Iterable[SourcePackage]) -> list[str]:
+    versions: dict[str, set[str]] = defaultdict(set)
+    for package in packages:
+        versions[package.name].add(package.evr)
+    return [
+        f"{name}: {', '.join(sorted(package_versions))}"
+        for name, package_versions in sorted(versions.items())
+    ]
+
+
+def summary(config: Config) -> None:
+    if not PACKAGE_SNAPSHOT.is_file():
+        raise PublishError(f"Missing package snapshot: {PACKAGE_SNAPSHOT}")
+    repository = Path("repo") / config.logical_repository
+    if not (repository / "repodata/repomd.xml").is_file():
+        raise PublishError(f"Missing repository metadata: {repository}")
+    before = {
+        SourcePackage.from_row(row, PACKAGE_SNAPSHOT)
+        for row in read_tsv(PACKAGE_SNAPSHOT, 4)
+    }
+    after = repository_source_packages(repository)
+    before_names = {package.name for package in before}
+    after_names = {package.name for package in after}
+    added = package_version_groups(
+        package for package in after if package.name not in before_names
     )
+    updated = package_version_groups(
+        package for package in after - before if package.name in before_names
+    )
+    removed_versions = sorted(
+        package.nevr for package in before - after if package.name in after_names
+    )
+    removed = sorted(before_names - after_names)
+    content = "\n".join(
+        (
+            f"## Repository update: {config.logical_repository}",
+            "",
+            "| Change | Count |",
+            "| --- | ---: |",
+            f"| Added | {len(added)} |",
+            f"| Updated | {len(updated)} |",
+            f"| Removed versions | {len(removed_versions)} |",
+            f"| Removed | {len(removed)} |",
+            "",
+            summary_section("Added packages", added),
+            "",
+            summary_section("Updated packages", updated),
+            "",
+            summary_section("Removed package versions", removed_versions),
+            "",
+            summary_section("Removed packages", removed),
+            "",
+        )
+    )
+    summary_path = Path(require_environment("GITHUB_STEP_SUMMARY"))
+    try:
+        with summary_path.open("a", encoding="utf-8") as stream:
+            stream.write(content)
+    except OSError as error:
+        raise PublishError(
+            f"Unable to write workflow summary {summary_path}: {error}"
+        ) from error
 
 
 def create_empty_repository(directory: Path) -> None:
@@ -1061,20 +1224,13 @@ def primary_metadata_path(repository: Path) -> Path:
         raise PublishError(f"Missing or empty {repomd}")
     try:
         root = ET.parse(repomd).getroot()
-    except ET.ParseError as error:
+    except (OSError, ET.ParseError) as error:
         raise PublishError(f"Invalid XML in {repomd}: {error}") from error
     location = root.find("./{*}data[@type='primary']/{*}location")
     href = location.get("href") if location is not None else None
     if not href:
         raise PublishError(f"No primary metadata location in {repomd}")
-    candidate = repository / href
-    try:
-        candidate.resolve(strict=True).relative_to(repository.resolve(strict=True))
-    except (FileNotFoundError, ValueError) as error:
-        raise PublishError(
-            f"Unsafe or missing primary metadata path in {repomd}: {href}"
-        ) from error
-    return candidate
+    return local_metadata_path(repository, href, repomd)
 
 
 def decompress_metadata(path: Path) -> bytes:
@@ -1094,18 +1250,14 @@ def decompress_metadata(path: Path) -> bytes:
             ).stdout
         return path.read_bytes()
     except (OSError, EOFError, lzma.LZMAError) as error:
-        raise PublishError(
-            f"Unable to read primary metadata {path}: {error}"
-        ) from error
+        raise PublishError(f"Unable to read metadata {path}: {error}") from error
 
 
 def validate(config: Config) -> None:
     locations: set[str] = set()
-    combined = bytearray()
     for name in (config.logical_repository, config.debug_repository):
         primary = primary_metadata_path(Path("repo") / name)
         content = decompress_metadata(primary)
-        combined.extend(content)
         try:
             root = ET.fromstring(content)
         except ET.ParseError as error:
@@ -1115,7 +1267,6 @@ def validate(config: Config) -> None:
             for element in root.findall(".//{*}location")
             if (href := element.get("href")) is not None
         )
-    Path("primary.xml").write_bytes(combined)
     missing = sorted(
         row[0]
         for row in read_tsv(config.pending_inventory, 5)
@@ -1127,14 +1278,16 @@ def validate(config: Config) -> None:
 
 Stage: TypeAlias = Callable[[Config], None]
 STAGES: dict[str, Stage] = {
+    "snapshot": snapshot,
     "discover": discover,
     "download": download,
     "assign": assign,
-    "upload": upload,
     "metadata": metadata,
     "prune": prune,
     "repofile": repofile,
     "validate": validate,
+    "summary": summary,
+    "upload": upload,
 }
 
 
