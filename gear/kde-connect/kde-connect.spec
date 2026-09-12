@@ -112,8 +112,6 @@ Supplements: (kdeconnectd and nautilus)
 %install
 %cmake_install
 %find_lang %{name} --all-name --with-html
-mkdir -p %{buildroot}%{_udevrulesdir}
-mv %{buildroot}%{_kf6_libdir}/udev/rules.d/40-kdeconnect-uinput.rules %{buildroot}%{_udevrulesdir}/40-kdeconnect-uinput.rules
 
 
 %check
