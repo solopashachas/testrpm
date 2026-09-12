@@ -10,7 +10,6 @@ import filecmp
 import fnmatch
 import gzip
 import hashlib
-import html
 import json
 import logging
 import lzma
@@ -1071,11 +1070,20 @@ def snapshot(config: Config) -> None:
 
 def summary_section(title: str, entries: Sequence[str]) -> str:
     lines = [f"<details><summary>{title} ({len(entries)})</summary>", ""]
-    lines.extend(f"- <code>{html.escape(entry)}</code>" for entry in entries)
+    lines.extend(f"- {markdown_code(entry)}" for entry in entries)
     if not entries:
         lines.append("None.")
     lines.extend(("", "</details>"))
     return "\n".join(lines)
+
+
+def markdown_code(value: str) -> str:
+    longest_run = max(
+        (len(match.group()) for match in re.finditer(r"`+", value)), default=0
+    )
+    fence = "`" * (longest_run + 1)
+    padding = " " if value.startswith("`") or value.endswith("`") else ""
+    return f"{fence}{padding}{value}{padding}{fence}"
 
 
 def package_version_groups(packages: Iterable[SourcePackage]) -> list[str]:
