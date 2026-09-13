@@ -3,7 +3,7 @@
 ExcludeArch: %{ix86}
 
 Name:           kweather
-Version:        26.08.0
+Version:        26.08.1
 Release:        2%{?dist}
 # Automatically converted from old format: GPLv2+ - review is highly recommended.
 License:        GPL-2.0-or-later
@@ -94,6 +94,12 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/org.kde.%{name}.d
 %{_kf6_qtplugindir}/plasma/applets/org.kde.plasma.%{name}_1x4.so
 
 %changelog
+* Sun Sep 13 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 26.08.1-2
+- rebuilt
+
+* Sun Sep 13 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 26.08.1-1
+- new version
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 26.08.0-2
 - rebuilt
 
