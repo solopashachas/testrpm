@@ -27,6 +27,7 @@ from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from threading import Lock
 from types import MappingProxyType
 from typing import TypeAlias, TypeVar
 from urllib.parse import unquote, urlparse
@@ -41,8 +42,8 @@ DEBUG_PACKAGE_SUFFIXES = ("-debuginfo", "-debugsource")
 MAX_REMOTE_ATTEMPTS = 5
 LOCAL_COMMAND_TIMEOUT = 30 * 60
 REMOTE_COMMAND_TIMEOUT = 5 * 60
-COMMAND_PROBE_TIMEOUT = 60
 PACKAGE_SNAPSHOT = Path("packages-before.tsv")
+RELEASE_METADATA_CACHE = Path("incoming/release-metadata.json")
 RPM_NAMESPACE = "http://linux.duke.edu/metadata/rpm"
 DEFAULT_EXCLUDED_SOURCES = (
     "python-ytmusicapi",
@@ -84,6 +85,12 @@ class RepositoryProfile:
     default_excluded_sources: tuple[str, ...] = ()
 
 
+@dataclass(frozen=True, slots=True)
+class ReleaseMetadata:
+    body: str
+    assets: tuple[dict[str, object], ...]
+
+
 DEFAULT_RETENTION_POLICY = RetentionPolicy(
     max_age=timedelta(days=7),
     default_versions=3,
@@ -116,6 +123,10 @@ REPOSITORY_PROFILES["gear"] = RepositoryProfile(
     copr_project="solopasha/kde-gear-unstable",
     dependency_repositories=("unstable",),
 )
+
+_release_metadata: dict[str, ReleaseMetadata] = {}
+_release_metadata_repository: str | None = None
+_release_metadata_lock = Lock()
 
 
 def repository_profile(name: str) -> RepositoryProfile:
@@ -350,7 +361,11 @@ def retry_operation(
     raise AssertionError("retry loop exited unexpectedly")
 
 
-def remote_command(*arguments: PathArgument, capture_output: bool = False) -> str:
+def remote_command(
+    *arguments: PathArgument,
+    capture_output: bool = False,
+    attempts: int = MAX_REMOTE_ATTEMPTS,
+) -> str:
     return retry_operation(
         lambda: command(
             *arguments,
@@ -358,24 +373,8 @@ def remote_command(*arguments: PathArgument, capture_output: bool = False) -> st
             timeout=REMOTE_COMMAND_TIMEOUT,
         ),
         f"Remote command {' '.join(os.fspath(argument) for argument in arguments[:4])}",
+        attempts,
     )
-
-
-def command_exists(*arguments: PathArgument) -> bool:
-    try:
-        return (
-            subprocess.run(
-                [os.fspath(argument) for argument in arguments],
-                check=False,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                timeout=COMMAND_PROBE_TIMEOUT,
-            ).returncode
-            == 0
-        )
-    except subprocess.TimeoutExpired as error:
-        description = " ".join(os.fspath(argument) for argument in arguments[:4])
-        raise PublishError(f"Command probe timed out: {description}") from error
 
 
 def parallel_map(
@@ -833,25 +832,118 @@ def assign(config: Config) -> None:
     write_tsv(Path("incoming/assignments.tsv"), assignments)
 
 
-def release_asset_records(config: Config, tag: str) -> list[dict[str, object]]:
-    release = load_mapping(
-        remote_command(
-            "gh",
-            "release",
-            "view",
-            tag,
-            "-R",
-            config.github_repository,
-            "--json",
-            "assets",
-            capture_output=True,
-        ),
-        f"release {tag}",
+def load_release_metadata_cache(config: Config) -> None:
+    global _release_metadata_repository
+    if _release_metadata_repository == config.github_repository:
+        return
+    _release_metadata.clear()
+    _release_metadata_repository = config.github_repository
+    if not RELEASE_METADATA_CACHE.is_file():
+        return
+    try:
+        cache = load_mapping(
+            RELEASE_METADATA_CACHE.read_text(encoding="utf-8"),
+            str(RELEASE_METADATA_CACHE),
+        )
+    except OSError as error:
+        raise PublishError(
+            f"Unable to read release metadata cache {RELEASE_METADATA_CACHE}: {error}"
+        ) from error
+    if cache.get("repository") != config.github_repository:
+        LOGGER.info("Ignoring release metadata cache for another repository")
+        return
+    releases = cache.get("releases")
+    if not isinstance(releases, dict):
+        raise PublishError(f"Invalid release map in {RELEASE_METADATA_CACHE}")
+    for tag, value in releases.items():
+        if not isinstance(tag, str) or not isinstance(value, dict):
+            raise PublishError(f"Invalid release entry in {RELEASE_METADATA_CACHE}")
+        body = value.get("body")
+        assets = value.get("assets")
+        if not isinstance(body, str) or not isinstance(assets, list):
+            raise PublishError(
+                f"Invalid metadata for release {tag} in {RELEASE_METADATA_CACHE}"
+            )
+        _release_metadata[tag] = ReleaseMetadata(
+            body,
+            tuple(asset for asset in assets if isinstance(asset, dict)),
+        )
+
+
+def save_release_metadata_cache(config: Config) -> None:
+    content = {
+        "repository": config.github_repository,
+        "releases": {
+            tag: {"assets": metadata.assets, "body": metadata.body}
+            for tag, metadata in sorted(_release_metadata.items())
+        },
+    }
+    atomic_write_text(
+        RELEASE_METADATA_CACHE,
+        json.dumps(content, indent=2, sort_keys=True) + "\n",
     )
-    assets = release.get("assets")
-    if not isinstance(assets, list):
-        raise PublishError(f"Invalid asset list returned for release {tag}")
-    return [asset for asset in assets if isinstance(asset, dict)]
+
+
+def cache_release_metadata(config: Config, tag: str, metadata: ReleaseMetadata) -> None:
+    with _release_metadata_lock:
+        load_release_metadata_cache(config)
+        _release_metadata[tag] = metadata
+        save_release_metadata_cache(config)
+
+
+def release_metadata(
+    config: Config,
+    tag: str,
+    *,
+    missing_ok: bool = False,
+    refresh: bool = False,
+) -> ReleaseMetadata | None:
+    with _release_metadata_lock:
+        load_release_metadata_cache(config)
+        if not refresh and tag in _release_metadata:
+            return _release_metadata[tag]
+        try:
+            release = load_mapping(
+                remote_command(
+                    "gh",
+                    "release",
+                    "view",
+                    tag,
+                    "-R",
+                    config.github_repository,
+                    "--json",
+                    "assets,body",
+                    capture_output=True,
+                    attempts=1 if missing_ok else MAX_REMOTE_ATTEMPTS,
+                ),
+                f"release {tag}",
+            )
+        except subprocess.CalledProcessError:
+            if missing_ok:
+                _release_metadata.pop(tag, None)
+                save_release_metadata_cache(config)
+                return None
+            raise
+        body = release.get("body")
+        assets = release.get("assets")
+        if not isinstance(body, str):
+            raise PublishError(f"Invalid body returned for release {tag}")
+        if not isinstance(assets, list):
+            raise PublishError(f"Invalid asset list returned for release {tag}")
+        metadata = ReleaseMetadata(
+            body,
+            tuple(asset for asset in assets if isinstance(asset, dict)),
+        )
+        _release_metadata[tag] = metadata
+        save_release_metadata_cache(config)
+        return metadata
+
+
+def release_asset_records(config: Config, tag: str) -> tuple[dict[str, object], ...]:
+    metadata = release_metadata(config, tag)
+    if metadata is None:
+        raise PublishError(f"Release {tag} does not exist")
+    return metadata.assets
 
 
 def release_assets(config: Config, tag: str) -> set[str]:
@@ -907,7 +999,10 @@ def upload_asset(item: tuple[Config, str, str]) -> None:
             )
             return
         except subprocess.CalledProcessError:
-            if name in release_assets(config, tag):
+            metadata = release_metadata(config, tag, refresh=True)
+            if metadata is not None and any(
+                asset.get("name") == name for asset in metadata.assets
+            ):
                 LOGGER.info("Package %s is already present in %s", name, tag)
                 return
             if attempt == MAX_REMOTE_ATTEMPTS:
@@ -1013,7 +1108,19 @@ Repository ID: `{repository_id}`
 """
 
 
-def update_release_notes(config: Config, tag: str, notes: str) -> None:
+def update_release_notes(
+    config: Config,
+    tag: str,
+    notes: str,
+    metadata: ReleaseMetadata | None = None,
+) -> None:
+    if metadata is None:
+        metadata = release_metadata(config, tag)
+    if metadata is None:
+        raise PublishError(f"Release {tag} does not exist")
+    if metadata.body == notes:
+        LOGGER.debug("Release description for %s is already current", tag)
+        return
     LOGGER.info("Updating release description for %s", tag)
     remote_command(
         "gh",
@@ -1025,17 +1132,20 @@ def update_release_notes(config: Config, tag: str, notes: str) -> None:
         "--notes",
         notes,
     )
+    cache_release_metadata(config, tag, ReleaseMetadata(notes, metadata.assets))
 
 
 def update_existing_release(config: Config, tag: str) -> None:
-    if command_exists("gh", "release", "view", tag, "-R", config.github_repository):
-        update_release_notes(config, tag, release_notes(config, tag))
+    metadata = release_metadata(config, tag, missing_ok=True)
+    if metadata is not None:
+        update_release_notes(config, tag, release_notes(config, tag), metadata)
 
 
 def ensure_release(config: Config, tag: str) -> None:
     notes = release_notes(config, tag)
-    if command_exists("gh", "release", "view", tag, "-R", config.github_repository):
-        update_release_notes(config, tag, notes)
+    metadata = release_metadata(config, tag, missing_ok=True)
+    if metadata is not None:
+        update_release_notes(config, tag, notes, metadata)
         return
     for attempt in range(1, MAX_REMOTE_ATTEMPTS + 1):
         try:
@@ -1051,12 +1161,12 @@ def ensure_release(config: Config, tag: str) -> None:
                 "--notes",
                 notes,
             )
+            cache_release_metadata(config, tag, ReleaseMetadata(notes, ()))
             return
         except subprocess.CalledProcessError:
-            if command_exists(
-                "gh", "release", "view", tag, "-R", config.github_repository
-            ):
-                update_release_notes(config, tag, notes)
+            metadata = release_metadata(config, tag, missing_ok=True, refresh=True)
+            if metadata is not None:
+                update_release_notes(config, tag, notes, metadata)
                 return
             if attempt == MAX_REMOTE_ATTEMPTS:
                 raise
@@ -1075,13 +1185,13 @@ def upload(config: Config) -> None:
     grouped: dict[str, list[Row]] = defaultdict(list)
     for row in read_tsv(Path("incoming/assignments.tsv"), 5):
         grouped[row[3]].append(row)
-    known_tags = {
-        row[3]
-        for path in (config.pending_inventory, config.retired_inventory)
-        for row in read_tsv(path, 5)
-    }
-    for tag in sorted(known_tags - grouped.keys()):
+    active_tags = {row[3] for row in read_tsv(config.pending_inventory, 5)}
+    retired_tags = {row[3] for row in read_tsv(config.retired_inventory, 5)}
+    for tag in sorted(active_tags - grouped.keys()):
         update_existing_release(config, tag)
+    for tag in sorted(retired_tags - active_tags):
+        if not release_notes(config, tag):
+            update_existing_release(config, tag)
     transfers: list[tuple[Config, str, str]] = []
     for tag, rows in sorted(grouped.items()):
         ensure_release(config, tag)
@@ -1464,6 +1574,11 @@ def repository_source_packages(repository: Path) -> set[SourcePackage]:
 
 
 def snapshot(config: Config) -> None:
+    global _release_metadata_repository
+    with _release_metadata_lock:
+        _release_metadata.clear()
+        _release_metadata_repository = None
+        RELEASE_METADATA_CACHE.unlink(missing_ok=True)
     repository = Path("repo") / config.logical_repository
     packages = repository_source_packages(repository)
     write_tsv(PACKAGE_SNAPSHOT, (package.as_row() for package in packages), unique=True)
