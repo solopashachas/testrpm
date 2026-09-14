@@ -45,7 +45,11 @@ DEFAULT_EXCLUDED_SOURCES = (
     "ktextaddons",
     "kirigami-app-components",
 )
-PACKAGE_DIRECTORIES = (Path("plasma"), Path("related"), Path("frameworks"))
+DEFAULT_PACKAGE_DIRECTORIES = (
+    Path("plasma"),
+    Path("related"),
+    Path("frameworks"),
+)
 SAFE_COMPONENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 SAFE_GITHUB_REPOSITORY = re.compile(
     r"^[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?/[A-Za-z0-9._-]+$"
@@ -54,6 +58,22 @@ SAFE_GITHUB_REPOSITORY = re.compile(
 
 class PublishError(RuntimeError):
     """An expected publishing failure with a user-facing message."""
+
+
+@dataclass(frozen=True, slots=True)
+class PackageSource:
+    branch: str
+    directories: tuple[Path, ...]
+    copr_project: str | None = None
+
+
+PACKAGE_SOURCE_OVERRIDES: dict[str, PackageSource] = {
+    "gear": PackageSource(
+        "unstable",
+        (Path("gear"),),
+        "solopasha/kde-gear-unstable",
+    ),
+}
 
 
 @dataclass(frozen=True, order=True, slots=True)
@@ -105,6 +125,13 @@ class Config:
     max_assets_per_release: int
     max_parallel_transfers: int
     excluded_sources: tuple[str, ...]
+
+    @property
+    def package_source(self) -> PackageSource:
+        return PACKAGE_SOURCE_OVERRIDES.get(
+            self.branch,
+            PackageSource(self.branch, DEFAULT_PACKAGE_DIRECTORIES),
+        )
 
     @property
     def inventory(self) -> Path:
@@ -168,11 +195,17 @@ class Config:
                 raise PublishError(f"{name} contains unsafe characters")
         if not SAFE_GITHUB_REPOSITORY.fullmatch(values["GITHUB_REPOSITORY"]):
             raise PublishError("GITHUB_REPOSITORY must have the form owner/repository")
+        configured_exclusions = os.environ.get("EXCLUDE_SOURCES")
+        default_exclusions = (
+            () if values["branch"] == "gear" else DEFAULT_EXCLUDED_SOURCES
+        )
         excluded_sources = tuple(
             pattern
             for pattern in re.split(
                 r"[\s,]+",
-                os.environ.get("EXCLUDE_SOURCES", ",".join(DEFAULT_EXCLUDED_SOURCES)),
+                configured_exclusions
+                if configured_exclusions is not None
+                else ",".join(default_exclusions),
             )
             if pattern
         )
@@ -430,6 +463,41 @@ def package_is_excluded(name: str, patterns: Sequence[str]) -> bool:
     return any(fnmatch.fnmatchcase(name, pattern) for pattern in patterns)
 
 
+def package_uses_copr_project(directory: Path, project: str) -> bool:
+    configuration = directory / "orchestrator.conf"
+    if not configuration.is_file():
+        return False
+    try:
+        lines = configuration.read_text(encoding="utf-8").splitlines()
+    except OSError as error:
+        raise PublishError(f"Unable to read {configuration}: {error}") from error
+    for line in lines:
+        key, separator, value = line.partition("=")
+        if separator and key.strip() == "copr_project" and value.strip() == project:
+            return True
+    return False
+
+
+def source_package_directories(source: PackageSource) -> set[Path]:
+    directories = {
+        path
+        for parent in source.directories
+        if parent.is_dir()
+        for path in parent.iterdir()
+        if path.is_dir()
+    }
+    if source.copr_project is not None:
+        directories.update(
+            configuration.parent
+            for configuration in Path(".").glob("*/*/orchestrator.conf")
+            if package_uses_copr_project(
+                configuration.parent,
+                source.copr_project,
+            )
+        )
+    return directories
+
+
 def parse_bucket(row: Row, config: Config, source: Path) -> int:
     name, kind, bucket_value, tag, _ = row
     if kind not in PACKAGE_KINDS:
@@ -486,8 +554,9 @@ def discover_image_tags(item: tuple[Config, str]) -> list[tuple[str, str, str]]:
     ):
         raise PublishError(f"Invalid tags returned for {image}")
 
-    suffix = re.compile(rf"-{re.escape(config.branch)}-{re.escape(config.releasever)}$")
-    latest = f"latest-{config.branch}-{config.releasever}"
+    source_branch = config.package_source.branch
+    suffix = re.compile(rf"-{re.escape(source_branch)}-{re.escape(config.releasever)}$")
+    latest = f"latest-{source_branch}-{config.releasever}"
     tags = {
         tag
         for tag in raw_tags
@@ -519,13 +588,7 @@ def resolve_manifest(item: tuple[str, str, str]) -> Row:
 
 def discover(config: Config) -> None:
     packages = sorted(
-        {
-            path.name
-            for parent in PACKAGE_DIRECTORIES
-            if parent.is_dir()
-            for path in parent.iterdir()
-            if path.is_dir()
-        }
+        {path.name for path in source_package_directories(config.package_source)}
     )
     eligible_packages = [
         package_name
@@ -733,8 +796,78 @@ def upload_asset(item: tuple[Config, str, str]) -> None:
             time.sleep(delay)
 
 
-def ensure_release(config: Config, tag: str) -> None:
+def repofile_url(config: Config, branch: str, repository: str) -> str:
+    filename = f"{config.repository}-{branch}-{config.releasever}.repo"
+    return (
+        f"https://{config.repository_owner}.github.io/"
+        f"{config.repository}/{repository}/{filename}"
+    )
+
+
+def repository_from_release_tag(config: Config, tag: str) -> str:
+    for repository in (config.logical_repository, config.debug_repository):
+        if re.fullmatch(rf"{re.escape(repository)}-rpm-\d{{4}}", tag):
+            return repository
+    raise PublishError(f"Invalid release tag for {config.logical_repository}: {tag}")
+
+
+def release_notes(config: Config, tag: str) -> str:
+    repository = repository_from_release_tag(config, tag)
+    commands: list[str] = []
+    introduction = "Install the repository configuration with:"
+    if config.branch == "gear":
+        introduction = (
+            "Gear uses packages from Unstable. Install both repository "
+            "configurations with:"
+        )
+        unstable_repository = f"unstable-{config.releasever}"
+        commands.append(
+            "sudo dnf config-manager addrepo --from-repofile="
+            + repofile_url(config, "unstable", unstable_repository)
+        )
+    commands.append(
+        "sudo dnf config-manager addrepo --from-repofile="
+        + repofile_url(config, config.branch, config.normal_repository)
+    )
+    if repository != config.normal_repository:
+        repository_id = f"{config.repository}-github:{repository}"
+        commands.append(f"sudo dnf config-manager enable '{repository_id}'")
+    command_block = "\n".join(commands)
+    return f"""RPM storage bucket for logical repository {config.logical_repository}.
+
+## Enable this repository
+
+{introduction}
+
+```console
+{command_block}
+```
+"""
+
+
+def update_release_notes(config: Config, tag: str, notes: str) -> None:
+    LOGGER.info("Updating release description for %s", tag)
+    remote_command(
+        "gh",
+        "release",
+        "edit",
+        tag,
+        "-R",
+        config.github_repository,
+        "--notes",
+        notes,
+    )
+
+
+def update_existing_release(config: Config, tag: str) -> None:
     if command_exists("gh", "release", "view", tag, "-R", config.github_repository):
+        update_release_notes(config, tag, release_notes(config, tag))
+
+
+def ensure_release(config: Config, tag: str) -> None:
+    notes = release_notes(config, tag)
+    if command_exists("gh", "release", "view", tag, "-R", config.github_repository):
+        update_release_notes(config, tag, notes)
         return
     for attempt in range(1, MAX_REMOTE_ATTEMPTS + 1):
         try:
@@ -748,13 +881,14 @@ def ensure_release(config: Config, tag: str) -> None:
                 "--title",
                 tag,
                 "--notes",
-                f"RPM storage bucket for logical repository {config.logical_repository}.",
+                notes,
             )
             return
         except subprocess.CalledProcessError:
             if command_exists(
                 "gh", "release", "view", tag, "-R", config.github_repository
             ):
+                update_release_notes(config, tag, notes)
                 return
             if attempt == MAX_REMOTE_ATTEMPTS:
                 raise
@@ -773,6 +907,13 @@ def upload(config: Config) -> None:
     grouped: dict[str, list[Row]] = defaultdict(list)
     for row in read_tsv(Path("incoming/assignments.tsv"), 5):
         grouped[row[3]].append(row)
+    known_tags = {
+        row[3]
+        for path in (config.pending_inventory, config.retired_inventory)
+        for row in read_tsv(path, 5)
+    }
+    for tag in sorted(known_tags - grouped.keys()):
+        update_existing_release(config, tag)
     transfers: list[tuple[Config, str, str]] = []
     for tag, rows in sorted(grouped.items()):
         ensure_release(config, tag)
