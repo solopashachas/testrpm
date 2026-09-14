@@ -1,6 +1,6 @@
-%global commit0 41ee7ffc048a2ee8022ad4c01c71f49053b41fbc
+%global commit0 cffb7a11b3706f617885a91d96f99321c7d15eb0
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:           kglobalacceld
 Summary:        Daemon providing Global Keyboard Shortcut functionality
@@ -21,7 +21,6 @@ BuildRequires:  cmake(KF6GlobalAccel)
 BuildRequires:  cmake(KF6JobWidgets)
 BuildRequires:  cmake(KF6KIO)
 BuildRequires:  cmake(KF6Service)
-BuildRequires:  cmake(KF6WindowSystem)
 
 BuildRequires:  cmake(Qt6DBus)
 BuildRequires:  cmake(Qt6Gui)
