@@ -12,7 +12,7 @@ DAYS_OLD=7
 
 mapfile -t packages < <(find plasma frameworks gear related -mindepth 1 -maxdepth 1 -type d -printf '%f\n')
 
-packages+=(buildroot)
+packages+=(buildroot repodata)
 
 now=$(date +%s)
 
@@ -47,7 +47,7 @@ for pkg in "${packages[@]}"; do
           fi
         fi
 
-        if [[ "$tags" =~ latest-[[:alpha:]]+-[0-9]{2} ]]; then
+        if [[ "$tags" =~ (^|,)latest- ]]; then
           # echo "⏩ Skipping: $pkgname $tags (contains 'latest')"
           continue
         fi

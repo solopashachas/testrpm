@@ -22,11 +22,12 @@ import tempfile
 import time
 import xml.etree.ElementTree as ET
 from collections import defaultdict
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from types import MappingProxyType
 from typing import TypeAlias, TypeVar
 from urllib.parse import unquote, urlparse
 
@@ -37,14 +38,10 @@ Input = TypeVar("Input")
 Output = TypeVar("Output")
 PACKAGE_KINDS = ("packages", "debuginfo")
 DEBUG_PACKAGE_SUFFIXES = ("-debuginfo", "-debugsource")
-MAX_PACKAGE_VERSIONS = 3
-PACKAGE_VERSION_RETENTION_OVERRIDES = {
-    "kwin": 5,
-    "plasma-desktop": 5,
-    "plasma-workspace": 5,
-}
-MAX_PACKAGE_AGE = timedelta(days=7)
 MAX_REMOTE_ATTEMPTS = 5
+LOCAL_COMMAND_TIMEOUT = 30 * 60
+REMOTE_COMMAND_TIMEOUT = 5 * 60
+COMMAND_PROBE_TIMEOUT = 60
 PACKAGE_SNAPSHOT = Path("packages-before.tsv")
 RPM_NAMESPACE = "http://linux.duke.edu/metadata/rpm"
 DEFAULT_EXCLUDED_SOURCES = (
@@ -68,19 +65,67 @@ class PublishError(RuntimeError):
 
 
 @dataclass(frozen=True, slots=True)
-class PackageSource:
-    branch: str
-    directories: tuple[Path, ...]
+class RetentionPolicy:
+    max_age: timedelta
+    default_versions: int
+    source_version_overrides: Mapping[str, int]
+    always_keep_newest: bool
+
+
+@dataclass(frozen=True, slots=True)
+class RepositoryProfile:
+    name: str
+    display_name: str
+    source_branch: str
+    package_directories: tuple[Path, ...]
+    retention: RetentionPolicy
     copr_project: str | None = None
+    dependency_repositories: tuple[str, ...] = ()
+    default_excluded_sources: tuple[str, ...] = ()
 
 
-PACKAGE_SOURCE_OVERRIDES: dict[str, PackageSource] = {
-    "gear": PackageSource(
-        "unstable",
-        (Path("gear"),),
-        "solopasha/kde-gear-unstable",
+DEFAULT_RETENTION_POLICY = RetentionPolicy(
+    max_age=timedelta(days=7),
+    default_versions=3,
+    source_version_overrides=MappingProxyType(
+        {
+            "kwin": 5,
+            "plasma-desktop": 5,
+            "plasma-workspace": 5,
+        }
     ),
+    always_keep_newest=True,
+)
+REPOSITORY_PROFILES: dict[str, RepositoryProfile] = {
+    name: RepositoryProfile(
+        name=name,
+        display_name=name.title(),
+        source_branch=name,
+        package_directories=DEFAULT_PACKAGE_DIRECTORIES,
+        retention=DEFAULT_RETENTION_POLICY,
+        default_excluded_sources=DEFAULT_EXCLUDED_SOURCES,
+    )
+    for name in ("beta", "unstable")
 }
+REPOSITORY_PROFILES["gear"] = RepositoryProfile(
+    name="gear",
+    display_name="KDE Gear",
+    source_branch="unstable",
+    package_directories=(Path("gear"),),
+    retention=DEFAULT_RETENTION_POLICY,
+    copr_project="solopasha/kde-gear-unstable",
+    dependency_repositories=("unstable",),
+)
+
+
+def repository_profile(name: str) -> RepositoryProfile:
+    try:
+        return REPOSITORY_PROFILES[name]
+    except KeyError as error:
+        supported = ", ".join(sorted(REPOSITORY_PROFILES))
+        raise PublishError(
+            f"Unknown repository profile {name!r}; expected one of: {supported}"
+        ) from error
 
 
 @dataclass(frozen=True, order=True, slots=True)
@@ -134,11 +179,8 @@ class Config:
     excluded_sources: tuple[str, ...]
 
     @property
-    def package_source(self) -> PackageSource:
-        return PACKAGE_SOURCE_OVERRIDES.get(
-            self.branch,
-            PackageSource(self.branch, DEFAULT_PACKAGE_DIRECTORIES),
-        )
+    def profile(self) -> RepositoryProfile:
+        return repository_profile(self.branch)
 
     @property
     def inventory(self) -> Path:
@@ -153,8 +195,22 @@ class Config:
         return self.inventory.with_suffix(".tsv.next")
 
     @property
+    def seen_manifests(self) -> Path:
+        return self.inventory.with_name("seen-manifests.tsv")
+
+    @property
+    def pending_seen_manifests(self) -> Path:
+        return self.seen_manifests.with_suffix(".tsv.next")
+
+    @property
     def package_list(self) -> Path:
         return Path("repo") / self.logical_repository / "packages.txt"
+
+    @property
+    def published_repositories(self) -> tuple[str, ...]:
+        if self.testing:
+            return (self.logical_repository,)
+        return (self.logical_repository, f"{self.normal_repository}-testing")
 
     def repository_for_kind(self, kind: str) -> str:
         if kind == "packages":
@@ -202,17 +258,15 @@ class Config:
                 raise PublishError(f"{name} contains unsafe characters")
         if not SAFE_GITHUB_REPOSITORY.fullmatch(values["GITHUB_REPOSITORY"]):
             raise PublishError("GITHUB_REPOSITORY must have the form owner/repository")
+        profile = repository_profile(values["branch"])
         configured_exclusions = os.environ.get("EXCLUDE_SOURCES")
-        default_exclusions = (
-            () if values["branch"] == "gear" else DEFAULT_EXCLUDED_SOURCES
-        )
         excluded_sources = tuple(
             pattern
             for pattern in re.split(
                 r"[\s,]+",
                 configured_exclusions
                 if configured_exclusions is not None
-                else ",".join(default_exclusions),
+                else ",".join(profile.default_excluded_sources),
             )
             if pattern
         )
@@ -256,7 +310,11 @@ def positive_integer(name: str, value: str) -> int:
     return parsed
 
 
-def command(*arguments: PathArgument, capture_output: bool = False) -> str:
+def command(
+    *arguments: PathArgument,
+    capture_output: bool = False,
+    timeout: int = LOCAL_COMMAND_TIMEOUT,
+) -> str:
     args = [os.fspath(argument) for argument in arguments]
     LOGGER.debug("Running command: %s", " ".join(args))
     result = subprocess.run(
@@ -264,6 +322,7 @@ def command(*arguments: PathArgument, capture_output: bool = False) -> str:
         check=True,
         encoding="utf-8",
         stdout=subprocess.PIPE if capture_output else None,
+        timeout=timeout,
     )
     return result.stdout if capture_output else ""
 
@@ -276,7 +335,7 @@ def retry_operation(
     for attempt in range(1, attempts + 1):
         try:
             return operation()
-        except subprocess.CalledProcessError:
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             if attempt == attempts:
                 raise
             delay = 2 ** (attempt - 1)
@@ -293,21 +352,30 @@ def retry_operation(
 
 def remote_command(*arguments: PathArgument, capture_output: bool = False) -> str:
     return retry_operation(
-        lambda: command(*arguments, capture_output=capture_output),
+        lambda: command(
+            *arguments,
+            capture_output=capture_output,
+            timeout=REMOTE_COMMAND_TIMEOUT,
+        ),
         f"Remote command {' '.join(os.fspath(argument) for argument in arguments[:4])}",
     )
 
 
 def command_exists(*arguments: PathArgument) -> bool:
-    return (
-        subprocess.run(
-            [os.fspath(argument) for argument in arguments],
-            check=False,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        ).returncode
-        == 0
-    )
+    try:
+        return (
+            subprocess.run(
+                [os.fspath(argument) for argument in arguments],
+                check=False,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                timeout=COMMAND_PROBE_TIMEOUT,
+            ).returncode
+            == 0
+        )
+    except subprocess.TimeoutExpired as error:
+        description = " ".join(os.fspath(argument) for argument in arguments[:4])
+        raise PublishError(f"Command probe timed out: {description}") from error
 
 
 def parallel_map(
@@ -485,21 +553,21 @@ def package_uses_copr_project(directory: Path, project: str) -> bool:
     return False
 
 
-def source_package_directories(source: PackageSource) -> set[Path]:
+def source_package_directories(profile: RepositoryProfile) -> set[Path]:
     directories = {
         path
-        for parent in source.directories
+        for parent in profile.package_directories
         if parent.is_dir()
         for path in parent.iterdir()
         if path.is_dir()
     }
-    if source.copr_project is not None:
+    if profile.copr_project is not None:
         directories.update(
             configuration.parent
             for configuration in Path(".").glob("*/*/orchestrator.conf")
             if package_uses_copr_project(
                 configuration.parent,
-                source.copr_project,
+                profile.copr_project,
             )
         )
     return directories
@@ -561,7 +629,7 @@ def discover_image_tags(item: tuple[Config, str]) -> list[tuple[str, str, str]]:
     ):
         raise PublishError(f"Invalid tags returned for {image}")
 
-    source_branch = config.package_source.branch
+    source_branch = config.profile.source_branch
     suffix = re.compile(rf"-{re.escape(source_branch)}-{re.escape(config.releasever)}$")
     latest = f"latest-{source_branch}-{config.releasever}"
     tags = {
@@ -595,7 +663,7 @@ def resolve_manifest(item: tuple[str, str, str]) -> Row:
 
 def discover(config: Config) -> None:
     packages = sorted(
-        {path.name for path in source_package_directories(config.package_source)}
+        {path.name for path in source_package_directories(config.profile)}
     )
     eligible_packages = [
         package_name
@@ -618,14 +686,33 @@ def discover(config: Config) -> None:
         config.max_parallel_transfers,
     )
     write_tsv(Path("discovered.tsv"), discovered, unique=True)
-    known = {
-        row[4]
-        for path in (config.inventory, config.retired_inventory)
-        for row in read_tsv(path, 5)
-    }
+    inventory = read_tsv(config.inventory, 5)
+    retired = read_tsv(config.retired_inventory, 5)
+    seen = read_tsv(config.seen_manifests, 1)
+    known = {row[4] for row in (*inventory, *retired)} | {row[0] for row in seen}
+    bootstrap = not inventory and not retired and not seen
+    candidates = discovered
+    if bootstrap:
+        latest = f"latest-{config.profile.source_branch}-{config.releasever}"
+        candidates = [
+            row
+            for manifest, row in zip(manifests, discovered, strict=True)
+            if manifest[2] == latest
+        ]
+        LOGGER.info(
+            "New repository: selecting %d latest package manifests and marking "
+            "%d historical manifests as seen",
+            len(candidates),
+            len(discovered) - len(candidates),
+        )
     write_tsv(
         Path("new-manifests.tsv"),
-        (row for row in discovered if row[2] not in known),
+        (row for row in candidates if row[2] not in known),
+        unique=True,
+    )
+    write_tsv(
+        config.pending_seen_manifests,
+        ((digest,) for digest in known | {row[2] for row in discovered}),
         unique=True,
     )
 
@@ -844,6 +931,12 @@ def repofile_url(config: Config, branch: str, repository: str) -> str:
     )
 
 
+def pages_repository_url(config: Config, repository: str) -> str:
+    return (
+        f"https://{config.repository_owner}.github.io/{config.repository}/{repository}/"
+    )
+
+
 def repository_from_release_tag(config: Config, tag: str) -> str:
     for repository in (config.logical_repository, config.debug_repository):
         if re.fullmatch(rf"{re.escape(repository)}-rpm-\d{{4}}", tag):
@@ -855,31 +948,47 @@ def release_notes(config: Config, tag: str) -> str:
     repository = repository_from_release_tag(config, tag)
     if repository == config.debug_repository:
         return ""
-    display_name = "KDE Gear" if config.branch == "gear" else config.branch.title()
+    profile = config.profile
+    display_name = profile.display_name
     variant = " testing" if config.testing else ""
     repository_id = f"{config.repository}-github:{repository}"
     commands: list[str] = []
     introduction = "Install the repository configuration with:"
-    if config.branch == "gear":
+    if profile.dependency_repositories:
+        dependencies = [
+            repository_profile(name) for name in profile.dependency_repositories
+        ]
+        dependency_names = ", ".join(
+            dependency.display_name for dependency in dependencies
+        )
         introduction = (
-            "Gear uses packages from Unstable. Install both repository "
-            "configurations with:"
+            f"{display_name} uses packages from {dependency_names}. Install all "
+            "repository configurations with:"
         )
-        unstable_repository = f"unstable-{config.releasever}"
-        commands.append(
-            "sudo dnf config-manager addrepo --from-repofile="
-            + repofile_url(config, "unstable", unstable_repository)
-        )
+        for dependency in dependencies:
+            dependency_repository = f"{dependency.name}-{config.releasever}"
+            commands.append(
+                "sudo dnf config-manager addrepo --from-repofile="
+                + repofile_url(
+                    config,
+                    dependency.name,
+                    dependency_repository,
+                )
+            )
     commands.append(
         "sudo dnf config-manager addrepo --from-repofile="
-        + repofile_url(config, config.branch, config.normal_repository)
+        + repofile_url(config, profile.name, config.normal_repository)
     )
     if repository != config.normal_repository:
         commands.append(f"sudo dnf config-manager enable '{repository_id}'")
     command_block = "\n".join(commands)
     summary = f"RPM packages from the {display_name} package stream."
-    if config.branch == "gear":
-        summary = "KDE Gear packages built from the Unstable package stream."
+    if profile.source_branch != profile.name:
+        source = repository_profile(profile.source_branch)
+        summary = (
+            f"{display_name} packages built from the {source.display_name} "
+            "package stream."
+        )
     testing_warning = ""
     if config.testing:
         testing_warning = (
@@ -984,7 +1093,31 @@ def upload(config: Config) -> None:
     pending = config.pending_inventory
     if not pending.is_file():
         raise PublishError(f"Missing pending inventory: {pending}")
+
+
+def seal(config: Config) -> None:
+    pending = config.pending_inventory
+    if not pending.is_file():
+        raise PublishError(f"Missing pending inventory: {pending}")
+    pending_seen = config.pending_seen_manifests
+    if not pending_seen.is_file():
+        raise PublishError(f"Missing pending manifest history: {pending_seen}")
+    generation = require_environment("PUBLISH_GENERATION")
+    if not SAFE_COMPONENT.fullmatch(generation):
+        raise PublishError("PUBLISH_GENERATION contains unsafe characters")
+    created_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    for repository in config.published_repositories:
+        marker = {
+            "created_at": created_at,
+            "generation": generation,
+            "repository": repository,
+        }
+        atomic_write_text(
+            Path("repo") / repository / "generation.json",
+            json.dumps(marker, indent=2, sort_keys=True) + "\n",
+        )
     pending.replace(config.inventory)
+    pending_seen.replace(config.seen_manifests)
 
 
 def generate_repository(config: Config, kind: str, output: str) -> None:
@@ -1065,10 +1198,12 @@ def repository_package_names(
     return names
 
 
-def repository_package_names_for_retention(repository: Path) -> set[str]:
-    retained = repository_package_names(repository, MAX_PACKAGE_VERSIONS)
+def repository_package_names_for_retention(
+    repository: Path, policy: RetentionPolicy
+) -> set[str]:
+    retained = repository_package_names(repository, policy.default_versions)
     sources_by_limit: dict[int, list[str]] = defaultdict(list)
-    for source_name, limit in PACKAGE_VERSION_RETENTION_OVERRIDES.items():
+    for source_name, limit in policy.source_version_overrides.items():
         sources_by_limit[limit].append(source_name)
     for limit, source_names in sorted(sources_by_limit.items()):
         retained.update(
@@ -1204,7 +1339,9 @@ def packages_within_retention_period(
     inventory = read_tsv(config.pending_inventory, 5)
     new_names = {row[0] for row in read_tsv(Path("incoming/assignments.tsv"), 5)}
     retained = set(new_names)
-    cutoff = (current_time or datetime.now(timezone.utc)) - MAX_PACKAGE_AGE
+    cutoff = (
+        current_time or datetime.now(timezone.utc)
+    ) - config.profile.retention.max_age
     rows_by_tag: dict[str, list[Row]] = defaultdict(list)
     for row in inventory:
         if row[0] not in new_names:
@@ -1227,6 +1364,7 @@ def packages_within_retention_period(
 
 def apply_retention(config: Config) -> None:
     retained_names: set[str] = set()
+    policy = config.profile.retention
     recent_names = packages_within_retention_period(config)
     repositories = (
         (config.logical_repository, config.normal_repository),
@@ -1257,18 +1395,22 @@ def apply_retention(config: Config) -> None:
             retain_repository_packages(repository, eligible_names)
 
         current_names = repository_package_names(repository)
-        newest_names = repository_package_names(repository, latest_limit=1)
+        newest_names = (
+            repository_package_names(repository, latest_limit=1)
+            if policy.always_keep_newest
+            else set()
+        )
         age_retained_names = (current_names & recent_names) | newest_names
         expired_count = len(current_names - age_retained_names)
         if expired_count:
             LOGGER.info(
                 "Retiring %d RPMs older than %d days from %s",
                 expired_count,
-                MAX_PACKAGE_AGE.days,
+                policy.max_age.days,
                 repository_name,
             )
         retain_repository_packages(repository, age_retained_names)
-        retained = repository_package_names_for_retention(repository)
+        retained = repository_package_names_for_retention(repository, policy)
         retain_repository_packages(repository, retained)
         retained_names.update(retained)
 
@@ -1428,12 +1570,14 @@ def prune(config: Config) -> None:
     testing_repository = f"{config.normal_repository}-testing"
     inventory_path = Path("state") / testing_repository / "inventory.tsv"
     retired_path = inventory_path.with_name("retired.tsv")
+    seen_manifests_path = inventory_path.with_name("seen-manifests.tsv")
     inventory = read_tsv(inventory_path, 5)
     create_empty_repository(Path("repo") / testing_repository)
     create_empty_repository(Path("repo") / f"{testing_repository}-debuginfo")
     atomic_write_text(Path("repo") / testing_repository / "packages.txt", "")
     write_tsv(retired_path, (*read_tsv(retired_path, 5), *inventory), unique=True)
     write_tsv(inventory_path, ())
+    seen_manifests_path.touch()
 
 
 def repository_entry(
@@ -1456,21 +1600,22 @@ metadata_expire=6h
 
 
 def repofile(config: Config) -> None:
+    description = config.profile.display_name
     definitions = (
-        (config.normal_repository, f"{config.branch} Fedora {config.releasever}", True),
+        (config.normal_repository, f"{description} Fedora {config.releasever}", True),
         (
             f"{config.normal_repository}-testing",
-            f"{config.branch} Fedora {config.releasever} - testing",
+            f"{description} Fedora {config.releasever} - testing",
             False,
         ),
         (
             f"{config.normal_repository}-debuginfo",
-            f"{config.branch} Fedora {config.releasever} - debuginfo",
+            f"{description} Fedora {config.releasever} - debuginfo",
             False,
         ),
         (
             f"{config.normal_repository}-testing-debuginfo",
-            f"{config.branch} Fedora {config.releasever} - testing - debuginfo",
+            f"{description} Fedora {config.releasever} - testing - debuginfo",
             False,
         ),
     )
@@ -1480,7 +1625,7 @@ def repofile(config: Config) -> None:
     destination = (
         Path("repo")
         / config.normal_repository
-        / f"{config.repository}-{config.branch}-{config.releasever}.repo"
+        / f"{config.repository}-{config.profile.name}-{config.releasever}.repo"
     )
     atomic_write_text(destination, content)
 
@@ -1513,7 +1658,10 @@ def decompress_metadata(path: Path) -> bytes:
                 return stream.read()
         if path.suffix == ".zst":
             return subprocess.run(
-                ["zstd", "-qdc", os.fspath(path)], check=True, stdout=subprocess.PIPE
+                ["zstd", "-qdc", os.fspath(path)],
+                check=True,
+                stdout=subprocess.PIPE,
+                timeout=LOCAL_COMMAND_TIMEOUT,
             ).stdout
         return path.read_bytes()
     except (OSError, EOFError, lzma.LZMAError) as error:
@@ -1543,6 +1691,28 @@ def validate(config: Config) -> None:
         raise PublishError(f"Metadata is missing {', '.join(missing)}")
 
 
+def repoclosure(config: Config) -> None:
+    arguments: list[PathArgument] = [
+        f"--repofrompath=new,repo/{config.logical_repository}/",
+        "--check",
+        "new",
+        "--newest",
+    ]
+    if config.testing:
+        arguments.append(
+            f"--repofrompath=base,{pages_repository_url(config, config.normal_repository)}"
+        )
+    for dependency_name in config.profile.dependency_repositories:
+        dependency = repository_profile(dependency_name)
+        repository = f"{dependency.name}-{config.releasever}"
+        arguments.append(
+            f"--repofrompath={dependency.name},{pages_repository_url(config, repository)}"
+        )
+    for best in (False, True):
+        LOGGER.info("Checking repository closure%s", " with --best" if best else "")
+        command("dnf", "repoclosure", *arguments, *(("--best",) if best else ()))
+
+
 Stage: TypeAlias = Callable[[Config], None]
 STAGES: dict[str, Stage] = {
     "snapshot": snapshot,
@@ -1552,9 +1722,11 @@ STAGES: dict[str, Stage] = {
     "metadata": metadata,
     "prune": prune,
     "repofile": repofile,
+    "repoclosure": repoclosure,
     "validate": validate,
     "summary": summary,
     "upload": upload,
+    "seal": seal,
 }
 
 
@@ -1578,6 +1750,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         config.inventory.parent.mkdir(parents=True, exist_ok=True)
         config.inventory.touch()
         config.retired_inventory.touch()
+        config.seen_manifests.touch()
         LOGGER.info(
             "Running %s stage for %s", arguments.stage, config.logical_repository
         )
@@ -1590,6 +1763,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             "Command failed with exit status %d: %s", error.returncode, error.cmd
         )
         return error.returncode or 1
+    except subprocess.TimeoutExpired as error:
+        LOGGER.error("Command timed out after %s seconds: %s", error.timeout, error.cmd)
+        return 1
     except OSError as error:
         LOGGER.error("Operating system error: %s", error)
         return 1

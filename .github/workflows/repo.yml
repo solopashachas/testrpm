@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Repository'
+        description: 'Repository profile'
         required: true
         default: 'unstable'
         type: choice
@@ -31,6 +31,11 @@ concurrency:
 
 jobs:
   repo:
+    outputs:
+      generation: ${{ steps.repository-config.outputs.generation }}
+      logical_repository: ${{ steps.repository-config.outputs.logical_repository }}
+      normal_repository: ${{ steps.repository-config.outputs.normal_repository }}
+      testing: ${{ steps.repository-config.outputs.testing }}
     runs-on: ubuntu-latest
     container: ghcr.io/solopashachas/testrpm/buildroot:latest
     permissions:
@@ -39,6 +44,7 @@ jobs:
     env:
       MAX_ASSETS_PER_RELEASE: '900'
       MAX_PARALLEL_TRANSFERS: '8'
+      PUBLISH_GENERATION: ${{ github.run_id }}-${{ github.run_attempt }}
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.event.repository.name }}
       REPOSITORY_OWNER: ${{ github.repository_owner }}
@@ -48,7 +54,8 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Determine inputs and logical repository
+      - name: Determine repository profile and inputs
+        id: repository-config
         env:
           INPUT_BRANCH: ${{ inputs.branch }}
           INPUT_RELEASEVER: ${{ inputs.releasever }}
@@ -72,6 +79,12 @@ jobs:
               echo "EXCLUDE_SOURCES=${INPUT_EXCLUDE_SOURCES}"
             fi
           } >> "${GITHUB_ENV}"
+          {
+            echo "generation=${PUBLISH_GENERATION}"
+            echo "logical_repository=${logical_repository}"
+            echo "normal_repository=${normal_repository}"
+            echo "testing=${INPUT_TESTING}"
+          } >> "${GITHUB_OUTPUT}"
 
       - name: Set up ORAS
         uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d
@@ -103,6 +116,7 @@ jobs:
           mkdir -p "repo/${logical_repository}" "repo/${debug_repository}" "state/${logical_repository}"
           touch "state/${logical_repository}/inventory.tsv"
           touch "state/${logical_repository}/retired.tsv"
+          touch "state/${logical_repository}/seen-manifests.tsv"
 
       - name: Snapshot current package list
         run: .github/scripts/publish-repo.py snapshot
@@ -123,23 +137,7 @@ jobs:
         run: .github/scripts/publish-repo.py prune
 
       - name: Perform repoclosure
-        run: |
-          set -euo pipefail
-          args=(--repofrompath="new,repo/${logical_repository}/" --check new --newest)
-          if [[ "${testing}" == true ]]; then
-            args+=(--repofrompath="base,https://${REPOSITORY_OWNER}.github.io/${REPOSITORY}/${normal_repository}/")
-          fi
-          if [[ "${branch}" == gear ]]; then
-            args+=(--repofrompath="unstable,https://${REPOSITORY_OWNER}.github.io/${REPOSITORY}/unstable-${releasever}/")
-          fi
-          if ! dnf repoclosure "${args[@]}"; then
-            echo '::error::Repository closure check failed'
-            exit 1
-          fi
-          if ! dnf repoclosure "${args[@]}" --best; then
-            echo '::error::Repository closure check with --best failed'
-            exit 1
-          fi
+        run: .github/scripts/publish-repo.py repoclosure
 
       - name: Generate .repo file
         run: .github/scripts/publish-repo.py repofile
@@ -150,7 +148,10 @@ jobs:
       - name: Publish RPM release assets
         run: .github/scripts/publish-repo.py upload
 
-      - name: Publish GHCR repodata cache
+      - name: Seal candidate inventory
+        run: .github/scripts/publish-repo.py seal
+
+      - name: Publish candidate GHCR repodata cache
         run: |
           set -euo pipefail
           retry() {
@@ -163,20 +164,26 @@ jobs:
               delay=$((delay * 2))
             done
           }
-          retry oras push "ghcr.io/${{ github.repository }}/repodata:latest-${logical_repository}" \
+          retry oras push \
+            "ghcr.io/${{ github.repository }}/repodata:candidate-${logical_repository}-${PUBLISH_GENERATION}" \
             "repo/${logical_repository}/repodata" \
             "repo/${logical_repository}/packages.txt" \
+            "repo/${logical_repository}/generation.json" \
             "repo/${debug_repository}/repodata" \
             "state/${logical_repository}/inventory.tsv" \
-            "state/${logical_repository}/retired.tsv"
+            "state/${logical_repository}/retired.tsv" \
+            "state/${logical_repository}/seen-manifests.tsv"
           if [[ "${testing}" != true ]]; then
             testing_repository="${normal_repository}-testing"
-            retry oras push "ghcr.io/${{ github.repository }}/repodata:latest-${testing_repository}" \
+            retry oras push \
+              "ghcr.io/${{ github.repository }}/repodata:candidate-${testing_repository}-${PUBLISH_GENERATION}" \
               "repo/${testing_repository}/repodata" \
               "repo/${testing_repository}/packages.txt" \
+              "repo/${testing_repository}/generation.json" \
               "repo/${testing_repository}-debuginfo/repodata" \
               "state/${testing_repository}/inventory.tsv" \
-              "state/${testing_repository}/retired.tsv"
+              "state/${testing_repository}/retired.tsv" \
+              "state/${testing_repository}/seen-manifests.tsv"
           fi
 
       - name: Write repository update summary
@@ -203,3 +210,44 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+
+  finalize:
+    needs: [repo, pages]
+    permissions:
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up ORAS
+        uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d
+
+      - name: Authenticate to GHCR
+        run: oras login ghcr.io --password "${{ secrets.GITHUB_TOKEN }}" -u "${{ github.actor }}"
+
+      - name: Promote committed repodata caches
+        env:
+          GENERATION: ${{ needs.repo.outputs.generation }}
+          LOGICAL_REPOSITORY: ${{ needs.repo.outputs.logical_repository }}
+          NORMAL_REPOSITORY: ${{ needs.repo.outputs.normal_repository }}
+          TESTING: ${{ needs.repo.outputs.testing }}
+        run: |
+          set -euo pipefail
+          retry() {
+            local attempt=1 delay=1
+            until "$@"; do
+              if (( attempt >= 5 )); then return 1; fi
+              echo "Attempt ${attempt}/5 failed; retrying in ${delay}s" >&2
+              sleep "${delay}"
+              attempt=$((attempt + 1))
+              delay=$((delay * 2))
+            done
+          }
+          image="ghcr.io/${{ github.repository }}/repodata"
+          retry oras tag \
+            "${image}:candidate-${LOGICAL_REPOSITORY}-${GENERATION}" \
+            "latest-${LOGICAL_REPOSITORY}"
+          if [[ "${TESTING}" != true ]]; then
+            testing_repository="${NORMAL_REPOSITORY}-testing"
+            retry oras tag \
+              "${image}:candidate-${testing_repository}-${GENERATION}" \
+              "latest-${testing_repository}"
+          fi

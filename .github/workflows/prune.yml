@@ -33,7 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: read
+      packages: write
     concurrency:
       # Do not delete assets while a repository publish is in progress.
       group: repo-publish
@@ -123,3 +123,38 @@ jobs:
           sort -u -o prune-assets.tsv prune-assets.tsv
           parallel --halt soon,fail=1 --jobs 8 --colsep '\t' \
             delete_asset {1} {2} :::: prune-assets.tsv
+
+      - name: Compact and publish repository inventories
+        run: |
+          set -euo pipefail
+          retry() {
+            local attempt=1 delay=1
+            until "$@"; do
+              if (( attempt >= 5 )); then return 1; fi
+              echo "Attempt ${attempt}/5 failed; retrying in ${delay}s" >&2
+              sleep "${delay}"
+              attempt=$((attempt + 1))
+              delay=$((delay * 2))
+            done
+          }
+          find state -name retired.tsv -type f -exec truncate -s 0 {} +
+          image="ghcr.io/${{ github.repository }}/repodata"
+          for directory in state/*; do
+            [[ -d "${directory}" ]] || continue
+            logical_repository="${directory#state/}"
+            debug_repository="${logical_repository}-debuginfo"
+            touch "${directory}/seen-manifests.tsv"
+            artifacts=(
+              "repo/${logical_repository}/repodata"
+              "repo/${logical_repository}/packages.txt"
+              "repo/${debug_repository}/repodata"
+              "${directory}/inventory.tsv"
+              "${directory}/retired.tsv"
+              "${directory}/seen-manifests.tsv"
+            )
+            if [[ -f "repo/${logical_repository}/generation.json" ]]; then
+              artifacts+=("repo/${logical_repository}/generation.json")
+            fi
+            retry oras push \
+              "${image}:latest-${logical_repository}" "${artifacts[@]}"
+          done
