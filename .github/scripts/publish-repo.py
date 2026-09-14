@@ -25,6 +25,7 @@ from collections import defaultdict
 from collections.abc import Callable, Iterable, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import TypeAlias, TypeVar
 from urllib.parse import unquote, urlparse
@@ -37,6 +38,12 @@ Output = TypeVar("Output")
 PACKAGE_KINDS = ("packages", "debuginfo")
 DEBUG_PACKAGE_SUFFIXES = ("-debuginfo", "-debugsource")
 MAX_PACKAGE_VERSIONS = 3
+PACKAGE_VERSION_RETENTION_OVERRIDES = {
+    "kwin": 5,
+    "plasma-desktop": 5,
+    "plasma-workspace": 5,
+}
+MAX_PACKAGE_AGE = timedelta(days=7)
 MAX_REMOTE_ATTEMPTS = 5
 PACKAGE_SNAPSHOT = Path("packages-before.tsv")
 RPM_NAMESPACE = "http://linux.duke.edu/metadata/rpm"
@@ -739,7 +746,7 @@ def assign(config: Config) -> None:
     write_tsv(Path("incoming/assignments.tsv"), assignments)
 
 
-def release_assets(config: Config, tag: str) -> set[str]:
+def release_asset_records(config: Config, tag: str) -> list[dict[str, object]]:
     release = load_mapping(
         remote_command(
             "gh",
@@ -757,11 +764,44 @@ def release_assets(config: Config, tag: str) -> set[str]:
     assets = release.get("assets")
     if not isinstance(assets, list):
         raise PublishError(f"Invalid asset list returned for release {tag}")
+    return [asset for asset in assets if isinstance(asset, dict)]
+
+
+def release_assets(config: Config, tag: str) -> set[str]:
     return {
         asset["name"]
-        for asset in assets
-        if isinstance(asset, dict) and isinstance(asset.get("name"), str)
+        for asset in release_asset_records(config, tag)
+        if isinstance(asset.get("name"), str)
     }
+
+
+def parse_github_timestamp(value: object, description: str) -> datetime:
+    if not isinstance(value, str):
+        raise PublishError(f"Missing creation time for {description}")
+    try:
+        timestamp = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as error:
+        raise PublishError(
+            f"Invalid creation time for {description}: {value!r}"
+        ) from error
+    if timestamp.tzinfo is None:
+        raise PublishError(
+            f"Creation time lacks a timezone for {description}: {value!r}"
+        )
+    return timestamp
+
+
+def release_asset_creation_times(config: Config, tag: str) -> dict[str, datetime]:
+    creation_times: dict[str, datetime] = {}
+    for asset in release_asset_records(config, tag):
+        name = asset.get("name")
+        if not isinstance(name, str):
+            continue
+        creation_times[name] = parse_github_timestamp(
+            asset.get("createdAt"),
+            f"{name} in release {tag}",
+        )
+    return creation_times
 
 
 def upload_asset(item: tuple[Config, str, str]) -> None:
@@ -813,6 +853,11 @@ def repository_from_release_tag(config: Config, tag: str) -> str:
 
 def release_notes(config: Config, tag: str) -> str:
     repository = repository_from_release_tag(config, tag)
+    if repository == config.debug_repository:
+        return ""
+    display_name = "KDE Gear" if config.branch == "gear" else config.branch.title()
+    variant = " testing" if config.testing else ""
+    repository_id = f"{config.repository}-github:{repository}"
     commands: list[str] = []
     introduction = "Install the repository configuration with:"
     if config.branch == "gear":
@@ -830,18 +875,32 @@ def release_notes(config: Config, tag: str) -> str:
         + repofile_url(config, config.branch, config.normal_repository)
     )
     if repository != config.normal_repository:
-        repository_id = f"{config.repository}-github:{repository}"
         commands.append(f"sudo dnf config-manager enable '{repository_id}'")
     command_block = "\n".join(commands)
-    return f"""RPM storage bucket for logical repository {config.logical_repository}.
+    summary = f"RPM packages from the {display_name} package stream."
+    if config.branch == "gear":
+        summary = "KDE Gear packages built from the Unstable package stream."
+    testing_warning = ""
+    if config.testing:
+        testing_warning = (
+            "\n> Testing packages may be unstable and are disabled by default.\n"
+        )
+    return f"""# {display_name}{variant} repository for Fedora {config.releasever}
 
-## Enable this repository
+{summary}
+
+> This release stores RPM assets used by the repository metadata.
+> Install the repository configuration instead of downloading RPMs manually.
+{testing_warning}
+## Enable the repository
 
 {introduction}
 
 ```console
 {command_block}
 ```
+
+Repository ID: `{repository_id}`
 """
 
 
@@ -971,6 +1030,7 @@ def repository_package_names(
     repository: Path,
     latest_limit: int | None = None,
     excluded_sources: Sequence[str] = (),
+    included_sources: Sequence[str] = (),
 ) -> set[str]:
     repo_id = f"retention-{repository.name}"
     arguments: list[PathArgument] = [
@@ -997,10 +1057,28 @@ def repository_package_names(
             )
         if package_is_excluded(source_name, excluded_sources):
             continue
+        if included_sources and source_name not in included_sources:
+            continue
         name = unquote(Path(urlparse(location).path).name)
         if name:
             names.add(safe_rpm_name(name))
     return names
+
+
+def repository_package_names_for_retention(repository: Path) -> set[str]:
+    retained = repository_package_names(repository, MAX_PACKAGE_VERSIONS)
+    sources_by_limit: dict[int, list[str]] = defaultdict(list)
+    for source_name, limit in PACKAGE_VERSION_RETENTION_OVERRIDES.items():
+        sources_by_limit[limit].append(source_name)
+    for limit, source_names in sorted(sources_by_limit.items()):
+        retained.update(
+            repository_package_names(
+                repository,
+                latest_limit=limit,
+                included_sources=source_names,
+            )
+        )
+    return retained
 
 
 def local_metadata_path(repository: Path, href: str, source: Path) -> Path:
@@ -1120,8 +1198,36 @@ def retain_repository_packages(repository: Path, retained_names: set[str]) -> No
     atomic_write_bytes(repomd, serialize_xml(root))
 
 
+def packages_within_retention_period(
+    config: Config, current_time: datetime | None = None
+) -> set[str]:
+    inventory = read_tsv(config.pending_inventory, 5)
+    new_names = {row[0] for row in read_tsv(Path("incoming/assignments.tsv"), 5)}
+    retained = set(new_names)
+    cutoff = (current_time or datetime.now(timezone.utc)) - MAX_PACKAGE_AGE
+    rows_by_tag: dict[str, list[Row]] = defaultdict(list)
+    for row in inventory:
+        if row[0] not in new_names:
+            rows_by_tag[row[3]].append(row)
+    for tag, rows in sorted(rows_by_tag.items()):
+        creation_times = release_asset_creation_times(config, tag)
+        for name, _, _, _, _ in rows:
+            created_at = creation_times.get(name)
+            if created_at is None:
+                LOGGER.warning(
+                    "Keeping %s because its creation time is unavailable in %s",
+                    name,
+                    tag,
+                )
+                retained.add(name)
+            elif created_at >= cutoff:
+                retained.add(name)
+    return retained
+
+
 def apply_retention(config: Config) -> None:
     retained_names: set[str] = set()
+    recent_names = packages_within_retention_period(config)
     repositories = (
         (config.logical_repository, config.normal_repository),
         (config.debug_repository, f"{config.normal_repository}-debuginfo"),
@@ -1144,13 +1250,25 @@ def apply_retention(config: Config) -> None:
                     stable_repository_name,
                 )
             retain_repository_packages(repository, testing_names)
-            retained = repository_package_names(repository, MAX_PACKAGE_VERSIONS)
         else:
-            retained = repository_package_names(
-                repository,
-                MAX_PACKAGE_VERSIONS,
-                config.excluded_sources,
+            eligible_names = repository_package_names(
+                repository, excluded_sources=config.excluded_sources
             )
+            retain_repository_packages(repository, eligible_names)
+
+        current_names = repository_package_names(repository)
+        newest_names = repository_package_names(repository, latest_limit=1)
+        age_retained_names = (current_names & recent_names) | newest_names
+        expired_count = len(current_names - age_retained_names)
+        if expired_count:
+            LOGGER.info(
+                "Retiring %d RPMs older than %d days from %s",
+                expired_count,
+                MAX_PACKAGE_AGE.days,
+                repository_name,
+            )
+        retain_repository_packages(repository, age_retained_names)
+        retained = repository_package_names_for_retention(repository)
         retain_repository_packages(repository, retained)
         retained_names.update(retained)
 
