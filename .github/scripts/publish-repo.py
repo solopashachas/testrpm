@@ -1840,25 +1840,26 @@ def site_card(
         )
     commands = "\n".join(site_enable_commands(config, profile, releasever))
     build_label = "build" if len(packages) == 1 else "builds"
+    command_id = f"commands-{repository}"
     return f"""      <article class="card" id="{html.escape(repository)}">
         <div class="card-heading">
           <h2>{html.escape(display_name)} · Fedora {html.escape(releasever)}</h2>
-          <span class="badge">Available</span>
+          <button class="copy-button" type="button" data-copy-target="{html.escape(command_id)}" aria-label="Copy commands" title="Copy commands">
+            <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M8 7V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2v2a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3v-8a3 3 0 0 1 3-3h3Zm2 0h4a3 3 0 0 1 3 3v4h2V5h-9v2Zm4 2H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1Z"/></svg>
+          </button>
         </div>
         <p class="description">{html.escape(description)}</p>
         <div class="facts">
           <span>{len(packages)} source package {build_label}</span>
           <span>Updated {html.escape(site_generation_time(directory))}</span>
         </div>
-        <div class="command">
-          <button class="copy-button" type="button">Copy commands</button>
-          <pre><code>{html.escape(commands)}</code></pre>
-        </div>
+        <pre><code id="{html.escape(command_id)}">{html.escape(commands)}</code></pre>
       </article>"""
 
 
 def site(config: Config) -> None:
-    cards: list[tuple[int, str, str]] = []
+    profile_order = {"unstable": 0, "gear": 1, "beta": 2}
+    cards: list[tuple[int, int, str]] = []
     for profile in REPOSITORY_PROFILES.values():
         for directory in Path("repo").glob(f"{profile.name}-*"):
             match = re.fullmatch(rf"{re.escape(profile.name)}-(\d+)", directory.name)
@@ -1871,8 +1872,8 @@ def site(config: Config) -> None:
             releasever = match.group(1)
             cards.append(
                 (
+                    profile_order.get(profile.name, len(profile_order)),
                     -int(releasever),
-                    profile.display_name,
                     site_card(config, profile, releasever, directory.name),
                 )
             )

@@ -1,14 +1,16 @@
 document.querySelectorAll(".copy-button").forEach((button) => {
   button.addEventListener("click", async () => {
-    const command = button.parentElement.querySelector("code").textContent;
+    const command = document.getElementById(button.dataset.copyTarget).textContent;
     try {
       await navigator.clipboard.writeText(command);
-      button.textContent = "Copied";
+      button.classList.add("copied");
+      button.setAttribute("aria-label", "Commands copied");
     } catch {
-      button.textContent = "Copy failed";
+      button.setAttribute("aria-label", "Unable to copy commands");
     }
     window.setTimeout(() => {
-      button.textContent = "Copy commands";
+      button.classList.remove("copied");
+      button.setAttribute("aria-label", "Copy commands");
     }, 2000);
   });
 });

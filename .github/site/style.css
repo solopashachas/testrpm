@@ -68,16 +68,35 @@ h1 {
   gap: 1rem;
 }
 h2 { margin: 0; font-size: 1.35rem; letter-spacing: -0.025em; }
-.badge {
+.copy-button {
   flex: none;
-  padding: 0.3rem 0.55rem;
+  width: 2.15rem;
+  height: 2.15rem;
+  padding: 0.45rem;
   border: 1px solid #3b496c;
-  border-radius: 999px;
+  border-radius: 0.55rem;
+  background: #18223a;
   color: #b9c8f4;
-  font-size: 0.72rem;
-  font-weight: 750;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  cursor: pointer;
+}
+.copy-button svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: currentcolor;
+}
+.copy-button:hover {
+  border-color: #7189c8;
+  background: #202d4b;
+}
+.copy-button:focus-visible {
+  outline: 2px solid #9db5ff;
+  outline-offset: 2px;
+}
+.copy-button.copied {
+  border-color: #4a9a70;
+  background: #163b2a;
+  color: #8de2b2;
 }
 .description {
   min-height: 3rem;
@@ -96,37 +115,13 @@ h2 { margin: 0; font-size: 1.35rem; letter-spacing: -0.025em; }
 pre {
   max-width: 100%;
   margin: 0;
-  padding: 3rem 1rem 1rem;
+  padding: 1rem;
   overflow-x: auto;
   border: 1px solid #28334e;
   border-radius: 0.7rem;
   background: #080d19;
   color: #dce5ff;
   font: 0.78rem/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-}
-.command {
-  position: relative;
-}
-.copy-button {
-  position: absolute;
-  top: 0.65rem;
-  right: 0.65rem;
-  padding: 0.35rem 0.6rem;
-  border: 1px solid #46557b;
-  border-radius: 0.45rem;
-  background: #18223a;
-  color: #dce5ff;
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.76rem;
-}
-.copy-button:hover {
-  border-color: #7189c8;
-  background: #202d4b;
-}
-.copy-button:focus-visible {
-  outline: 2px solid #9db5ff;
-  outline-offset: 2px;
 }
 footer { padding: 3rem 0; color: #758198; font-size: 0.88rem; }
 @media (max-width: 36rem) {
