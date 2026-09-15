@@ -1445,9 +1445,13 @@ def retain_repository_packages(repository: Path, retained_names: set[str]) -> No
 
 
 def packages_within_retention_period(
-    config: Config, current_time: datetime | None = None
+    config: Config,
+    current_time: datetime | None = None,
+    eligible_names: set[str] | None = None,
 ) -> set[str]:
     inventory = read_tsv(config.pending_inventory, 5)
+    if eligible_names is None:
+        eligible_names = {row[0] for row in inventory}
     new_names = {row[0] for row in read_tsv(Path("incoming/assignments.tsv"), 5)}
     retained = set(new_names)
     cutoff = (
@@ -1455,7 +1459,7 @@ def packages_within_retention_period(
     ) - config.profile.retention.max_age
     rows_by_tag: dict[str, list[Row]] = defaultdict(list)
     for row in inventory:
-        if row[0] not in new_names:
+        if row[0] in eligible_names and row[0] not in new_names:
             rows_by_tag[row[3]].append(row)
     for tag, rows in sorted(rows_by_tag.items()):
         creation_times = release_asset_creation_times(config, tag)
@@ -1474,9 +1478,25 @@ def packages_within_retention_period(
 
 
 def apply_retention(config: Config) -> None:
+    discovered_path = Path("discovered.tsv")
+    if not discovered_path.is_file():
+        raise PublishError(f"Missing package discovery inventory: {discovered_path}")
+    discovered_digests = {row[2] for row in read_tsv(discovered_path, 3)}
+    inventory = read_tsv(config.pending_inventory, 5)
+    eligible_inventory_names = {
+        row[0] for row in inventory if row[4] in discovered_digests
+    }
+    undiscovered_names = {row[0] for row in inventory} - eligible_inventory_names
+    if undiscovered_names:
+        LOGGER.info(
+            "Retiring %d RPMs no longer present in package discovery",
+            len(undiscovered_names),
+        )
     retained_names: set[str] = set()
     policy = config.profile.retention
-    recent_names = packages_within_retention_period(config)
+    recent_names = packages_within_retention_period(
+        config, eligible_names=eligible_inventory_names
+    )
     repositories = (
         (config.logical_repository, config.normal_repository),
         (config.debug_repository, f"{config.normal_repository}-debuginfo"),
@@ -1487,6 +1507,7 @@ def apply_retention(config: Config) -> None:
             testing_names = repository_package_names(
                 repository, excluded_sources=config.excluded_sources
             )
+            testing_names.intersection_update(eligible_inventory_names)
             stable_names = repository_package_names(
                 Path("repo") / stable_repository_name
             )
@@ -1503,6 +1524,7 @@ def apply_retention(config: Config) -> None:
             eligible_names = repository_package_names(
                 repository, excluded_sources=config.excluded_sources
             )
+            eligible_names.intersection_update(eligible_inventory_names)
             retain_repository_packages(repository, eligible_names)
 
         current_names = repository_package_names(repository)
@@ -1525,7 +1547,6 @@ def apply_retention(config: Config) -> None:
         retain_repository_packages(repository, retained)
         retained_names.update(retained)
 
-    inventory = read_tsv(config.pending_inventory, 5)
     active = [row for row in inventory if row[0] in retained_names]
     newly_retired = [row for row in inventory if row[0] not in retained_names]
     retired = read_tsv(config.retired_inventory, 5)
@@ -1759,7 +1780,6 @@ def site_enable_commands(
     config: Config,
     profile: RepositoryProfile,
     releasever: str,
-    repository: str,
 ) -> list[str]:
     commands: list[str] = []
     for dependency_name in profile.dependency_repositories:
@@ -1776,10 +1796,6 @@ def site_enable_commands(
         f"https://{config.repository_owner}.github.io/{config.repository}/"
         f"{normal_repository}/{config.repository}-{profile.name}-{releasever}.repo"
     )
-    if repository.endswith("-testing"):
-        commands.append(
-            f"sudo dnf config-manager enable '{config.repository}-github:{repository}'"
-        )
     return commands
 
 
@@ -1797,6 +1813,10 @@ def site_generation_time(repository: Path) -> str:
     return timestamp.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
 
 
+def site_profile_name(profile: RepositoryProfile) -> str:
+    return "KDE Plasma" if profile.name == "unstable" else profile.display_name
+
+
 def site_card(
     config: Config,
     profile: RepositoryProfile,
@@ -1805,62 +1825,54 @@ def site_card(
 ) -> str:
     directory = Path("repo") / repository
     packages = read_lines(directory / "packages.txt")
-    testing = repository.endswith("-testing")
-    variant = " Testing" if testing else ""
-    badge_class = "badge testing" if testing else "badge"
-    badge = "Testing" if testing else "Available"
-    if profile.source_branch == profile.name:
+    display_name = site_profile_name(profile)
+    if profile.name == "unstable":
+        description = "KDE Plasma packages built from the master branch."
+    elif profile.name == "gear":
+        description = "KDE Gear packages built from the master branch."
+    elif profile.source_branch == profile.name:
         description = f"Packages from the {profile.display_name} package stream."
     else:
         source = repository_profile(profile.source_branch)
         description = (
             f"{profile.display_name} packages selected from the "
-            f"{source.display_name} package stream."
+            f"{site_profile_name(source)} package stream."
         )
-    if testing:
-        description += " Pre-release staging repository; disabled by default."
-    commands = "\n".join(site_enable_commands(config, profile, releasever, repository))
-    repofile = f"{config.repository}-{profile.name}-{releasever}.repo"
-    repofile_repository = f"{profile.name}-{releasever}"
+    commands = "\n".join(site_enable_commands(config, profile, releasever))
     build_label = "build" if len(packages) == 1 else "builds"
     return f"""      <article class="card" id="{html.escape(repository)}">
         <div class="card-heading">
-          <h2>{html.escape(profile.display_name)}{variant} · Fedora {html.escape(releasever)}</h2>
-          <span class="{badge_class}">{badge}</span>
+          <h2>{html.escape(display_name)} · Fedora {html.escape(releasever)}</h2>
+          <span class="badge">Available</span>
         </div>
         <p class="description">{html.escape(description)}</p>
         <div class="facts">
           <span>{len(packages)} source package {build_label}</span>
           <span>Updated {html.escape(site_generation_time(directory))}</span>
         </div>
-        <pre><code>{html.escape(commands)}</code></pre>
-        <nav class="links" aria-label="Repository files">
-          <a href="{html.escape(repofile_repository)}/{html.escape(repofile)}">Repository file</a>
-          <a href="{html.escape(repository)}/packages.txt">Package list</a>
-          <a href="{html.escape(repository)}/repodata/repomd.xml">RPM metadata</a>
-        </nav>
+        <div class="command">
+          <button class="copy-button" type="button">Copy commands</button>
+          <pre><code>{html.escape(commands)}</code></pre>
+        </div>
       </article>"""
 
 
 def site(config: Config) -> None:
-    cards: list[tuple[int, str, bool, str]] = []
+    cards: list[tuple[int, str, str]] = []
     for profile in REPOSITORY_PROFILES.values():
         for directory in Path("repo").glob(f"{profile.name}-*"):
-            match = re.fullmatch(
-                rf"{re.escape(profile.name)}-(\d+)(-testing)?", directory.name
-            )
+            match = re.fullmatch(rf"{re.escape(profile.name)}-(\d+)", directory.name)
             if (
                 match is None
                 or not (directory / "packages.txt").is_file()
                 or not (directory / "repodata/repomd.xml").is_file()
             ):
                 continue
-            releasever, testing_suffix = match.groups()
+            releasever = match.group(1)
             cards.append(
                 (
                     -int(releasever),
                     profile.display_name,
-                    testing_suffix is not None,
                     site_card(config, profile, releasever, directory.name),
                 )
             )
@@ -1876,6 +1888,7 @@ def site(config: Config) -> None:
     <meta name="description" content="KDE RPM repositories for Fedora">
     <title>{html.escape(config.repository)} · KDE RPM repositories</title>
     <link rel="stylesheet" href="style.css">
+    <script src="site.js" defer></script>
   </head>
   <body>
     <header class="shell">
@@ -1900,11 +1913,15 @@ def site(config: Config) -> None:
 </html>
 """
     atomic_write_text(Path("repo/index.html"), content)
-    try:
-        stylesheet = Path(".github/site/style.css").read_text(encoding="utf-8")
-    except OSError as error:
-        raise PublishError(f"Unable to read site stylesheet: {error}") from error
-    atomic_write_text(Path("repo/style.css"), stylesheet)
+    for asset in ("style.css", "site.js"):
+        source = Path(".github/site") / asset
+        try:
+            content = source.read_text(encoding="utf-8")
+        except OSError as error:
+            raise PublishError(
+                f"Unable to read site asset {source}: {error}"
+            ) from error
+        atomic_write_text(Path("repo") / asset, content)
 
 
 def primary_metadata_path(repository: Path) -> Path:
