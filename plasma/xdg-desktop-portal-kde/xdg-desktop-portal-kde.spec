@@ -1,10 +1,10 @@
-%global commit0 9427f3bc8712532f4599dc54b19bd4975609d7f9
+%global commit0 fa8e76ad4bbc5391725b910e773be5dfd22dbe65
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           xdg-desktop-portal-kde
 Summary:        Backend implementation for xdg-desktop-portal using Qt/KF5
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 
 License:        BSD-2-Clause AND CC0-1.0 AND GPL-2.0-or-later AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND (LGPL-2.1-only OR LGPL-3.0-only)

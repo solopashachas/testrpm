@@ -1,4 +1,4 @@
-%global commit0 8e7ac6f1092d5cbc5adc38dd239276ccc713123a
+%global commit0 a5d0cf92a269044b1df04b4f806d28f7bb513181
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
@@ -6,7 +6,7 @@
 
 Name:           polkit-kde
 Summary:        PolicyKit integration for KDE Desktop
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 
 License:        GPL-2.0-or-later AND CC0-1.0

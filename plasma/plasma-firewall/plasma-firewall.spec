@@ -1,11 +1,11 @@
-%global commit0 ceba796fd5253e7ca88d03c3a2d0fbca4422d8a3
+%global commit0 831655b27dfe947cf97104225135f4bef2899408
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 %bcond backend_ufw %[%{undefined rhel}]
 
 Name:           plasma-firewall
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Control Panel for your system firewall
 

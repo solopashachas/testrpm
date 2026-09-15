@@ -1,9 +1,9 @@
-%global commit0 a5c1c15d89acbc55dee977c7fb71b534749ed538
+%global commit0 6ad3c81f06bbc365d95bd6831b35bd7b8f6701f1
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           plasma-sdk
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Development tools for Plasma 6
 

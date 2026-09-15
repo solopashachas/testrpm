@@ -1,9 +1,9 @@
-%global commit0 570cb4ca5285b427a790ab28c00021e5a4235e0d
+%global commit0 a8ccec655261f502610c569c03b7c839436c4238
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 1
 
 Name:           kwin
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Window manager
 

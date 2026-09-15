@@ -1,9 +1,9 @@
-%global commit0 a1257fe28785aa2e3a1d39ab68e28b1fa280d6d4
+%global commit0 6018988701ef4f63dad6db41f8824d16a8775e26
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           knighttime
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Helpers for scheduling the dark-light cycle
 

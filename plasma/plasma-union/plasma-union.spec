@@ -1,11 +1,11 @@
-%global commit0 cdf36b41f0b7efd0b3dbb1a8a334e757ed09e047
+%global commit0 b5b8b1f08146958662bb22f9e5bf24967d3f962f
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 5
+%global bumpver 1
 
 %global base_name union
 
 Name:           plasma-union
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        A Qt style supporting both QtQuick and QtWidgets
 

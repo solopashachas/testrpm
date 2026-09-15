@@ -1,11 +1,11 @@
-%global commit0 8556a1b50ce8a88c9ca298b5df59e6c5fa17f1c2
+%global commit0 163c8c51ea6e3eeed5225c6a69a0f3d228545e74
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           spectacle
 Summary:        Screenshot capture utility
 Epoch:          1
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 
 License:        LGPL-2.0-or-later AND GPL-2.0-or-later AND (LGPL-2.1-only OR LGPL-3.0-only)

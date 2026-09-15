@@ -1,9 +1,9 @@
-%global commit0 0cd73f49dc14ae1b19cbd66fdb4625c8078c2e6a
+%global commit0 028f5160108d51b8c985dc7b02cb75f06149061d
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           plasma-pa
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Plasma applet for audio volume management using PulseAudio
 

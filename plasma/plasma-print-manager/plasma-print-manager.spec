@@ -1,4 +1,4 @@
-%global commit0 cebc7a452c917d1ee6d8e59c43a64774a9a7c150
+%global commit0 f34ec973438070472db9e9549d0059a7ffde1205
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
@@ -6,7 +6,7 @@
 
 Name:           plasma-print-manager
 Summary:        Printer management for KDE
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 
 License:        BSD-3-Clause AND GPL-2.0-or-later AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND (LGPL-2.1-only OR LGPL-3.0-only)

@@ -1,4 +1,4 @@
-%global commit0 02dc5f02fd3f74f07524f5ad65a56899f89474ef
+%global commit0 4565835d295caf3f0b22de6efef2aa0f9e9ccd7f
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
@@ -11,7 +11,7 @@
 
 Name:           plasma-discover
 Summary:        KDE and Plasma resources management GUI
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 
 License:        BSD-3-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND (GPL-2.0-only OR GPL-3.0-only) AND (LGPL-2.1-only OR LGPL-3.0-only)

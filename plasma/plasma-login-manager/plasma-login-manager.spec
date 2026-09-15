@@ -1,4 +1,4 @@
-%global commit0 778cc40110089f276fcfdc2200782776aad5b7c6
+%global commit0 59e6fafa7ad5b690b1af2541827b44dbb0d7fc3b
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
@@ -6,7 +6,7 @@
 %bcond x11 %[%{undefined rhel}]
 
 Name:           plasma-login-manager
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 License:        BSD-3-Clause and CC0-1.0 and (GPL-2.0-only or GPL-3.0-only) and GPL-2.0-or-later and LGPL-2.0-or-later and LGPL-2.1-or-later
 Summary:        QML based login manager from KDE

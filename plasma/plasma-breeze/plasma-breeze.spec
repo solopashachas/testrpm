@@ -1,11 +1,11 @@
-%global commit0 98e59027a417c6ef2e9c317606b693442b5d0a68
+%global commit0 b86ff61c39ca0d5601f63b1f3c9a20deb19291fd
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 1
 
 %global base_name breeze
 
 Name:           plasma-breeze
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Artwork, styles and assets for the Breeze visual style for the Plasma Desktop
 

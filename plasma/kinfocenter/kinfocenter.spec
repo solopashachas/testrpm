@@ -1,9 +1,9 @@
-%global commit0 117623c96b87341af9eb9a518fba555406e93da7
+%global commit0 16b0fb7ff0517d54720ffcc60854ef0f0aa96f79
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           kinfocenter
-Version:        6.7.90%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Info Center
 
