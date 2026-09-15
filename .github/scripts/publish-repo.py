@@ -10,6 +10,7 @@ import filecmp
 import fnmatch
 import gzip
 import hashlib
+import html
 import json
 import logging
 import lzma
@@ -1745,6 +1746,167 @@ def repofile(config: Config) -> None:
     atomic_write_text(destination, content)
 
 
+def read_lines(path: Path) -> list[str]:
+    if not path.is_file():
+        return []
+    try:
+        return [line for line in path.read_text(encoding="utf-8").splitlines() if line]
+    except OSError as error:
+        raise PublishError(f"Unable to read {path}: {error}") from error
+
+
+def site_enable_commands(
+    config: Config,
+    profile: RepositoryProfile,
+    releasever: str,
+    repository: str,
+) -> list[str]:
+    commands: list[str] = []
+    for dependency_name in profile.dependency_repositories:
+        dependency_repository = f"{dependency_name}-{releasever}"
+        commands.append(
+            "sudo dnf config-manager addrepo --from-repofile="
+            f"https://{config.repository_owner}.github.io/{config.repository}/"
+            f"{dependency_repository}/{config.repository}-{dependency_name}-"
+            f"{releasever}.repo"
+        )
+    normal_repository = f"{profile.name}-{releasever}"
+    commands.append(
+        "sudo dnf config-manager addrepo --from-repofile="
+        f"https://{config.repository_owner}.github.io/{config.repository}/"
+        f"{normal_repository}/{config.repository}-{profile.name}-{releasever}.repo"
+    )
+    if repository.endswith("-testing"):
+        commands.append(
+            f"sudo dnf config-manager enable '{config.repository}-github:{repository}'"
+        )
+    return commands
+
+
+def site_generation_time(repository: Path) -> str:
+    marker = repository / "generation.json"
+    if not marker.is_file():
+        return "Unknown"
+    try:
+        generation = load_mapping(marker.read_text(encoding="utf-8"), str(marker))
+    except OSError as error:
+        raise PublishError(f"Unable to read {marker}: {error}") from error
+    timestamp = parse_github_timestamp(
+        generation.get("created_at"), f"repository generation {repository.name}"
+    )
+    return timestamp.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+
+def site_card(
+    config: Config,
+    profile: RepositoryProfile,
+    releasever: str,
+    repository: str,
+) -> str:
+    directory = Path("repo") / repository
+    packages = read_lines(directory / "packages.txt")
+    testing = repository.endswith("-testing")
+    variant = " Testing" if testing else ""
+    badge_class = "badge testing" if testing else "badge"
+    badge = "Testing" if testing else "Available"
+    if profile.source_branch == profile.name:
+        description = f"Packages from the {profile.display_name} package stream."
+    else:
+        source = repository_profile(profile.source_branch)
+        description = (
+            f"{profile.display_name} packages selected from the "
+            f"{source.display_name} package stream."
+        )
+    if testing:
+        description += " Pre-release staging repository; disabled by default."
+    commands = "\n".join(site_enable_commands(config, profile, releasever, repository))
+    repofile = f"{config.repository}-{profile.name}-{releasever}.repo"
+    repofile_repository = f"{profile.name}-{releasever}"
+    build_label = "build" if len(packages) == 1 else "builds"
+    return f"""      <article class="card" id="{html.escape(repository)}">
+        <div class="card-heading">
+          <h2>{html.escape(profile.display_name)}{variant} · Fedora {html.escape(releasever)}</h2>
+          <span class="{badge_class}">{badge}</span>
+        </div>
+        <p class="description">{html.escape(description)}</p>
+        <div class="facts">
+          <span>{len(packages)} source package {build_label}</span>
+          <span>Updated {html.escape(site_generation_time(directory))}</span>
+        </div>
+        <pre><code>{html.escape(commands)}</code></pre>
+        <nav class="links" aria-label="Repository files">
+          <a href="{html.escape(repofile_repository)}/{html.escape(repofile)}">Repository file</a>
+          <a href="{html.escape(repository)}/packages.txt">Package list</a>
+          <a href="{html.escape(repository)}/repodata/repomd.xml">RPM metadata</a>
+        </nav>
+      </article>"""
+
+
+def site(config: Config) -> None:
+    cards: list[tuple[int, str, bool, str]] = []
+    for profile in REPOSITORY_PROFILES.values():
+        for directory in Path("repo").glob(f"{profile.name}-*"):
+            match = re.fullmatch(
+                rf"{re.escape(profile.name)}-(\d+)(-testing)?", directory.name
+            )
+            if (
+                match is None
+                or not (directory / "packages.txt").is_file()
+                or not (directory / "repodata/repomd.xml").is_file()
+            ):
+                continue
+            releasever, testing_suffix = match.groups()
+            cards.append(
+                (
+                    -int(releasever),
+                    profile.display_name,
+                    testing_suffix is not None,
+                    site_card(config, profile, releasever, directory.name),
+                )
+            )
+    rendered_cards = "\n".join(card for *_, card in sorted(cards))
+    if not rendered_cards:
+        rendered_cards = "      <p>No repositories have been published yet.</p>"
+    source_url = f"https://github.com/{config.github_repository}"
+    content = f"""<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="KDE RPM repositories for Fedora">
+    <title>{html.escape(config.repository)} · KDE RPM repositories</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <header class="shell">
+      <p class="eyebrow">Fedora RPM repositories</p>
+      <h1>Fresh KDE builds, packaged for Fedora.</h1>
+      <p class="lede">Browse the available package streams and copy the commands
+        for the repository you want to enable. Packages are built automatically
+        and served from GitHub Releases.</p>
+    </header>
+    <main class="shell">
+      <aside class="notice"><strong>Use with care.</strong> These repositories
+        contain development and pre-release software. Review changes before
+        updating production systems.</aside>
+      <section class="grid" aria-label="Available repositories">
+{rendered_cards}
+      </section>
+    </main>
+    <footer class="shell">Published from
+      <a href="{html.escape(source_url)}">{html.escape(config.github_repository)}</a>.
+    </footer>
+  </body>
+</html>
+"""
+    atomic_write_text(Path("repo/index.html"), content)
+    try:
+        stylesheet = Path(".github/site/style.css").read_text(encoding="utf-8")
+    except OSError as error:
+        raise PublishError(f"Unable to read site stylesheet: {error}") from error
+    atomic_write_text(Path("repo/style.css"), stylesheet)
+
+
 def primary_metadata_path(repository: Path) -> Path:
     repomd = repository / "repodata/repomd.xml"
     if not repomd.is_file() or repomd.stat().st_size == 0:
@@ -1837,6 +1999,7 @@ STAGES: dict[str, Stage] = {
     "metadata": metadata,
     "prune": prune,
     "repofile": repofile,
+    "site": site,
     "repoclosure": repoclosure,
     "validate": validate,
     "summary": summary,

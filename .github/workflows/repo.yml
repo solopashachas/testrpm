@@ -151,6 +151,9 @@ jobs:
       - name: Seal candidate inventory
         run: .github/scripts/publish-repo.py seal
 
+      - name: Generate GitHub Pages site
+        run: .github/scripts/publish-repo.py site
+
       - name: Publish candidate GHCR repodata cache
         run: |
           set -euo pipefail
