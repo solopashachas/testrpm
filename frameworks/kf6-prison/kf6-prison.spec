@@ -1,6 +1,6 @@
-%global commit0 30b444b1af4e166ae2a05e8dec15d0a592950b32
+%global commit0 ab1fca236ff7980b9dcb2ca077fa3385a212fd64
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework prison
 
@@ -46,6 +46,7 @@ developing applications that use %{name}.
 %{_kf6_includedir}/Prison/
 %{_kf6_includedir}/PrisonScanner/
 %{_kf6_libdir}/cmake/KF6Prison/
+%{_kf6_libdir}/cmake/KF6PrisonScanner/
 %{_kf6_libdir}/libKF6Prison.so
 %{_kf6_libdir}/libKF6PrisonScanner.so
 
