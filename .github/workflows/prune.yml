@@ -6,17 +6,17 @@ on:
       retired_asset_days:
         description: Days to retain retired GitHub Release assets
         required: true
-        default: '30'
+        default: '7'
         type: string
       registry_version_days:
         description: Days to retain superseded GHCR versions
         required: true
-        default: '90'
+        default: '7'
         type: string
       batch_descriptor_days:
         description: Days to retain batch subjects and descriptors
         required: true
-        default: '90'
+        default: '7'
         type: string
       dry_run:
         description: Report deletions without changing storage
@@ -38,9 +38,9 @@ jobs:
       contents: write
       packages: write
     env:
-      RETIRED_ASSET_DAYS: ${{ inputs.retired_asset_days || '30' }}
-      REGISTRY_RETENTION_DAYS: ${{ inputs.registry_version_days || '90' }}
-      BATCH_RETENTION_DAYS: ${{ inputs.batch_descriptor_days || '90' }}
+      RETIRED_ASSET_DAYS: ${{ inputs.retired_asset_days || '7' }}
+      REGISTRY_RETENTION_DAYS: ${{ inputs.registry_version_days || '7' }}
+      BATCH_RETENTION_DAYS: ${{ inputs.batch_descriptor_days || '7' }}
       DRY_RUN: ${{ inputs.dry_run || false }}
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.event.repository.name }}

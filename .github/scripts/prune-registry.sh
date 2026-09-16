@@ -21,6 +21,9 @@ retry() {
       return 0
     fi
     if [[ "${attempt}" -lt 5 ]]; then
+      printf 'Failed command:' >&2
+      printf ' %q' "$@" >&2
+      echo >&2
       echo "Attempt ${attempt}/5 failed; retrying in ${delay}s" >&2
       sleep "${delay}"
       delay=$((delay * 2))
@@ -32,15 +35,24 @@ retry() {
 retry_to_file() {
   local destination="$1"
   shift
-  local attempt delay temporary
+  local attempt delay error_file temporary
   delay=1
   temporary="${destination}.tmp"
+  error_file="${destination}.error"
   for attempt in 1 2 3 4 5; do
-    if "$@" > "${temporary}"; then
+    if "$@" > "${temporary}" 2> "${error_file}"; then
       mv "${temporary}" "${destination}"
+      rm -f "${error_file}"
       return 0
     fi
+    if grep -Eqi 'not found|HTTP 404' "${error_file}"; then
+      return 44
+    fi
+    cat "${error_file}" >&2
     if [[ "${attempt}" -lt 5 ]]; then
+      printf 'Failed command:' >&2
+      printf ' %q' "$@" >&2
+      echo >&2
       echo "Attempt ${attempt}/5 failed; retrying in ${delay}s" >&2
       sleep "${delay}"
       delay=$((delay * 2))
@@ -59,10 +71,16 @@ else
   exit 1
 fi
 
-retry_to_file /tmp/container-packages.raw gh api --paginate \
-  "${package_scope}/packages?package_type=container&per_page=100" \
-  --jq '.[].name'
-sort -u /tmp/container-packages.raw > /tmp/container-packages
+{
+  while IFS= read -r -d '' spec; do
+    specfile="${spec##*/}"
+    pkgname="${specfile%.spec}"
+    printf '%s/%s\n' "${REPOSITORY}" "${pkgname,,}"
+  done < <(find . -path './.git' -prune -o -type f -name '*.spec' -print0)
+  printf '%s/%s\n' "${REPOSITORY}" buildroot
+  printf '%s/%s\n' "${REPOSITORY}" repodata
+  printf '%s/%s\n' "${REPOSITORY}" repository-batches
+} | sort -u > /tmp/container-packages
 
 now="$(date +%s)"
 selected=0
@@ -74,8 +92,14 @@ while IFS= read -r package; do
   esac
   encoded_package="$(jq -rn --arg value "${package}" '$value | @uri')"
   versions_endpoint="${package_scope}/packages/container/${encoded_package}/versions"
-  retry_to_file /tmp/package-versions gh api --paginate \
-    "${versions_endpoint}?per_page=100"
+  if retry_to_file /tmp/package-versions gh api --paginate \
+      "${versions_endpoint}?per_page=100"; then
+    :
+  elif [[ "$?" == 44 ]]; then
+    continue
+  else
+    exit 1
+  fi
   while IFS= read -r version; do
     id="$(jq -r '.id' <<< "${version}")"
     updated_at="$(jq -r '.updated_at' <<< "${version}")"
