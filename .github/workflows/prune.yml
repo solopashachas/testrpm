@@ -1,47 +1,62 @@
-name: Prune old results
+name: Prune repository storage
 
 on:
   workflow_dispatch:
+    inputs:
+      retired_asset_days:
+        description: Days to retain retired GitHub Release assets
+        required: true
+        default: '30'
+        type: string
+      registry_version_days:
+        description: Days to retain superseded GHCR versions
+        required: true
+        default: '90'
+        type: string
+      batch_descriptor_days:
+        description: Days to retain batch subjects and descriptors
+        required: true
+        default: '90'
+        type: string
+      dry_run:
+        description: Report deletions without changing storage
+        required: true
+        default: true
+        type: boolean
   schedule:
     - cron: '35 6 * * *'
 
+concurrency:
+  group: rpm-repository-publish-${{ github.repository }}
+  cancel-in-progress: false
+
 jobs:
-  prune-registry:
+  prune:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    concurrency:
-      group: registry-prune
-      cancel-in-progress: true
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          persist-credentials: false
-
-      - name: Prune
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPOSITORY: ${{ github.event.repository.name }}
-          REPOSITORY_OWNER: ${{ github.repository_owner }}
-        run: |
-          bash prune.sh
-
-  prune-release:
-    runs-on: ubuntu-latest
+    container: ghcr.io/solopashachas/testrpm/buildroot:latest
     permissions:
       contents: write
       packages: write
-    concurrency:
-      group: release-prune
-      cancel-in-progress: true
-    container:
-      image: ghcr.io/solopashachas/testrpm/buildroot:latest
-
+    env:
+      RETIRED_ASSET_DAYS: ${{ inputs.retired_asset_days || '30' }}
+      REGISTRY_RETENTION_DAYS: ${{ inputs.registry_version_days || '90' }}
+      BATCH_RETENTION_DAYS: ${{ inputs.batch_descriptor_days || '90' }}
+      DRY_RUN: ${{ inputs.dry_run || false }}
+      GH_TOKEN: ${{ github.token }}
+      REPOSITORY: ${{ github.event.repository.name }}
+      GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+      PRUNE_GENERATION: prune-${{ github.run_id }}-${{ github.run_attempt }}
     steps:
-      - name: Checkout
+      - name: Validate request
+        run: |
+          set -euo pipefail
+          [[ "${RETIRED_ASSET_DAYS}" =~ ^[0-9]+$ ]]
+          [[ "${REGISTRY_RETENTION_DAYS}" =~ ^[0-9]+$ ]]
+          [[ "${BATCH_RETENTION_DAYS}" =~ ^[0-9]+$ ]]
+          (( REGISTRY_RETENTION_DAYS >= BATCH_RETENTION_DAYS ))
+          [[ "${DRY_RUN}" == true || "${DRY_RUN}" == false ]]
+
+      - name: Checkout pruning tools
         uses: actions/checkout@v7
         with:
           persist-credentials: false
@@ -49,111 +64,83 @@ jobs:
       - name: Set up ORAS
         uses: oras-project/setup-oras@1d808f7d7f6995cc68b7bf507bfe5c5446e1dc9d
 
-      - name: Restore repository inventories
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Authenticate to GHCR
+        run: oras login ghcr.io --password "${GH_TOKEN}" -u "${{ github.actor }}"
+
+      - name: Restore committed repository state
         run: |
           set -euo pipefail
-          retry() {
-            local attempt=1 delay=1
-            until "$@"; do
-              if (( attempt >= 5 )); then return 1; fi
-              echo "Attempt ${attempt}/5 failed; retrying in ${delay}s" >&2
-              sleep "${delay}"
-              attempt=$((attempt + 1))
-              delay=$((delay * 2))
-            done
-          }
-          retry oras login ghcr.io --password "${GH_TOKEN}" -u "${{ github.actor }}"
-          mkdir -p state
-          retry oras repo tags --format json "ghcr.io/${{ github.repository }}/repodata" |
-            jq -r '.tags[]? | select(startswith("latest-"))' | sort -u > repodata-tags
-          while IFS= read -r tag; do
-            retry oras pull "ghcr.io/${{ github.repository }}/repodata:${tag}" -o .
-          done < repodata-tags
+          state_repository="ghcr.io/${GITHUB_REPOSITORY}/repodata:latest"
+          for attempt in 1 2 3 4 5; do
+            if oras pull "${state_repository}" -o .; then
+              exit 0
+            fi
+            [[ "${attempt}" == 5 ]] || sleep $((2 ** (attempt - 1)))
+          done
+          exit 1
+
+      - name: Plan retired asset pruning
+        run: |
+          set -euo pipefail
+          .github/scripts/prune-repository.py plan \
+            --retention-days "${RETIRED_ASSET_DAYS}"
+          count="$(wc -l < prune-assets.tsv)"
+          {
+            echo '## Repository storage pruning'
+            echo
+            echo "Retired Release assets eligible: ${count}"
+            echo
+            echo "Dry run: ${DRY_RUN}"
+          } >> "${GITHUB_STEP_SUMMARY}"
 
       - name: Delete retired release assets
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: env.DRY_RUN != 'true'
         run: |
           set -euo pipefail
-          find state -name retired.tsv -type f -exec cat {} + | sort -u > retired.tsv
-          export GITHUB_REPOSITORY="${{ github.repository }}"
-          retry() {
-            local attempt=1 delay=1
-            until "$@"; do
-              if (( attempt >= 5 )); then return 1; fi
-              echo "Attempt ${attempt}/5 failed; retrying in ${delay}s" >&2
-              sleep "${delay}"
-              attempt=$((attempt + 1))
-              delay=$((delay * 2))
-            done
-          }
-          delete_asset() {
-            local rpm="$1" tag="$2" attempt=1 delay=1 assets
-            while (( attempt <= 5 )); do
-              echo "Deleting ${rpm} from ${tag} (attempt ${attempt}/5)"
+          retry_delete() {
+            local rpm="$1"
+            local tag="$2"
+            local attempt delay assets
+            delay=1
+            for attempt in 1 2 3 4 5; do
               if gh release delete-asset "${tag}" "${rpm}" \
                   -R "${GITHUB_REPOSITORY}" --yes; then
                 return 0
               fi
               if assets="$(gh release view "${tag}" -R "${GITHUB_REPOSITORY}" \
-                  --json assets -q '.assets[].name')" && \
-                  ! grep -Fqx "${rpm}" <<< "${assets}"; then
+                  --json assets -q '.assets[].name' 2>/tmp/release-error)"; then
+                if ! grep -Fqx -- "${rpm}" <<< "${assets}"; then
+                  return 0
+                fi
+              elif grep -Eqi 'not found|HTTP 404' /tmp/release-error; then
                 return 0
               fi
-              if (( attempt >= 5 )); then return 1; fi
-              echo "Retrying ${rpm} in ${delay}s" >&2
-              sleep "${delay}"
-              attempt=$((attempt + 1))
-              delay=$((delay * 2))
+              if [[ "${attempt}" -lt 5 ]]; then
+                sleep "${delay}"
+                delay=$((delay * 2))
+              fi
             done
+            return 1
           }
-          export -f delete_asset
-          : > prune-assets.tsv
-          cut -f4 retired.tsv | sort -u | while IFS= read -r tag; do
-            [[ -n "${tag}" ]] || continue
-            retry gh release view "${tag}" -R "${GITHUB_REPOSITORY}" \
-              --json assets -q '.assets[].name' | sort -u > release-assets
-            awk -F '\t' -v tag="${tag}" '$4 == tag { print $1 }' retired.tsv |
-              sort -u | grep -Fxf release-assets | awk -v tag="${tag}" \
-                '{ print $0 "\t" tag }' >> prune-assets.tsv || true
-          done
-          sort -u -o prune-assets.tsv prune-assets.tsv
+          export -f retry_delete
+          export GH_TOKEN GITHUB_REPOSITORY
           parallel --halt soon,fail=1 --jobs 8 --colsep '\t' \
-            delete_asset {1} {2} :::: prune-assets.tsv
+            retry_delete {1} {2} :::: prune-assets.tsv
+          .github/scripts/prune-repository.py compact
 
-      - name: Compact and publish repository inventories
+      - name: Save compacted repository state
+        if: env.DRY_RUN != 'true'
         run: |
           set -euo pipefail
-          retry() {
-            local attempt=1 delay=1
-            until "$@"; do
-              if (( attempt >= 5 )); then return 1; fi
-              echo "Attempt ${attempt}/5 failed; retrying in ${delay}s" >&2
-              sleep "${delay}"
-              attempt=$((attempt + 1))
-              delay=$((delay * 2))
-            done
-          }
-          find state -name retired.tsv -type f -exec truncate -s 0 {} +
-          image="ghcr.io/${{ github.repository }}/repodata"
-          for directory in state/*; do
-            [[ -d "${directory}" ]] || continue
-            logical_repository="${directory#state/}"
-            debug_repository="${logical_repository}-debuginfo"
-            touch "${directory}/seen-manifests.tsv"
-            artifacts=(
-              "repo/${logical_repository}/repodata"
-              "repo/${logical_repository}/packages.txt"
-              "repo/${debug_repository}/repodata"
-              "${directory}/inventory.tsv"
-              "${directory}/retired.tsv"
-              "${directory}/seen-manifests.tsv"
-            )
-            if [[ -f "repo/${logical_repository}/generation.json" ]]; then
-              artifacts+=("repo/${logical_repository}/generation.json")
+          image="ghcr.io/${GITHUB_REPOSITORY}/repodata"
+          for attempt in 1 2 3 4 5; do
+            if oras push "${image}:candidate-${PRUNE_GENERATION}" repo state && \
+                oras tag "${image}:candidate-${PRUNE_GENERATION}" latest; then
+              exit 0
             fi
-            retry oras push \
-              "${image}:latest-${logical_repository}" "${artifacts[@]}"
+            [[ "${attempt}" == 5 ]] || sleep $((2 ** (attempt - 1)))
           done
+          exit 1
+
+      - name: Prune superseded GHCR versions
+        run: .github/scripts/prune-registry.sh
