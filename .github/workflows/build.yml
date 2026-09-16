@@ -10,6 +10,15 @@ on:
       build_id:
         required: true
         type: string
+      batch_id:
+        required: false
+        type: string
+      batch_size:
+        required: false
+        type: string
+      repository_profile:
+        required: false
+        type: string
       target_distribution:
         required: true
         type: string
@@ -154,16 +163,49 @@ jobs:
 
       - name: Fetch build deps
         env:
+          pr_number: ${{ inputs.pr_number }}
           deps: ${{ inputs.deps }}
           additional_packages: ${{ inputs.additional_packages }}
         run: |
+          pull_with_retry () {
+            local reference="$1"
+            local destination="$2"
+            local attempt
+
+            for attempt in 1 2 3; do
+              if oras pull "${reference}" -o "${destination}"; then
+                return 0
+              fi
+              if [[ "${attempt}" -lt 3 ]]; then
+                echo "Failed to pull ${reference} (attempt ${attempt}/3); retrying"
+                sleep $((2 ** (attempt - 1)))
+              fi
+            done
+            return 1
+          }
+
+          download_dep () {
+            local reference="ghcr.io/${repository}/$1:latest-${target_branch}-${target_distribution}"
+            local pr_reference="ghcr.io/${repository}/$1:pr-${pr_number}-${target_distribution}"
+
+            if pull_with_retry "${reference}" repo; then
+              return 0
+            fi
+            if [[ "${pr_number}" != "" ]] && oras manifest fetch "${pr_reference}" &> /dev/null; then
+              echo "${reference} is unavailable; ${pr_reference} will provide $1"
+              return 0
+            fi
+            return 1
+          }
+
+          export -f pull_with_retry download_dep
           if [[ "${deps}" != "" ]]; then
-            parallel --halt now,fail=1 oras pull "ghcr.io/${repository}/{}:latest-${target_branch}-${target_distribution}" -o repo ::: ${deps}
+            parallel --halt now,fail=1 download_dep ::: ${deps}
           fi
           if [[ "${additional_packages}" != "" ]]; then
             download_additional_package () {
               if oras manifest fetch "ghcr.io/${repository}/$1:latest-${target_branch}-${target_distribution}" &> /dev/null; then
-                oras pull "ghcr.io/${repository}/$1:latest-${target_branch}-${target_distribution}" -o repo
+                pull_with_retry "ghcr.io/${repository}/$1:latest-${target_branch}-${target_distribution}" repo
               fi
             }
             export -f download_additional_package
@@ -186,11 +228,29 @@ jobs:
           deps: ${{ inputs.deps }}
           additional_packages: ${{ inputs.additional_packages }}
         run: |
+          pull_with_retry () {
+            local reference="$1"
+            local destination="$2"
+            local attempt
+
+            for attempt in 1 2 3; do
+              if oras pull "${reference}" -o "${destination}"; then
+                return 0
+              fi
+              if [[ "${attempt}" -lt 3 ]]; then
+                echo "Failed to pull ${reference} (attempt ${attempt}/3); retrying"
+                sleep $((2 ** (attempt - 1)))
+              fi
+            done
+            return 1
+          }
+
+          export -f pull_with_retry
           mkdir -p pr-repo
           if [[ "${deps}" != "" ]]; then
             download_dep () {
               if oras manifest fetch "ghcr.io/${repository}/$1:pr-${pr_number}-${target_distribution}" &> /dev/null; then
-                oras pull "ghcr.io/${repository}/$1:pr-${pr_number}-${target_distribution}" -o pr-repo
+                pull_with_retry "ghcr.io/${repository}/$1:pr-${pr_number}-${target_distribution}" pr-repo
               fi
             }
             export -f download_dep
@@ -199,7 +259,7 @@ jobs:
           if [[ "${additional_packages}" != "" ]]; then
             download_additional_package () {
               if oras manifest fetch "ghcr.io/${repository}/$1:pr-${pr_number}-${target_distribution}" &> /dev/null; then
-                oras pull "ghcr.io/${repository}/$1:pr-${pr_number}-${target_distribution}" -o pr-repo
+                pull_with_retry "ghcr.io/${repository}/$1:pr-${pr_number}-${target_distribution}" pr-repo
               fi
             }
             export -f download_additional_package
@@ -251,10 +311,17 @@ jobs:
           echo "container_tag=$(echo "${version_release}" | sed 's/\^/_post_/;s/\~/_pre_/')" >> $GITHUB_ENV
 
       - name: Check NVR
+        env:
+          BATCH_ID: ${{ inputs.batch_id }}
         run: |
           scoped_container_tag="${container_tag}-${target_branch}-${target_distribution}"
-          if oras manifest fetch \
-              "ghcr.io/${repository}/${pkgname,,}:${scoped_container_tag}" &> /dev/null; then
+          if existing_manifest="$(oras manifest fetch \
+              "ghcr.io/${repository}/${pkgname,,}:${scoped_container_tag}" 2>/dev/null)"; then
+            existing_batch="$(jq -r '.annotations."rpm.batch" // empty' <<< "${existing_manifest}")"
+            if [[ -n "${BATCH_ID}" && "${existing_batch}" == "${BATCH_ID}" ]]; then
+              echo "Retrying NVR already uploaded by batch ${BATCH_ID}"
+              exit 0
+            fi
             echo "NVR already exists for ${target_branch}-${target_distribution}"
             exit 1
           fi
@@ -472,6 +539,7 @@ jobs:
                   --annotation "rpm.version=${version_release}" \
                   --annotation "rpm.branch=${target_branch}" \
                   --annotation "rpm.releasever=${target_distribution}" \
+                  --annotation "rpm.batch=${{ inputs.batch_id }}" \
                   "ghcr.io/${repository}/${pkgname,,}:latest-${target_branch}-${target_distribution},${container_tag}-${target_branch}-${target_distribution}" \
                   ./"${pkgname}"-resultdir/*.rpm; then
                   exit 0
@@ -485,6 +553,78 @@ jobs:
 
           echo "Failed after $max_retries attempts"
           exit 1
+
+      - name: Register result in repository batch
+        if: inputs.pr_number == '' && inputs.batch_id != ''
+        env:
+          BATCH_ID: ${{ inputs.batch_id }}
+          BATCH_SIZE: ${{ inputs.batch_size }}
+          BUILD_ID: ${{ inputs.build_id }}
+          SOURCE_REF: ${{ inputs.ref }}
+          PROFILE: ${{ inputs.repository_profile }}
+        run: |
+          set -euo pipefail
+          [[ "${BATCH_ID}" =~ ^[1-9][0-9]*$ ]]
+          [[ "${BATCH_SIZE}" =~ ^[1-9][0-9]*$ ]]
+          [[ "${BUILD_ID}" =~ ^[1-9][0-9]*$ ]]
+          [[ "${SOURCE_REF}" =~ ^[0-9a-fA-F]{7,64}$ ]]
+          batch_repository="ghcr.io/${repository}/repository-batches"
+          batch_tag="batch-${BATCH_ID}-${SOURCE_REF,,}"
+          export OCI_REFERENCE="ghcr.io/${repository}/${pkgname,,}:${container_tag}-${target_branch}-${target_distribution}"
+          mkdir -p repository-batch
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+
+          descriptor = {
+              "schema": 1,
+              "batch_id": int(os.environ["BATCH_ID"]),
+              "build_id": int(os.environ["BUILD_ID"]),
+              "commit_sha": os.environ["SOURCE_REF"].lower(),
+              "branch": os.environ["target_branch"],
+              "profile": os.environ["PROFILE"] or os.environ["target_branch"],
+              "releasever": os.environ["target_distribution"].removeprefix("fc"),
+              "package": os.environ["pkgname"],
+              "oci_reference": os.environ["OCI_REFERENCE"],
+          }
+          Path(f"repository-batch/{descriptor['build_id']}.json").write_text(
+              json.dumps(descriptor, sort_keys=True) + "\n", encoding="utf-8"
+          )
+
+          empty = b"{}"
+          subject = {
+              "schemaVersion": 2,
+              "mediaType": "application/vnd.oci.image.manifest.v1+json",
+              "artifactType": "application/vnd.rpm-orchestrator.batch.v1",
+              "config": {
+                  "mediaType": "application/vnd.oci.empty.v1+json",
+                  "digest": "sha256:" + hashlib.sha256(empty).hexdigest(),
+                  "size": len(empty),
+                  "data": "e30=",
+              },
+              "layers": [],
+              "annotations": {
+                  "rpm-orchestrator.batch": os.environ["BATCH_ID"],
+                  "rpm-orchestrator.build-count": os.environ["BATCH_SIZE"],
+                  "org.opencontainers.image.revision": os.environ["SOURCE_REF"].lower(),
+              },
+          }
+          Path("repository-batch/subject.json").write_text(
+              json.dumps(subject, separators=(",", ":"), sort_keys=True),
+              encoding="utf-8",
+          )
+          PY
+
+          oras manifest push \
+            "${batch_repository}:${batch_tag}" repository-batch/subject.json
+          oras attach \
+            --artifact-type application/vnd.rpm-orchestrator.package.v1+json \
+            --annotation org.opencontainers.image.created=1970-01-01T00:00:00Z \
+            --annotation "rpm-orchestrator.build=${BUILD_ID}" \
+            "${batch_repository}:${batch_tag}" \
+            "repository-batch/${BUILD_ID}.json:application/vnd.rpm-orchestrator.package.v1+json"
 
       - name: Upload build results (PR)
         if: inputs.pr_number != ''

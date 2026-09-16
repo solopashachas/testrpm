@@ -26,7 +26,7 @@ from collections import defaultdict
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from threading import Lock
 from types import MappingProxyType
@@ -51,11 +51,6 @@ DEFAULT_EXCLUDED_SOURCES = (
     "ktextaddons",
     "kirigami-app-components",
 )
-DEFAULT_PACKAGE_DIRECTORIES = (
-    Path("plasma"),
-    Path("related"),
-    Path("frameworks"),
-)
 SAFE_COMPONENT = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]*$")
 SAFE_GITHUB_REPOSITORY = re.compile(
     r"^[A-Za-z0-9](?:[A-Za-z0-9._-]*[A-Za-z0-9])?/[A-Za-z0-9._-]+$"
@@ -79,9 +74,7 @@ class RepositoryProfile:
     name: str
     display_name: str
     source_branch: str
-    package_directories: tuple[Path, ...]
     retention: RetentionPolicy
-    copr_project: str | None = None
     dependency_repositories: tuple[str, ...] = ()
     default_excluded_sources: tuple[str, ...] = ()
 
@@ -109,7 +102,6 @@ REPOSITORY_PROFILES: dict[str, RepositoryProfile] = {
         name=name,
         display_name=name.title(),
         source_branch=name,
-        package_directories=DEFAULT_PACKAGE_DIRECTORIES,
         retention=DEFAULT_RETENTION_POLICY,
         default_excluded_sources=DEFAULT_EXCLUDED_SOURCES,
     )
@@ -119,9 +111,7 @@ REPOSITORY_PROFILES["gear"] = RepositoryProfile(
     name="gear",
     display_name="KDE Gear",
     source_branch="unstable",
-    package_directories=(Path("gear"),),
     retention=DEFAULT_RETENTION_POLICY,
-    copr_project="solopasha/kde-gear-unstable",
     dependency_repositories=("unstable",),
 )
 
@@ -189,6 +179,8 @@ class Config:
     max_assets_per_release: int
     max_parallel_transfers: int
     excluded_sources: tuple[str, ...]
+    batch_id: str
+    commit_sha: str
 
     @property
     def profile(self) -> RepositoryProfile:
@@ -207,12 +199,12 @@ class Config:
         return self.inventory.with_suffix(".tsv.next")
 
     @property
-    def seen_manifests(self) -> Path:
-        return self.inventory.with_name("seen-manifests.tsv")
+    def applied_batches(self) -> Path:
+        return self.inventory.with_name("applied-batches.tsv")
 
     @property
-    def pending_seen_manifests(self) -> Path:
-        return self.seen_manifests.with_suffix(".tsv.next")
+    def applied_deletions(self) -> Path:
+        return self.inventory.with_name("applied-deletions.tsv")
 
     @property
     def package_list(self) -> Path:
@@ -245,6 +237,8 @@ class Config:
             "REPOSITORY_OWNER",
             "MAX_ASSETS_PER_RELEASE",
             "MAX_PARALLEL_TRANSFERS",
+            "BATCH_ID",
+            "COMMIT_SHA",
         )
         values = {name: require_environment(name) for name in names}
         testing = values["testing"].lower()
@@ -258,6 +252,10 @@ class Config:
         )
         if not values["releasever"].isdigit():
             raise PublishError("releasever must be numeric")
+        if not values["BATCH_ID"].isdigit() or int(values["BATCH_ID"]) < 1:
+            raise PublishError("BATCH_ID must be a positive integer")
+        if not re.fullmatch(r"[0-9a-fA-F]{7,64}", values["COMMIT_SHA"]):
+            raise PublishError("COMMIT_SHA must be a Git commit SHA")
         for name in (
             "branch",
             "logical_repository",
@@ -302,6 +300,8 @@ class Config:
             max_assets_per_release=maximum,
             max_parallel_transfers=parallel_transfers,
             excluded_sources=excluded_sources,
+            batch_id=values["BATCH_ID"],
+            commit_sha=values["COMMIT_SHA"].lower(),
         )
 
 
@@ -538,41 +538,6 @@ def package_is_excluded(name: str, patterns: Sequence[str]) -> bool:
     return any(fnmatch.fnmatchcase(name, pattern) for pattern in patterns)
 
 
-def package_uses_copr_project(directory: Path, project: str) -> bool:
-    configuration = directory / "orchestrator.conf"
-    if not configuration.is_file():
-        return False
-    try:
-        lines = configuration.read_text(encoding="utf-8").splitlines()
-    except OSError as error:
-        raise PublishError(f"Unable to read {configuration}: {error}") from error
-    for line in lines:
-        key, separator, value = line.partition("=")
-        if separator and key.strip() == "copr_project" and value.strip() == project:
-            return True
-    return False
-
-
-def source_package_directories(profile: RepositoryProfile) -> set[Path]:
-    directories = {
-        path
-        for parent in profile.package_directories
-        if parent.is_dir()
-        for path in parent.iterdir()
-        if path.is_dir()
-    }
-    if profile.copr_project is not None:
-        directories.update(
-            configuration.parent
-            for configuration in Path(".").glob("*/*/orchestrator.conf")
-            if package_uses_copr_project(
-                configuration.parent,
-                profile.copr_project,
-            )
-        )
-    return directories
-
-
 def parse_bucket(row: Row, config: Config, source: Path) -> int:
     name, kind, bucket_value, tag, _ = row
     if kind not in PACKAGE_KINDS:
@@ -608,40 +573,6 @@ def pull_manifest(item: tuple[Path, str, str]) -> tuple[str, Path]:
     return reference, destination
 
 
-def discover_image_tags(item: tuple[Config, str]) -> list[tuple[str, str, str]]:
-    config, package_name = item
-    image = f"ghcr.io/{config.github_repository}/{package_name.lower()}"
-    document = load_mapping(
-        remote_command(
-            "oras",
-            "repo",
-            "tags",
-            "--format",
-            "json",
-            image,
-            capture_output=True,
-        ),
-        f"tags for {image}",
-    )
-    raw_tags = document.get("tags", [])
-    if not isinstance(raw_tags, list) or not all(
-        isinstance(tag, str) for tag in raw_tags
-    ):
-        raise PublishError(f"Invalid tags returned for {image}")
-
-    source_branch = config.profile.source_branch
-    suffix = re.compile(rf"-{re.escape(source_branch)}-{re.escape(config.releasever)}$")
-    latest = f"latest-{source_branch}-{config.releasever}"
-    tags = {
-        tag
-        for tag in raw_tags
-        if suffix.search(tag) and not tag.startswith(("latest-", "pr-"))
-    }
-    if latest in raw_tags:
-        tags.add(latest)
-    return [(package_name, image, tag) for tag in sorted(tags)]
-
-
 def resolve_manifest(item: tuple[str, str, str]) -> Row:
     package_name, image, tag = item
     descriptor = load_mapping(
@@ -661,58 +592,74 @@ def resolve_manifest(item: tuple[str, str, str]) -> Row:
     return package_name, f"{image}@{digest}", digest
 
 
-def discover(config: Config) -> None:
-    packages = sorted(
-        {path.name for path in source_package_directories(config.profile)}
-    )
-    eligible_packages = [
-        package_name
-        for package_name in packages
-        if not package_is_excluded(package_name, config.excluded_sources)
-    ]
-    excluded_count = len(packages) - len(eligible_packages)
-    if excluded_count:
-        LOGGER.info("Skipping discovery for %d excluded sources", excluded_count)
+def batch(config: Config) -> None:
+    """Resolve only immutable artifact references declared by this batch."""
+    config.applied_batches.parent.mkdir(parents=True, exist_ok=True)
+    config.applied_batches.touch()
+    applied = read_tsv(config.applied_batches, 2)
+    if (config.batch_id, config.commit_sha) in applied:
+        Path("batch-noop").touch()
+        write_tsv(Path("new-manifests.tsv"), ())
+        LOGGER.info("Batch %s was already committed; nothing to do", config.batch_id)
+        return
 
-    tag_groups = parallel_map(
-        discover_image_tags,
-        ((config, package_name) for package_name in eligible_packages),
-        config.max_parallel_transfers,
+    descriptor_root = Path("batch-descriptors")
+    descriptor_paths = sorted(descriptor_root.rglob("*.json"))
+    if not descriptor_paths:
+        raise PublishError(f"No descriptors found for batch {config.batch_id}")
+    by_build: dict[int, tuple[str, str, str]] = {}
+    for path in descriptor_paths:
+        document = load_mapping(path.read_text(encoding="utf-8"), str(path))
+        try:
+            schema = document["schema"]
+            batch_id = str(document["batch_id"])
+            build_id = int(document["build_id"])
+            commit_sha = str(document["commit_sha"]).lower()
+            branch = str(document["branch"])
+            profile = str(document["profile"])
+            releasever = str(document["releasever"])
+            package = str(document["package"])
+            reference = str(document["oci_reference"])
+        except (KeyError, TypeError, ValueError) as error:
+            raise PublishError(f"Invalid batch descriptor {path}: {error}") from error
+        if (
+            schema != 1
+            or batch_id != config.batch_id
+            or commit_sha != config.commit_sha
+        ):
+            raise PublishError(
+                f"Descriptor {path} does not belong to the requested batch"
+            )
+        if build_id < 1 or not SAFE_COMPONENT.fullmatch(package):
+            raise PublishError(
+                f"Descriptor {path} contains an invalid build or package"
+            )
+        expected_prefix = f"ghcr.io/{config.github_repository}/{package.lower()}:"
+        if not reference.startswith(expected_prefix) or not SAFE_COMPONENT.fullmatch(
+            reference.removeprefix(expected_prefix)
+        ):
+            raise PublishError(f"Descriptor {path} contains an unsafe OCI reference")
+        if profile != config.branch or releasever != config.releasever:
+            continue
+        if branch != config.profile.source_branch:
+            raise PublishError(f"Descriptor {path} has the wrong source branch")
+        row = (package, reference.rsplit(":", 1)[0], reference.rsplit(":", 1)[1])
+        previous = by_build.get(build_id)
+        if previous is not None and previous != row:
+            raise PublishError(f"Conflicting descriptors for build {build_id}")
+        by_build[build_id] = row
+
+    resolved = parallel_map(
+        resolve_manifest, sorted(set(by_build.values())), config.max_parallel_transfers
     )
-    manifests = [manifest for group in tag_groups for manifest in group]
-    discovered = parallel_map(
-        resolve_manifest,
-        manifests,
-        config.max_parallel_transfers,
-    )
-    write_tsv(Path("discovered.tsv"), discovered, unique=True)
-    inventory = read_tsv(config.inventory, 5)
-    retired = read_tsv(config.retired_inventory, 5)
-    seen = read_tsv(config.seen_manifests, 1)
-    known = {row[4] for row in (*inventory, *retired)} | {row[0] for row in seen}
-    bootstrap = not inventory and not retired and not seen
-    candidates = discovered
-    if bootstrap:
-        latest = f"latest-{config.profile.source_branch}-{config.releasever}"
-        candidates = [
-            row
-            for manifest, row in zip(manifests, discovered, strict=True)
-            if manifest[2] == latest
-        ]
-        LOGGER.info(
-            "New repository: selecting %d latest package manifests and marking "
-            "%d historical manifests as seen",
-            len(candidates),
-            len(discovered) - len(candidates),
-        )
+    known = {
+        row[4]
+        for path in (config.inventory, config.retired_inventory)
+        for row in read_tsv(path, 5)
+    }
     write_tsv(
         Path("new-manifests.tsv"),
-        (row for row in candidates if row[2] not in known),
-        unique=True,
-    )
-    write_tsv(
-        config.pending_seen_manifests,
-        ((digest,) for digest in known | {row[2] for row in discovered}),
+        (row for row in resolved if row[2] not in known),
         unique=True,
     )
 
@@ -959,7 +906,7 @@ def parse_github_timestamp(value: object, description: str) -> datetime:
     if not isinstance(value, str):
         raise PublishError(f"Missing creation time for {description}")
     try:
-        timestamp = datetime.fromisoformat(value.replace("Z", "+00:00"))
+        timestamp = datetime.fromisoformat(value)
     except ValueError as error:
         raise PublishError(
             f"Invalid creation time for {description}: {value!r}"
@@ -1047,7 +994,10 @@ def release_notes(config: Config, tag: str) -> str:
     profile = config.profile
     display_name = profile.display_name
     variant = " testing" if config.testing else ""
-    repository_id = f"{config.repository}-github:{repository}"
+    repository_suffix = repository.removeprefix(config.normal_repository)
+    repository_id = (
+        f"{config.repository}-github:{config.profile.name}{repository_suffix}"
+    )
     commands: list[str] = []
     introduction = "Install the repository configuration with:"
     if profile.dependency_repositories:
@@ -1210,13 +1160,20 @@ def seal(config: Config) -> None:
     pending = config.pending_inventory
     if not pending.is_file():
         raise PublishError(f"Missing pending inventory: {pending}")
-    pending_seen = config.pending_seen_manifests
-    if not pending_seen.is_file():
-        raise PublishError(f"Missing pending manifest history: {pending_seen}")
     generation = require_environment("PUBLISH_GENERATION")
     if not SAFE_COMPONENT.fullmatch(generation):
         raise PublishError("PUBLISH_GENERATION contains unsafe characters")
-    created_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    write_generation_markers(config, generation)
+    pending.replace(config.inventory)
+    write_tsv(
+        config.applied_batches,
+        (*read_tsv(config.applied_batches, 2), (config.batch_id, config.commit_sha)),
+        unique=True,
+    )
+
+
+def write_generation_markers(config: Config, generation: str) -> None:
+    created_at = datetime.now(UTC).isoformat().replace("+00:00", "Z")
     for repository in config.published_repositories:
         marker = {
             "created_at": created_at,
@@ -1227,8 +1184,6 @@ def seal(config: Config) -> None:
             Path("repo") / repository / "generation.json",
             json.dumps(marker, indent=2, sort_keys=True) + "\n",
         )
-    pending.replace(config.inventory)
-    pending_seen.replace(config.seen_manifests)
 
 
 def generate_repository(config: Config, kind: str, output: str) -> None:
@@ -1270,12 +1225,12 @@ def generate_repository(config: Config, kind: str, output: str) -> None:
         generated.replace(repository / "repodata")
 
 
-def repository_package_names(
+def repository_packages_by_source(
     repository: Path,
     latest_limit: int | None = None,
     excluded_sources: Sequence[str] = (),
     included_sources: Sequence[str] = (),
-) -> set[str]:
+) -> dict[str, set[str]]:
     repo_id = f"retention-{repository.name}"
     arguments: list[PathArgument] = [
         "dnf",
@@ -1290,7 +1245,7 @@ def repository_package_names(
     if latest_limit is not None:
         arguments.extend(("--latest-limit", str(latest_limit)))
     output = command(*arguments, capture_output=True)
-    names: set[str] = set()
+    names: dict[str, set[str]] = defaultdict(set)
     for line in output.splitlines():
         source_name, separator, location = line.partition("\t")
         if not separator:
@@ -1305,8 +1260,26 @@ def repository_package_names(
             continue
         name = unquote(Path(urlparse(location).path).name)
         if name:
-            names.add(safe_rpm_name(name))
+            names[source_name].add(safe_rpm_name(name))
     return names
+
+
+def repository_package_names(
+    repository: Path,
+    latest_limit: int | None = None,
+    excluded_sources: Sequence[str] = (),
+    included_sources: Sequence[str] = (),
+) -> set[str]:
+    return {
+        name
+        for names in repository_packages_by_source(
+            repository,
+            latest_limit,
+            excluded_sources,
+            included_sources,
+        ).values()
+        for name in names
+    }
 
 
 def repository_package_names_for_retention(
@@ -1454,9 +1427,7 @@ def packages_within_retention_period(
         eligible_names = {row[0] for row in inventory}
     new_names = {row[0] for row in read_tsv(Path("incoming/assignments.tsv"), 5)}
     retained = set(new_names)
-    cutoff = (
-        current_time or datetime.now(timezone.utc)
-    ) - config.profile.retention.max_age
+    cutoff = (current_time or datetime.now(UTC)) - config.profile.retention.max_age
     rows_by_tag: dict[str, list[Row]] = defaultdict(list)
     for row in inventory:
         if row[0] in eligible_names and row[0] not in new_names:
@@ -1478,20 +1449,8 @@ def packages_within_retention_period(
 
 
 def apply_retention(config: Config) -> None:
-    discovered_path = Path("discovered.tsv")
-    if not discovered_path.is_file():
-        raise PublishError(f"Missing package discovery inventory: {discovered_path}")
-    discovered_digests = {row[2] for row in read_tsv(discovered_path, 3)}
     inventory = read_tsv(config.pending_inventory, 5)
-    eligible_inventory_names = {
-        row[0] for row in inventory if row[4] in discovered_digests
-    }
-    undiscovered_names = {row[0] for row in inventory} - eligible_inventory_names
-    if undiscovered_names:
-        LOGGER.info(
-            "Retiring %d RPMs no longer present in package discovery",
-            len(undiscovered_names),
-        )
+    eligible_inventory_names = {row[0] for row in inventory}
     retained_names: set[str] = set()
     policy = config.profile.retention
     recent_names = packages_within_retention_period(
@@ -1606,6 +1565,110 @@ def snapshot(config: Config) -> None:
     write_tsv(PACKAGE_SNAPSHOT, (package.as_row() for package in packages), unique=True)
 
 
+def deletion_request() -> tuple[str, tuple[str, ...]]:
+    deletion_id = require_environment("DELETE_ID")
+    if not SAFE_COMPONENT.fullmatch(deletion_id):
+        raise PublishError("DELETE_ID contains unsafe characters")
+    packages = tuple(
+        sorted(
+            set(
+                filter(
+                    None,
+                    re.split(r"[\s,]+", require_environment("DELETE_PACKAGES")),
+                )
+            )
+        )
+    )
+    if not packages:
+        raise PublishError("DELETE_PACKAGES must contain at least one source package")
+    for package in packages:
+        if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9+._-]*", package):
+            raise PublishError(f"Invalid source package name: {package!r}")
+    return deletion_id, packages
+
+
+def delete_packages(config: Config) -> None:
+    _deletion_id, requested = deletion_request()
+    inventory = read_tsv(config.inventory, 5)
+    retired = read_tsv(config.retired_inventory, 5)
+    previously_deleted = {row[0] for row in read_tsv(config.applied_deletions, 2)}
+    repositories = (
+        (config.logical_repository, "packages"),
+        (config.debug_repository, "debuginfo"),
+    )
+    names_by_source: dict[str, set[str]] = defaultdict(set)
+    for repository_name, _ in repositories:
+        repository = Path("repo") / repository_name
+        if not (repository / "repodata/repomd.xml").is_file():
+            raise PublishError(f"Missing repository metadata: {repository}")
+        for source, names in repository_packages_by_source(repository).items():
+            names_by_source[source].update(names)
+
+    unknown = sorted(set(requested) - names_by_source.keys() - previously_deleted)
+    if unknown:
+        raise PublishError(
+            "Source packages are not present in the repository: " + ", ".join(unknown)
+        )
+    deleted_names = {
+        name for source in requested for name in names_by_source.get(source, ())
+    }
+    inventory_names = {row[0] for row in inventory}
+    missing_inventory = sorted(deleted_names - inventory_names)
+    if missing_inventory:
+        raise PublishError(
+            "Repository packages are missing from inventory: "
+            + ", ".join(missing_inventory)
+        )
+
+    active = [row for row in inventory if row[0] not in deleted_names]
+    deleted = [row for row in inventory if row[0] in deleted_names]
+    write_tsv(config.pending_inventory, active, unique=True)
+    write_tsv(config.retired_inventory, (*retired, *deleted), unique=True)
+    write_tsv(
+        Path("pending-deletions.tsv"),
+        ((source,) for source in requested),
+        unique=True,
+    )
+    write_tsv(Path("incoming/assignments.tsv"), ())
+
+    for repository_name, kind in repositories:
+        retained = {row[0] for row in active if row[1] == kind}
+        retain_repository_packages(Path("repo") / repository_name, retained)
+    packages = repository_source_packages(Path("repo") / config.logical_repository)
+    atomic_write_text(
+        config.package_list,
+        "".join(f"{package.nvr}\n" for package in sorted(packages)),
+    )
+    LOGGER.info(
+        "Deleted %d RPMs for source packages %s",
+        len(deleted_names),
+        ", ".join(requested),
+    )
+
+
+def seal_delete(config: Config) -> None:
+    pending = config.pending_inventory
+    if not pending.is_file():
+        raise PublishError(f"Missing pending inventory: {pending}")
+    deletion_id, requested = deletion_request()
+    pending_deletions = {row[0] for row in read_tsv(Path("pending-deletions.tsv"), 1)}
+    if pending_deletions != set(requested):
+        raise PublishError("Pending deletion request does not match workflow inputs")
+    generation = require_environment("PUBLISH_GENERATION")
+    if not SAFE_COMPONENT.fullmatch(generation):
+        raise PublishError("PUBLISH_GENERATION contains unsafe characters")
+    write_generation_markers(config, generation)
+    pending.replace(config.inventory)
+    write_tsv(
+        config.applied_deletions,
+        (
+            *read_tsv(config.applied_deletions, 2),
+            *((source, deletion_id) for source in requested),
+        ),
+        unique=True,
+    )
+
+
 def summary_section(title: str, entries: Sequence[str]) -> str:
     lines = [f"<details><summary>{title} ({len(entries)})</summary>", ""]
     lines.extend(f"- {markdown_code(entry)}" for entry in entries)
@@ -1707,23 +1770,27 @@ def prune(config: Config) -> None:
     testing_repository = f"{config.normal_repository}-testing"
     inventory_path = Path("state") / testing_repository / "inventory.tsv"
     retired_path = inventory_path.with_name("retired.tsv")
-    seen_manifests_path = inventory_path.with_name("seen-manifests.tsv")
+    applied_batches_path = inventory_path.with_name("applied-batches.tsv")
     inventory = read_tsv(inventory_path, 5)
     create_empty_repository(Path("repo") / testing_repository)
     create_empty_repository(Path("repo") / f"{testing_repository}-debuginfo")
     atomic_write_text(Path("repo") / testing_repository / "packages.txt", "")
     write_tsv(retired_path, (*read_tsv(retired_path, 5), *inventory), unique=True)
     write_tsv(inventory_path, ())
-    seen_manifests_path.touch()
+    applied_batches_path.touch()
 
 
 def repository_entry(
-    config: Config, repo_id: str, description: str, enabled: bool
+    config: Config,
+    repository_id: str,
+    repository_path: str,
+    description: str,
+    enabled: bool,
 ) -> str:
     value = int(enabled)
-    return f"""[{config.repository}-github:{repo_id}]
+    return f"""[{config.repository}-github:{repository_id}]
 name={config.github_repository} (GitHub) - {description}
-baseurl=https://{config.repository_owner}.github.io/{config.repository}/{repo_id}/
+baseurl=https://{config.repository_owner}.github.io/{config.repository}/{repository_path}/
 type=rpm-md
 skip_if_unavailable=True
 gpgcheck=1
@@ -1738,21 +1805,26 @@ metadata_expire=6h
 
 def repofile(config: Config) -> None:
     description = config.profile.display_name
+    profile = config.profile.name
+    repository = f"{profile}-$releasever"
     definitions = (
-        (config.normal_repository, f"{description} Fedora {config.releasever}", True),
+        (profile, repository, f"{description} Fedora $releasever", True),
         (
-            f"{config.normal_repository}-testing",
-            f"{description} Fedora {config.releasever} - testing",
+            f"{profile}-testing",
+            f"{repository}-testing",
+            f"{description} Fedora $releasever - testing",
             False,
         ),
         (
-            f"{config.normal_repository}-debuginfo",
-            f"{description} Fedora {config.releasever} - debuginfo",
+            f"{profile}-debuginfo",
+            f"{repository}-debuginfo",
+            f"{description} Fedora $releasever - debuginfo",
             False,
         ),
         (
-            f"{config.normal_repository}-testing-debuginfo",
-            f"{description} Fedora {config.releasever} - testing - debuginfo",
+            f"{profile}-testing-debuginfo",
+            f"{repository}-testing-debuginfo",
+            f"{description} Fedora $releasever - testing - debuginfo",
             False,
         ),
     )
@@ -1810,7 +1882,7 @@ def site_generation_time(repository: Path) -> str:
     timestamp = parse_github_timestamp(
         generation.get("created_at"), f"repository generation {repository.name}"
     )
-    return timestamp.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+    return timestamp.astimezone(UTC).strftime("%Y-%m-%d %H:%M UTC")
 
 
 def site_profile_name(profile: RepositoryProfile) -> str:
@@ -2000,9 +2072,12 @@ def repoclosure(config: Config) -> None:
     for dependency_name in config.profile.dependency_repositories:
         dependency = repository_profile(dependency_name)
         repository = f"{dependency.name}-{config.releasever}"
-        arguments.append(
-            f"--repofrompath={dependency.name},{pages_repository_url(config, repository)}"
-        )
+        local_repository = Path("repo") / repository
+        if (local_repository / "repodata/repomd.xml").is_file():
+            repository_url = f"{local_repository}/"
+        else:
+            repository_url = pages_repository_url(config, repository)
+        arguments.append(f"--repofrompath={dependency.name},{repository_url}")
     for best in (False, True):
         LOGGER.info("Checking repository closure%s", " with --best" if best else "")
         command("dnf", "repoclosure", *arguments, *(("--best",) if best else ()))
@@ -2011,7 +2086,8 @@ def repoclosure(config: Config) -> None:
 Stage: TypeAlias = Callable[[Config], None]
 STAGES: dict[str, Stage] = {
     "snapshot": snapshot,
-    "discover": discover,
+    "batch": batch,
+    "delete": delete_packages,
     "download": download,
     "assign": assign,
     "metadata": metadata,
@@ -2023,6 +2099,7 @@ STAGES: dict[str, Stage] = {
     "summary": summary,
     "upload": upload,
     "seal": seal,
+    "seal-delete": seal_delete,
 }
 
 
@@ -2046,7 +2123,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         config.inventory.parent.mkdir(parents=True, exist_ok=True)
         config.inventory.touch()
         config.retired_inventory.touch()
-        config.seen_manifests.touch()
+        config.applied_deletions.touch()
         LOGGER.info(
             "Running %s stage for %s", arguments.stage, config.logical_repository
         )
