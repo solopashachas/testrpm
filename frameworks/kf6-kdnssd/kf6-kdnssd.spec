@@ -1,6 +1,6 @@
-%global commit0 39520d26a455872f733633dfa868cf037ae75f61
+%global commit0 dcf74ffa3368021d78812653dcf0c5146a3a1e02
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kdnssd
 
