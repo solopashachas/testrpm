@@ -12,8 +12,8 @@ jobs:
       contents: read
       packages: write
     concurrency:
-      group: repo-publish
-      cancel-in-progress: false
+      group: registry-prune
+      cancel-in-progress: true
 
     steps:
       - name: Checkout
@@ -35,9 +35,8 @@ jobs:
       contents: write
       packages: write
     concurrency:
-      # Do not delete assets while a repository publish is in progress.
-      group: repo-publish
-      cancel-in-progress: false
+      group: release-prune
+      cancel-in-progress: true
     container:
       image: ghcr.io/solopashachas/testrpm/buildroot:latest
 
