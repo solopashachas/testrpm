@@ -196,7 +196,7 @@ jobs:
         run: rm -rf incoming metadata-fragments merged-packages merged-debuginfo state batch-descriptors
 
       - name: Upload repository metadata to Pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: repo/
 

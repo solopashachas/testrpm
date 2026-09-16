@@ -134,7 +134,7 @@ jobs:
         run: rm -rf incoming state
 
       - name: Upload repository metadata to Pages
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: repo/
 
