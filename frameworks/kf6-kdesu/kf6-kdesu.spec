@@ -1,6 +1,6 @@
 %global commit0 ed937f5d95ec945de9a90108ddc256c039d25191
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 %global framework kdesu
 

@@ -1,6 +1,6 @@
 %global commit0 158486d7ccd0d388fff045ecbff15439dc9c7a49
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 Name:           libksysguard
 Summary:        Library for managing processes running on the system
