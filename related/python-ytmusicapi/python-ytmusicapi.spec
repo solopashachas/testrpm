@@ -1,7 +1,7 @@
 %global srcname ytmusicapi
 
 Name:           python-%{srcname}
-Version:        1.12.2
+Version:        1.12.3
 Release:        %autorelease
 License:        MIT
 Summary:        Unofficial API for YouTube Music
