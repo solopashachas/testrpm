@@ -6,7 +6,7 @@ on:
       retired_asset_days:
         description: Days to retain retired GitHub Release assets
         required: true
-        default: '7'
+        default: '1'
         type: string
       registry_version_days:
         description: Days to retain superseded GHCR versions
@@ -38,7 +38,7 @@ jobs:
       contents: write
       packages: write
     env:
-      RETIRED_ASSET_DAYS: ${{ inputs.retired_asset_days || '7' }}
+      RETIRED_ASSET_DAYS: ${{ inputs.retired_asset_days || '1' }}
       REGISTRY_RETENTION_DAYS: ${{ inputs.registry_version_days || '7' }}
       BATCH_RETENTION_DAYS: ${{ inputs.batch_descriptor_days || '7' }}
       DRY_RUN: ${{ inputs.dry_run || false }}

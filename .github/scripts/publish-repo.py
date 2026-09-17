@@ -1953,6 +1953,12 @@ def site(config: Config) -> None:
     if not rendered_cards:
         rendered_cards = "      <p>No repositories have been published yet.</p>"
     source_url = f"https://github.com/{config.github_repository}"
+    snapshot_link = ""
+    if (Path("repo") / "snapshots/index.html").is_file():
+        snapshot_link = (
+            '      <p class="snapshot-link"><a href="snapshots/">'
+            "Browse dated repository snapshots</a>.</p>"
+        )
     content = f"""<!doctype html>
 <html lang="en">
   <head>
@@ -1975,6 +1981,7 @@ def site(config: Config) -> None:
       <aside class="notice"><strong>Use with care.</strong> These repositories
         contain development and pre-release software. Review changes before
         updating production systems.</aside>
+{snapshot_link}
       <section class="grid" aria-label="Available repositories">
 {rendered_cards}
       </section>

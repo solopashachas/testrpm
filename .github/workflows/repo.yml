@@ -34,6 +34,7 @@ jobs:
       SOURCE_BRANCH: ${{ inputs.branch }}
       MAX_ASSETS_PER_RELEASE: '900'
       MAX_PARALLEL_TRANSFERS: '8'
+      SNAPSHOT_RETENTION_DAYS: '7'
       PUBLISH_GENERATION: ${{ github.run_id }}-${{ github.run_attempt }}
       GH_TOKEN: ${{ github.token }}
       REPOSITORY: ${{ github.event.repository.name }}
@@ -45,6 +46,7 @@ jobs:
           [[ "${BATCH_ID}" =~ ^[1-9][0-9]*$ ]]
           [[ "${COMMIT_SHA}" =~ ^[0-9a-fA-F]{7,64}$ ]]
           [[ "${SOURCE_BRANCH}" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ ]]
+          [[ "${SNAPSHOT_RETENTION_DAYS}" =~ ^[1-9][0-9]*$ ]]
 
       - name: Checkout publisher
         uses: actions/checkout@v7
@@ -183,6 +185,11 @@ jobs:
           export testing=false normal_repository="${branch}-${releasever}"
           export logical_repository="${normal_repository}"
           export debug_repository="${logical_repository}-debuginfo"
+          .github/scripts/snapshot-repositories.py \
+            --date "$(date -u +%F)" \
+            --owner "${REPOSITORY_OWNER}" \
+            --project "${REPOSITORY}" \
+            --retention-days "${SNAPSHOT_RETENTION_DAYS}"
           .github/scripts/publish-repo.py site
 
       - name: Save complete candidate state

@@ -64,11 +64,9 @@ def timestamp_text(timestamp: datetime) -> str:
 
 def repository_state_directories(state_root: Path) -> list[Path]:
     return sorted(
-        directory
-        for directory in state_root.iterdir()
-        if directory.is_dir()
-        and directory.name != "pruning"
-        and (directory / "inventory.tsv").is_file()
+        inventory.parent
+        for inventory in state_root.rglob("inventory.tsv")
+        if "pruning" not in inventory.relative_to(state_root).parts
     )
 
 
@@ -140,7 +138,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("stage", choices=("plan", "compact"))
     parser.add_argument("--state", type=Path, default=Path("state"))
     parser.add_argument("--assets", type=Path, default=Path("prune-assets.tsv"))
-    parser.add_argument("--retention-days", type=int, default=30)
+    parser.add_argument("--retention-days", type=int, default=1)
     arguments = parser.parse_args(argv)
     if not arguments.state.is_dir():
         raise PruneError(f"Repository state does not exist: {arguments.state}")
