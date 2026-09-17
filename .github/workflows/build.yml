@@ -16,6 +16,9 @@ on:
       batch_size:
         required: false
         type: string
+      batch_index:
+        required: false
+        type: string
       repository_profile:
         required: false
         type: string
@@ -559,6 +562,7 @@ jobs:
         env:
           BATCH_ID: ${{ inputs.batch_id }}
           BATCH_SIZE: ${{ inputs.batch_size }}
+          BATCH_INDEX: ${{ inputs.batch_index }}
           BUILD_ID: ${{ inputs.build_id }}
           SOURCE_REF: ${{ inputs.ref }}
           PROFILE: ${{ inputs.repository_profile }}
@@ -566,6 +570,8 @@ jobs:
           set -euo pipefail
           [[ "${BATCH_ID}" =~ ^[1-9][0-9]*$ ]]
           [[ "${BATCH_SIZE}" =~ ^[1-9][0-9]*$ ]]
+          [[ "${BATCH_INDEX}" =~ ^[1-9][0-9]*$ ]]
+          (( BATCH_INDEX <= BATCH_SIZE ))
           [[ "${BUILD_ID}" =~ ^[1-9][0-9]*$ ]]
           [[ "${SOURCE_REF}" =~ ^[0-9a-fA-F]{7,64}$ ]]
           batch_repository="ghcr.io/${repository}/repository-batches"
@@ -582,6 +588,7 @@ jobs:
               "schema": 1,
               "batch_id": int(os.environ["BATCH_ID"]),
               "build_id": int(os.environ["BUILD_ID"]),
+              "batch_index": int(os.environ["BATCH_INDEX"]),
               "commit_sha": os.environ["SOURCE_REF"].lower(),
               "branch": os.environ["target_branch"],
               "profile": os.environ["PROFILE"] or os.environ["target_branch"],
@@ -608,6 +615,7 @@ jobs:
               "annotations": {
                   "rpm-orchestrator.batch": os.environ["BATCH_ID"],
                   "rpm-orchestrator.build-count": os.environ["BATCH_SIZE"],
+                  "rpm-orchestrator.descriptor-mode": "indexed-tags",
                   "org.opencontainers.image.revision": os.environ["SOURCE_REF"].lower(),
               },
           }
@@ -619,11 +627,12 @@ jobs:
 
           oras manifest push \
             "${batch_repository}:${batch_tag}" repository-batch/subject.json
-          oras attach \
+          descriptor_tag="descriptor-${BATCH_ID}-${SOURCE_REF,,}-${BATCH_INDEX}"
+          oras push \
             --artifact-type application/vnd.rpm-orchestrator.package.v1+json \
             --annotation org.opencontainers.image.created=1970-01-01T00:00:00Z \
             --annotation "rpm-orchestrator.build=${BUILD_ID}" \
-            "${batch_repository}:${batch_tag}" \
+            "${batch_repository}:${descriptor_tag}" \
             "repository-batch/${BUILD_ID}.json:application/vnd.rpm-orchestrator.package.v1+json"
 
       - name: Upload build results (PR)

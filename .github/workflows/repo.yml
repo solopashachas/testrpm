@@ -70,31 +70,43 @@ jobs:
           [[ "$(jq -r '.annotations."org.opencontainers.image.revision" // empty | ascii_downcase' /tmp/batch-subject.json)" == "${COMMIT_SHA,,}" ]]
           expected_builds="$(jq -r '.annotations."rpm-orchestrator.build-count" // empty' /tmp/batch-subject.json)"
           [[ "${expected_builds}" =~ ^[1-9][0-9]*$ ]]
-          oras discover \
-            --artifact-type application/vnd.rpm-orchestrator.package.v1+json \
-            --format json --depth 1 "${batch_subject}" > /tmp/referrers.json
-          jq -r \
-            '.referrers[]? |
-             select(.artifactType == "application/vnd.rpm-orchestrator.package.v1+json") |
-             .digest' /tmp/referrers.json | sort -u > /tmp/referrer-digests
-          [[ -s /tmp/referrer-digests ]] || {
-            echo "No build descriptors found for batch ${BATCH_ID}" >&2
-            exit 1
-          }
-          sequence=0
-          while IFS= read -r digest; do
-            [[ "${digest}" =~ ^sha256:[0-9a-f]{64}$ ]]
-            sequence=$((sequence + 1))
-            mkdir -p "batch-descriptors/${sequence}"
-            oras pull "${batch_repository}@${digest}" \
-              -o "batch-descriptors/${sequence}"
-          done < /tmp/referrer-digests
+          [[ "$(jq -r '.annotations."rpm-orchestrator.descriptor-mode" // empty' /tmp/batch-subject.json)" == indexed-tags ]]
+          actual_builds=0
+          complete_builds=0
+          for attempt in 1 2 3 4 5 6 7; do
+            for sequence in $(seq 1 "${expected_builds}"); do
+              descriptor_tag="descriptor-${BATCH_ID}-${COMMIT_SHA,,}-${sequence}"
+              descriptor_dir="batch-descriptors/${sequence}"
+              if [[ ! -e "${descriptor_dir}/.complete" ]]; then
+                rm -rf "${descriptor_dir}"
+                mkdir -p "${descriptor_dir}"
+                if oras pull "${batch_repository}:${descriptor_tag}" -o "${descriptor_dir}"; then
+                  mapfile -d '' -t descriptor_files < <(
+                    find "${descriptor_dir}" -type f -name '*.json' -print0
+                  )
+                  if [[ "${#descriptor_files[@]}" == 1 ]] && jq -e \
+                      --arg batch "${BATCH_ID}" \
+                      --arg sha "${COMMIT_SHA,,}" \
+                      --argjson index "${sequence}" \
+                      '(.batch_id|tostring) == $batch and
+                       (.commit_sha|ascii_downcase) == $sha and
+                       .batch_index == $index' "${descriptor_files[0]}" > /dev/null; then
+                    touch "${descriptor_dir}/.complete"
+                  fi
+                fi
+              fi
+            done
+            complete_builds="$(find batch-descriptors -type f -name '.complete' -print | wc -l)"
+            [[ "${complete_builds}" == "${expected_builds}" ]] && break
+            echo "Batch ${BATCH_ID} has ${complete_builds}/${expected_builds} indexed descriptors after attempt ${attempt}" >&2
+            [[ "${attempt}" == 7 ]] || sleep $((2 ** (attempt - 1)))
+          done
           find batch-descriptors -type f -name '*.json' -print0 |
-            sort -z |
-            xargs -0 jq -r '.build_id' |
+            sort -z | xargs -0 -r jq -r '.build_id' |
             sort -n -u > /tmp/descriptor-build-ids
           actual_builds="$(wc -l < /tmp/descriptor-build-ids)"
-          if [[ "${actual_builds}" != "${expected_builds}" ]]; then
+          if [[ "${actual_builds}" != "${expected_builds}" || \
+                "${complete_builds}" != "${expected_builds}" ]]; then
             echo "Batch ${BATCH_ID} has ${actual_builds}/${expected_builds} build descriptors" >&2
             exit 1
           fi
