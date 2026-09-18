@@ -1,6 +1,6 @@
-%global commit0 4f518f5968bcad924d427ae34bfd8c31be306aba
+%global commit0 7c8447aa114d003b8a6fa1f01024bf61dcea59dc
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:    kimap
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
