@@ -1,6 +1,6 @@
-%global commit0 c958750aa78921968f1ecf5f2f1415c46d007849
+%global commit0 9491500f16952a3ccf32c5a97af7af3f42274f16
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 %global framework kstatusnotifieritem
 
