@@ -1,6 +1,6 @@
-%global commit0 fdc15ebe174a557a8a6a6a8c9a3d2b10c8213742
+%global commit0 393b0aca2be67ff39e1fbdf9f2c6087dce09033d
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:    khelpcenter
 Summary: Show documentation for KDE applications
