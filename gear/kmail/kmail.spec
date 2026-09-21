@@ -1,6 +1,6 @@
-%global commit0 1405de0a04e2738a1b105c3662d42521881f1a55
+%global commit0 428db6a23fae12fe79043c65df77aeed3b9710ed
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 31
+%global bumpver 32
 
 #global tests 1
 
@@ -152,6 +152,7 @@ xvfb-run -a bash -c "%ctest" || :
 %{_kf6_datadir}/config.kcfg/kmail.kcfg
 %{_kf6_datadir}/config.kcfg/mailmergeagentsettings.kcfg
 %{_kf6_datadir}/config.kcfg/sendlateragentsettings.kcfg
+%{_kf6_datadir}/config.kcfg/snoozeagentsettings.kcfg
 %{_kf6_datadir}/icons/breeze-dark/*/*/*
 %{_kf6_datadir}/icons/hicolor/*/*/*
 %{_kf6_datadir}/kmail2/
@@ -160,6 +161,7 @@ xvfb-run -a bash -c "%ctest" || :
 %{_kf6_datadir}/knotifications6/akonadi_mailfilter_agent.notifyrc
 %{_kf6_datadir}/knotifications6/akonadi_mailmerge_agent.notifyrc
 %{_kf6_datadir}/knotifications6/akonadi_sendlater_agent.notifyrc
+%{_kf6_datadir}/knotifications6/akonadi_snooze_agent.notifyrc
 %{_kf6_datadir}/knotifications6/kmail2.notifyrc
 %{_kf6_datadir}/knotifications6/kontact.notifyrc
 %{_kf6_datadir}/qlogging-categories6/*kmail.*
