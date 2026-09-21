@@ -1,12 +1,12 @@
 %global commit0 5d6dfb9012bedd7e86ebba271fa87388658147ea
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 %global framework kimageformats
 
 Name:           kf6-%{framework}
 Version:        6.30.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        KDE Frameworks 6 Tier 1 addon with additional image plugins for QtGui
 License:        LGPLv2+
 URL:            https://invent.kde.org/frameworks/%{framework}
@@ -74,6 +74,9 @@ image formats.
 %{_kf6_libdir}/cmake/KF6ImageFormats/
 
 %changelog
+* Mon Sep 21 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-3
+- rebuilt
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-2
 - rebuilt
 
