@@ -23,51 +23,26 @@ jobs:
           dnf -y install --nodocs 'dnf5-command(repoclosure)'
 
           cat << 'EOF' >> /etc/yum.repos.d/coprs.repo
-          [copr:copr.fedorainfracloud.org:solopasha:plasma-unstable]
-          name=Copr repo for plasma-unstable owned by solopasha
-          baseurl=https://download.copr.fedorainfracloud.org/results/solopasha/plasma-unstable/fedora-${{ matrix.version }}-$basearch/
+          [copr:copr.fedorainfracloud.org:solopasha:kde6-beta]
+          name=Copr repo for kde6-beta owned by solopasha
+          baseurl=https://download.copr.fedorainfracloud.org/results/solopasha/kde6-beta/fedora-${{ matrix.version }}-$basearch/
           type=rpm-md
           skip_if_unavailable=False
           gpgcheck=1
-          gpgkey=https://download.copr.fedorainfracloud.org/results/solopasha/plasma-unstable/pubkey.gpg
-          repo_gpgcheck=0
-          enabled=1
-          enabled_metadata=1
-
-          [copr:copr.fedorainfracloud.org:solopasha:kde-gear-unstable]
-          name=Copr repo for kde-gear-unstable owned by solopasha
-          baseurl=https://download.copr.fedorainfracloud.org/results/solopasha/kde-gear-unstable/fedora-${{ matrix.version }}-$basearch/
-          type=rpm-md
-          skip_if_unavailable=True
-          gpgcheck=1
-          gpgkey=https://download.copr.fedorainfracloud.org/results/solopasha/kde-gear-unstable/pubkey.gpg
+          gpgkey=https://download.copr.fedorainfracloud.org/results/solopasha/kde6-beta/pubkey.gpg
           repo_gpgcheck=0
           enabled=1
           enabled_metadata=1
           EOF
 
-      - name: Repoclosure plasma-unstable
+      - name: Repoclosure kde6-beta
         run: |
           dnf repoclosure \
-            --disablerepo=copr:copr.fedorainfracloud.org:solopasha:kde-gear-unstable \
-            --check copr:copr.fedorainfracloud.org:solopasha:plasma-unstable \
+            --check copr:copr.fedorainfracloud.org:solopasha:kde6-beta \
             --newest
 
-      - name: Repoclosure plasma-unstable (with --best)
+      - name: Repoclosure kde6-beta (with --best)
         run: |
           dnf repoclosure \
-            --disablerepo=copr:copr.fedorainfracloud.org:solopasha:kde-gear-unstable \
-            --check copr:copr.fedorainfracloud.org:solopasha:plasma-unstable \
-            --newest --best
-
-      - name: Repoclosure kde-gear-unstable
-        run: |
-          dnf repoclosure \
-            --check copr:copr.fedorainfracloud.org:solopasha:kde-gear-unstable \
-            --newest
-
-      - name: Repoclosure kde-gear-unstable (with --best)
-        run: |
-          dnf repoclosure \
-            --check copr:copr.fedorainfracloud.org:solopasha:kde-gear-unstable \
+            --check copr:copr.fedorainfracloud.org:solopasha:kde6-beta \
             --newest --best
