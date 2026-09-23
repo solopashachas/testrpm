@@ -1,6 +1,6 @@
-%global commit0 0ebb8d0975e062bdddb91fb1219326204d6fa840
+%global commit0 a0d71485a540270421261e05cbe9102a0031ec34
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 25
+%global bumpver 26
 
 %global base_name kdeconnect-kde
 
@@ -112,8 +112,6 @@ Supplements: (kdeconnectd and nautilus)
 %install
 %cmake_install
 %find_lang %{name} --all-name --with-html
-mkdir -p %{buildroot}%{_udevrulesdir}
-mv %{buildroot}/usr/lib/udev/40-kdeconnect-uinput.rules %{buildroot}%{_udevrulesdir}/40-kdeconnect-uinput.rules
 
 
 %check
