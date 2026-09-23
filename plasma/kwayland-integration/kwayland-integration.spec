@@ -4,7 +4,7 @@
 
 Name:           kwayland-integration
 Version:        6.7.90
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Provides integration plugins for various KDE Frameworks for Wayland
 
 License:        CC0-1.0 AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND (LGPL-2.1-only AND LGPL-3.0-only)
@@ -19,7 +19,6 @@ BuildRequires:  qt5-qtwayland-devel
 BuildRequires:  kf5-rpm-macros
 BuildRequires:  gnupg2
 
-BuildRequires:  kf5-kidletime-devel
 BuildRequires:  kf5-kwindowsystem-devel
 BuildRequires:  kf5-kwayland-devel
 BuildRequires:  cmake(KF5GuiAddons)
@@ -42,6 +41,9 @@ Requires:       kf5-filesystem
 %{_kf5_plugindir}/kwindowsystem/KF5WindowSystemKWaylandPlugin.so
 
 %changelog
+* Wed Sep 23 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-2
+- rebuilt
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 
