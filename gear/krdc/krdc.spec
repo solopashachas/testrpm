@@ -1,6 +1,6 @@
-%global commit0 d2ce0d402a034a9511c5c6fb976130b4efd8b524
+%global commit0 4996d539bd806f825b1ab46043d1c0f7916cf297
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 12
+%global bumpver 13
 
 Name:           krdc
 Summary:        Remote desktop client
@@ -39,15 +39,16 @@ BuildRequires:  cmake(Qt6Core)
 BuildRequires:  cmake(Qt6WaylandClient)
 BuildRequires:  qt6-qtbase-private-devel
 
-BuildRequires:  freerdp
-BuildRequires:  cmake(FreeRDP) >= 3
 BuildRequires:  cmake(FreeRDP-Client) >= 3
+BuildRequires:  cmake(FreeRDP) >= 3
+BuildRequires:  cmake(Qt6Keychain)
+BuildRequires:  freerdp
 BuildRequires:  fuse3-devel
 BuildRequires:  pkgconfig(libssh)
-BuildRequires:  pkgconfig(libvncserver)
 BuildRequires:  pkgconfig(libvncclient)
+BuildRequires:  pkgconfig(libvncserver)
+BuildRequires:  pkgconfig(spice-client-glib-2.0)
 BuildRequires:  wayland-devel
-BuildRequires:  cmake(Qt6Keychain)
 
 # see icon hack in %%install
 BuildRequires:  breeze-icon-theme
