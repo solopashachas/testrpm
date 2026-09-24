@@ -1,4 +1,4 @@
-%global commit0 c39deeff611eb4a226e2f951ef80a9c12a63311c
+%global commit0 0abd0ffcaeca01357f119ba23e9909c1f97eb445
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
@@ -6,7 +6,7 @@
 
 Name:           plasma-union
 Version:        6.7.91
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        A Qt style supporting both QtQuick and QtWidgets
 
 License:        BSD-2-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-3.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND MIT
@@ -65,6 +65,9 @@ developing applications that use %{name}.
 %{_kf6_libdir}/libUnion.so
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-2
+- rebuilt
+
 * Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
 - Update to 6.7.91
 
