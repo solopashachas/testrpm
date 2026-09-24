@@ -1,10 +1,10 @@
-%global commit0 67d194857f2441d4588544ff47309172eece7508
+%global commit0 f79982864c30b152760e3a8716f3edd494b1e528
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           plasma-bigscreen
 Summary:        Plasma shell for TVs
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 
 License:        CC0-1.0 AND GPL-2.0-or-later AND (GPL-2.0-only OR GPL-3.0-only) AND LGPL-2.0-or-later AND (LGPL-2.1-only OR LGPL-3.0-only)
@@ -113,6 +113,9 @@ mv %{buildroot}%{_kf6_libdir}/udev/rules.d/40-uinput.rules %{buildroot}%{_udevru
 %{_udevrulesdir}/40-uinput.rules
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 

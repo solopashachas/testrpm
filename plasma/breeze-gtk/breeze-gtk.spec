@@ -1,9 +1,9 @@
-%global commit0 3a75b57ec3a0168cc4a9628092a8d70dbca50f2c
+%global commit0 b7da8ca83e54229302df9d2fc6f9c081a41ed692
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           breeze-gtk
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 Summary:        Breeze widget theme for GTK
 
@@ -83,6 +83,9 @@ Supplements:    (plasma-breeze and gtk4)
 %{_datadir}/themes/Breeze-Dark/gtk-4.0/
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 

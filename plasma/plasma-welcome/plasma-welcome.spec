@@ -1,11 +1,11 @@
-%global commit0 df16ff8310a853cc12750d234b6557132551684b
+%global commit0 a160ee206d270335d9b77fe581009da2ab173ce8
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 %global orgname org.kde.plasma-welcome
 
 Name:           plasma-welcome
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 License:        GPL-2.0-or-later and BSD-3-Clause
 Summary:        Plasma Welcome
@@ -71,6 +71,9 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/%{orgname}.deskto
 %{_kf6_qmldir}/org/kde/plasma/welcome/
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 

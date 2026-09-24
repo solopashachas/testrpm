@@ -1,12 +1,12 @@
-%global commit0 909a3e39938ef10d06aae0b4431c16dacac96207
+%global commit0 7b7be28c41ba02ea20bbcc6fa8a8455925e3bea4
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 %global base_name kup
 
 Name:           kup-backup
-Version:        6.7.90
-Release:        3%{?dist}
+Version:        6.7.91
+Release:        1%{?dist}
 Summary:        Backup scheduler for the Plasma desktop
 
 License:        CC0-1.0 AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only
@@ -70,6 +70,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_kf6_metainfodir}/org.kde.ku
 %{_sysconfdir}/xdg/autostart/kup-daemon.desktop
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-3
 - rebuilt
 

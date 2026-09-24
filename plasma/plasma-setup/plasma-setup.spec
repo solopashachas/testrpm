@@ -1,11 +1,11 @@
-%global commit0 8f9af8ea68bdb3bb6e48e334e714992b303c0157
+%global commit0 74f5dccb2b0c69a61d245a323d7aa4183b83c1b3
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 %global orgname org.kde.plasmasetup
 
 Name:           plasma-setup
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 Summary:        Initial setup for systems using KDE Plasma
 License:        (GPL-2.0-or-later or GPL-3.0-or-later) and GPL-2.0-or-later and GPL-3.0-or-later and (LGPL-2.0-or-later or LGPL-3.0-or-later) and (LGPL-2.1-or-later or LGPL-3.0-or-later) and LGPL-2.1-or-later and BSD-2-Clause and CC0-1.0
@@ -113,6 +113,9 @@ exit 0
 %{_unitdir}/%{name}*
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 

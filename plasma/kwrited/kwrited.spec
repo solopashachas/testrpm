@@ -1,10 +1,10 @@
-%global commit0 5ef1247a03218ad78d09d25501d02d447052183c
+%global commit0 77581bddf8d9710e926491986540be32be97de12
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           kwrited
 Summary:        KDE Write Daemon
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 
 License:        CC0-1.0 AND GPL-2.0-or-later
@@ -31,6 +31,9 @@ Requires:       kf6-knotifications
 %{_qt6_plugindir}/kf6/kded/kwrited.so
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 

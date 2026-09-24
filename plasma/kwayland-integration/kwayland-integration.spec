@@ -1,10 +1,10 @@
-%global commit0 1605d2ca26c24b887783f4d05b57ec07bcf4ed1a
+%global commit0 f6e5a09d116aeaf92c4c40927188a7e2cf531a75
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           kwayland-integration
-Version:        6.7.90
-Release:        2%{?dist}
+Version:        6.7.91
+Release:        1%{?dist}
 Summary:        Provides integration plugins for various KDE Frameworks for Wayland
 
 License:        CC0-1.0 AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND (LGPL-2.1-only AND LGPL-3.0-only)
@@ -41,6 +41,9 @@ Requires:       kf5-filesystem
 %{_kf5_plugindir}/kwindowsystem/KF5WindowSystemKWaylandPlugin.so
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Wed Sep 23 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-2
 - rebuilt
 
