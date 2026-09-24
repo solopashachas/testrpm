@@ -1,9 +1,9 @@
-%global commit0 117623c96b87341af9eb9a518fba555406e93da7
+%global commit0 0e901a9a7882289344ddadde5f2670e88f3d8bc4
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           kinfocenter
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 Summary:        KDE Info Center
 
@@ -77,6 +77,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_metainfodir}/*.appdata.xml 
 %{_libexecdir}/kinfocenter-vulkan-helper
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 

@@ -1,10 +1,10 @@
-%global commit0 dedc1c39980509aa1c5d85d4bbeee9303a1116d5
+%global commit0 33b860a5be9724a036f4db7e40eea07d48a5d648
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           kscreen
 Epoch:          1
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 Summary:        KDE Display Management software
 
@@ -74,6 +74,9 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %{zsh_completions_dir}/_kscreenctl
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 1:6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 1:6.7.90-1
 - Update to 6.7.90
 

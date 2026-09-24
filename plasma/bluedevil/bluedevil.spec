@@ -1,10 +1,10 @@
-%global commit0 c15cdd83448c7a62690f57c1dde723a5532f5eb8
+%global commit0 95d1e576bd81abb6d7a3af5daa50d0553b7251c2
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           bluedevil
 Summary:        Bluetooth stack for KDE
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 
 License:        GPL-2.0-or-later
@@ -73,6 +73,9 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %{_kf6_qtplugindir}/plasma/kcms/systemsettings/kcm_bluetooth.so
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 

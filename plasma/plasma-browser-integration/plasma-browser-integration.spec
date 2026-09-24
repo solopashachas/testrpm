@@ -1,10 +1,10 @@
-%global commit0 4792b96151415301e2abec769e3df2401c726733
+%global commit0 9aeb7d27256a2c96de5eacef43f696f49c04a444
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           plasma-browser-integration
 Summary:        %{name} provides components necessary to integrate browsers into the Plasma Desktop
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 
 License:        GPL-2.0-or-later AND GPL-3.0-or-later AND MIT
@@ -65,6 +65,9 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %{_kf6_plugindir}/kded/browserintegrationreminder.so
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 
