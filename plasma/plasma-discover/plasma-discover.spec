@@ -1,4 +1,4 @@
-%global commit0 d60f8b8332606edda38ba22534391c6239e9d3e0
+%global commit0 ca1b99e111785d2aa18876722b217f7f49d39ecd
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
@@ -11,7 +11,7 @@
 
 Name:           plasma-discover
 Summary:        KDE and Plasma resources management GUI
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 
 License:        BSD-3-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND (GPL-2.0-only OR GPL-3.0-only) AND (LGPL-2.1-only OR LGPL-3.0-only)
@@ -295,6 +295,9 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %{_kf6_qtplugindir}/discover/appstream-preview-backend.so
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 

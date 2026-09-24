@@ -1,9 +1,9 @@
-%global commit0 da4de044ab8e741285a0deb494d960e2c890ab9a
+%global commit0 9a402a9453452b99360da704e66817731ab0125d
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           libplasma
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 Summary:        Plasma is the foundation of the KDE user interface (v6)
 
@@ -107,6 +107,9 @@ mkdir -p %{buildroot}%{_kf6_qmldir}/org/kde/private
 %{_qt6_metatypesdir}/qt6plasma*_metatypes.json
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 

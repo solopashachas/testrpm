@@ -1,10 +1,10 @@
-%global commit0 41ee7ffc048a2ee8022ad4c01c71f49053b41fbc
+%global commit0 144452bd0ec40a34b80b9aecc1ff453789d33441
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           kglobalacceld
 Summary:        Daemon providing Global Keyboard Shortcut functionality
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 
 License:        CC0-1.0 AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND LicenseRef-KDE-Accepted-LGPL
@@ -59,6 +59,9 @@ Requires:       cmake(Qt6Widgets)
 %{_kf6_libdir}/cmake/KGlobalAccelD/
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 

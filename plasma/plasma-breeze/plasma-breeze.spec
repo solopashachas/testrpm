@@ -1,11 +1,11 @@
-%global commit0 97f01709701edaf7a03d793fbc73c7181300b0ee
+%global commit0 b93b56b479abed4ff6f28e338920b12928cd1ad9
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 %global base_name breeze
 
 Name:           plasma-breeze
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 Summary:        Artwork, styles and assets for the Breeze visual style for the Plasma Desktop
 
@@ -143,6 +143,9 @@ Development files for %{name}.
 %{_kf6_libdir}/cmake/Breeze/
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 

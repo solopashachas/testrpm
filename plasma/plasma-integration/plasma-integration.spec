@@ -1,10 +1,10 @@
-%global commit0 62cc870062c9371c1868f64be031664ae9decab0
+%global commit0 fcbd78456ffe7547d2e8cd17e515a47146fb04a7
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           plasma-integration
 Summary:        Qt Platform Theme integration plugin for Plasma
-Version:        6.7.90
+Version:        6.7.91
 Release:        1%{?dist}
 
 License:        BSD-3-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-3.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-or-later AND LGPL-3.0-only AND LicenseRef-KDE-Accepted-LGPL
@@ -113,6 +113,9 @@ Requires:       kf5-qqc2-desktop-style%{?_isa}
 %{_qt5_plugindir}/platformthemes/KDEPlasmaPlatformTheme5.so
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
+- Update to 6.7.91
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-1
 - Update to 6.7.90
 
