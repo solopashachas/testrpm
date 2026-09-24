@@ -1,12 +1,12 @@
 %global commit0 909a3e39938ef10d06aae0b4431c16dacac96207
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 1
 
 %global base_name kup
 
-Name:           plasma-kup
+Name:           kup-backup
 Version:        6.7.90
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Backup scheduler for the Plasma desktop
 
 License:        CC0-1.0 AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only
@@ -39,6 +39,8 @@ BuildRequires:  pkgconfig(libgit2)
 
 Requires:       hicolor-icon-theme
 
+Obsoletes:      plasma-kup < %{version}-%{release}
+
 %description
 Kup is created for helping people to keep up-to-date backups
 of their personal files. Connecting a USB hard drive is the
@@ -68,6 +70,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_kf6_metainfodir}/org.kde.ku
 %{_sysconfdir}/xdg/autostart/kup-daemon.desktop
 
 %changelog
+* Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-3
+- rebuilt
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.90-2
 - rebuilt
 
