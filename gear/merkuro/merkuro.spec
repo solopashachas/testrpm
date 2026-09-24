@@ -1,6 +1,6 @@
-%global commit0 51c719fc26ee6f586a61b26cda1f0bf24ac61634
+%global commit0 a88a546f7f6b7a444715c15bf0b86a8b14488eb0
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 19
+%global bumpver 20
 
 Name:           merkuro
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -31,6 +31,7 @@ BuildRequires:  cmake(KF6KIO)
 BuildRequires:  cmake(KF6Kirigami)
 BuildRequires:  cmake(KF6KirigamiAddons)
 BuildRequires:  cmake(KF6Notifications)
+BuildRequires:  cmake(KF6Purpose)
 BuildRequires:  cmake(KF6QQC2DesktopStyle)
 BuildRequires:  cmake(KF6WindowSystem)
 BuildRequires:  cmake(KF6XmlGui)
