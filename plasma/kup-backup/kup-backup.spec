@@ -1,10 +1,10 @@
 %global commit0 8b2cc8ac2a6686575e7f42edd6cfca2a9d29dcfc
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global base_name kup
 
-Name:           plasma-kup
+Name:           kup-backup
 Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Backup scheduler for the Plasma desktop
@@ -38,6 +38,8 @@ BuildRequires:  cmake(Plasma)
 BuildRequires:  pkgconfig(libgit2)
 
 Requires:       hicolor-icon-theme
+
+Obsoletes:      plasma-kup < %{version}-%{release}
 
 %description
 Kup is created for helping people to keep up-to-date backups
