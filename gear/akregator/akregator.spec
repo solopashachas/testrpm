@@ -1,6 +1,6 @@
-%global commit0 a8adbdc4ed65a7ba99befa8da072a144298541f2
+%global commit0 baf2b2b9c7a0aa3765df3da29fb9091f1207f8a9
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 12
+%global bumpver 13
 
 #global tests 1
 
@@ -49,6 +49,7 @@ BuildRequires: cmake(Qt6PrintSupport)
 BuildRequires: cmake(Qt6Test)
 BuildRequires: cmake(Qt6WebEngineWidgets)
 BuildRequires: cmake(Qt6Widgets)
+BuildRequires: cmake(Qt6Keychain)
 
 %if 0%{?tests}
 BuildRequires: dbus-x11
@@ -111,6 +112,7 @@ xvfb-run -a bash -c "%ctest" || :
 %{_kf6_libdir}/libakregatorinterfaces.so.*
 %{_kf6_libdir}/libakregatorprivate.so.*
 %{_kf6_qtplugindir}/akregatorpart.so
+%{_kf6_qtplugindir}/pim6/akregator/
 # Kontact integration
 %dir %{_kf6_qtplugindir}/pim6/kontact/
 %{_kf6_qtplugindir}/pim6/kontact/kontact_akregatorplugin.so
