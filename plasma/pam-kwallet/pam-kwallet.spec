@@ -1,6 +1,6 @@
-%global commit0 ced91bb12e7cad9acbfd56cfa8d8ba7e5158a1f3
+%global commit0 469570531a0ce2994dbe211e7f27834b73e868af
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global base_name kwallet-pam
 
