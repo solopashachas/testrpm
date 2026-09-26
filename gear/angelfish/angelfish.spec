@@ -1,6 +1,6 @@
-%global commit0 21db42e6a98f912c2ef7fd9137db88af8e2a611b
+%global commit0 795d55395333b8075836edcc409a694200dc1cc5
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 7
 
 Name:           angelfish
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

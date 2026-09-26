@@ -1,6 +1,6 @@
-%global commit0 777176208adca0d63010931404bb78622244ee75
+%global commit0 00cf8a7d0a3932544b8b79cd5c5eace9a1ddd1a1
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 5
+%global bumpver 6
 
 %global base_name discover
 # enable snap support (or not)
@@ -75,7 +75,6 @@ BuildRequires:  pkgconfig(fwupd)
 BuildRequires:  cmake(AppStreamQt)
 BuildRequires:  cmake(QCoro6)
 BuildRequires:  pkgconfig(flatpak)
-BuildRequires:  pkgconfig(libmarkdown)
 BuildRequires:  pkgconfig(packagekitqt6)
 
 BuildRequires:  qt6qml(org.kde.kitemmodels)
