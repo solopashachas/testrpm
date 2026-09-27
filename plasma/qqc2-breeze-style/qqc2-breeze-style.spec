@@ -1,6 +1,6 @@
-%global commit0 346f338e731e03a3de00fb4dd2f0cba274bc3089
+%global commit0 4576088a2dd6fcf27bdbc299fb79fcbf97cf6175
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:           qqc2-breeze-style
 Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
