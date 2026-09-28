@@ -1,6 +1,6 @@
-%global commit0 814e5a8ae6ef12ffabd5f3f55b81115f2b3fab92
+%global commit0 8f38e263b8bfda80ead1e885fe0aebbed8380b34
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 7
 
 %global framework kcmutils
 
