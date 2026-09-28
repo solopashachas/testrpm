@@ -1,6 +1,6 @@
-%global commit0 88775fe4d0a039576b295336fc4a947944fa827c
+%global commit0 c36bf1627f16e7359743f110275722c4350831b9
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:           ksshaskpass
 Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
