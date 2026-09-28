@@ -1,6 +1,6 @@
 %global commit0 83a99b77c3b94eeb77b680711e7a412210c5bbd4
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global _lto_cflags %{nil}
 
@@ -57,7 +57,6 @@ BuildRequires: cmake(Qt6UiPlugin)
 BuildRequires: cmake(Qt6NetworkAuth)
 
 BuildRequires: cmake(OpenTimelineIO)
-BuildRequires: librttr-devel
 BuildRequires: pkgconfig(libavcodec)
 BuildRequires: pkgconfig(libavformat)
 BuildRequires: pkgconfig(libavutil)
