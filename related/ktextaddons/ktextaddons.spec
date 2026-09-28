@@ -1,6 +1,6 @@
 Name:           ktextaddons
-Version:        2.1.2
-Release:        2%{?dist}
+Version:        2.2.0
+Release:        1%{?dist}
 Summary:        Various text handling addons
 
 License:        CC0-1.0 AND LGPL-2.0-or-later AND GPL-2.0-or-later AND BSD-3-Clause
@@ -49,6 +49,7 @@ Requires:       %{name}-common = %{version}-%{release}
 %package        qt6-devel
 Summary:        Development files for %{name}
 Requires:       cmake(KF6SyntaxHighlighting)
+Requires:       cmake(Qt6TextToSpeech)
 %description    qt6-devel
 %{summary}.
 
@@ -64,6 +65,8 @@ BuildArch:      noarch
 
 %files qt6
 %license LICENSES/
+%{_kf6_bindir}/kokoro_helper.py
+%{_kf6_bindir}/whisper_helper.py
 %{_kf6_datadir}/config.kcfg/textautogeneratetextglobalconfig.kcfg
 %{_kf6_datadir}/qlogging-categories6/ktextaddons.categories
 %{_kf6_datadir}/qlogging-categories6/ktextaddons.renamecategories
@@ -90,15 +93,22 @@ BuildArch:      noarch
 %{_kf6_libdir}/libKF6TextEmoticonsWidgets.so.1
 %{_kf6_libdir}/libKF6TextGrammarCheck.so.%{version}
 %{_kf6_libdir}/libKF6TextGrammarCheck.so.1
-%{_kf6_libdir}/libKF6TextSpeechToText.so
 %{_kf6_libdir}/libKF6TextSpeechToText.so.%{version}
 %{_kf6_libdir}/libKF6TextSpeechToText.so.1
 %{_kf6_libdir}/libKF6TextTranslator.so.%{version}
 %{_kf6_libdir}/libKF6TextTranslator.so.1
 %{_kf6_libdir}/libKF6TextUtils.so.%{version}
 %{_kf6_libdir}/libKF6TextUtils.so.1
+%{_kf6_libdir}/libkokoroinstalltexttospeech.so.%{version}
+%{_kf6_libdir}/libkokoroinstalltexttospeech.so.1
+%{_kf6_libdir}/libkokorotexttospeech.so.%{version}
+%{_kf6_libdir}/libkokorotexttospeech.so.1
 %{_kf6_libdir}/libmcpprotocolclientplugin.so.0
 %{_kf6_libdir}/libmcpprotocolserverplugin.so.0
+%{_kf6_libdir}/libspeechtotextwhisper.so.%{version}
+%{_kf6_libdir}/libspeechtotextwhisper.so.1
+%{_kf6_libdir}/libspeechtotextwhisperinstall.so.%{version}
+%{_kf6_libdir}/libspeechtotextwhisperinstall.so.1
 %{_kf6_libdir}/libtextautogenerategenericnetwork.so.%{version}
 %{_kf6_libdir}/libtextautogenerategenericnetwork.so.1
 %{_kf6_libdir}/libtextautogeneratellamacpp.so.%{version}
@@ -119,6 +129,7 @@ BuildArch:      noarch
 %{_kf6_plugindir}/speechtotext/
 %{_kf6_plugindir}/textautogeneratetext/
 %{_kf6_plugindir}/translator/
+%{_kf6_qtplugindir}/texttospeech/
 
 
 %files qt6-devel
@@ -173,6 +184,9 @@ BuildArch:      noarch
 %doc README.md
 
 %changelog
+* Mon Sep 28 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 2.2.0-1
+- new version
+
 * Thu Oct 09 2025 Pavel Solovev <daron439@gmail.com> - 1.8.0-1
 - new version
 
