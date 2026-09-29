@@ -1,6 +1,6 @@
-%global commit0 e9144f237affa14c41d8e4ae4d22eda872a237fe
+%global commit0 3451b145e5cfaf9419bd3271c5752dca01335dfc
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 7
+%global bumpver 8
 
 %if 0%{?fedora}
 %global p7zip 1
@@ -111,7 +111,6 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/org.kde.ark.deskt
 %{_kf6_datadir}/qlogging-categories6/%{name}*
 %{_kf6_mandir}/man1/ark.1*
 %{_kf6_metainfodir}/org.kde.ark.appdata.xml
-%{_kf6_sysconfdir}/xdg/arkrc
 
 %files libs
 %{_kf6_libdir}/libkerfuffle.so.*
