@@ -105,14 +105,20 @@ jobs:
             for attempt in 1 2 3 4 5; do
               if gh release delete-asset "${tag}" "${rpm}" \
                   -R "${GITHUB_REPOSITORY}" --yes; then
+                printf 'Deleted retired release asset: %s (release %s)\n' \
+                  "${rpm}" "${tag}"
                 return 0
               fi
               if assets="$(gh release view "${tag}" -R "${GITHUB_REPOSITORY}" \
                   --json assets -q '.assets[].name' 2>/tmp/release-error)"; then
                 if ! grep -Fqx -- "${rpm}" <<< "${assets}"; then
+                  printf 'Retired release asset already absent: %s (release %s)\n' \
+                    "${rpm}" "${tag}"
                   return 0
                 fi
               elif grep -Eqi 'not found|HTTP 404' /tmp/release-error; then
+                printf 'Retired release asset already absent: %s (release %s)\n' \
+                  "${rpm}" "${tag}"
                 return 0
               fi
               if [[ "${attempt}" -lt 5 ]]; then
