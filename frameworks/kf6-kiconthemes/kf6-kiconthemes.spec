@@ -1,6 +1,6 @@
-%global commit0 356f60613be321489a75e0c7e9324b3ca9845ba2
+%global commit0 1f6cf81aebd2aecf96721a0ae2323aaca3ff2f0a
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 %global framework kiconthemes
 
