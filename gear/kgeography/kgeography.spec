@@ -1,6 +1,6 @@
-%global commit0 3c17c89de7ee25fca3ee1a174aa15bd40c02949f
+%global commit0 f0f59481e6fcf0f2dd8be7f410c1f80b9230a426
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:    kgeography
 Summary: Geography Trainer
