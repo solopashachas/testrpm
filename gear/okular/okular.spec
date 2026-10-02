@@ -1,6 +1,6 @@
-%global commit0 fe5617dfde9510a763a7de22f0e603ed63709e88
+%global commit0 95f06a30236f2dec221151c99d0ebfb3e6465646
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 29
+%global bumpver 30
 
 ## uncomment to enable bootstrap mode
 #global bootstrap 1
@@ -193,7 +193,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_kf6_metainfodir}/org.kde.ok
 %{_kf6_libdir}/libOkular6Core.so
 
 %files libs
-%{_kf6_libdir}/libOkular6Core.so.4{,.*}
+%{_kf6_libdir}/libOkular6Core.so.5{,.*}
 
 %files part -f okular-part.lang
 %if 0%{?fedora}

@@ -1,6 +1,6 @@
-%global commit0 a2dcb615721ec80e14dc5aefd1ef12743c04523f
+%global commit0 455f656c5dda7815927a5ba02e67ea1f675c0f0b
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 17
+%global bumpver 18
 
 Name:    pimcommon
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
