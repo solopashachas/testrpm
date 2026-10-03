@@ -1,11 +1,11 @@
-%global commit0 abfe8ab0dcd0c14f5e75b72bf30fc242afe9e140
+%global commit0 8ba85d919052e7fc540afb54fb3bd27944d6359e
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 1
 
 %global framework kmime
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.32.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Library to assist handling MIME data
 License:        BSD-2-Clause AND BSD-3-Clause AND CC-BY-SA-4.0 AND CC0-1.0 AND LGPL-2.0-only AND LGPL-2.0-or-later

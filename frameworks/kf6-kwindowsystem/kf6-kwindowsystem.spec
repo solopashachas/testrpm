@@ -1,11 +1,11 @@
-%global commit0 b078fffb7d70f434f8eee22f866f6c4b133df344
+%global commit0 0115a781d8e1008a2136823801fd9853ed23f930
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 1
 
 %global framework kwindowsystem
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.32.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 1 integration module with classes for windows management
 License:        CC0-1.0 AND LGPL-2.1-only AND LGPL-2.1-or-later AND LGPL-3.0-only AND MIT

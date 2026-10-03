@@ -1,11 +1,11 @@
-%global commit0 e18e33a70124e48273c5c89f536615e4273e80d9
+%global commit0 55b2b042dfd20c2013c5cedef1f9f9e4709bd8e1
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 1
 
 %global framework kcalendarcore
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.32.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 1 KCalendarCore Library
 License:        BSD-3-Clause AND LGPL-2.0-or-later AND LGPL-3.0-or-later

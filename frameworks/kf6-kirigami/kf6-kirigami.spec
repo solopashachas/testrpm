@@ -1,11 +1,11 @@
-%global commit0 0e3a438511702890996815e4b832de9aa4c41ae3
+%global commit0 1fdd67e2c978f809d5403abb7fe41fcee163967b
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 10
+%global bumpver 1
 
 %global framework kirigami
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.32.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        QtQuick plugins to build user interfaces based on the KDE UX guidelines
 License:        BSD-3-Clause AND CC0-1.0 AND FSFAP AND GPL-2.0-or-later AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND LGPL-3.0-only AND LicenseRef-KDE-Accepted-LGPL AND MIT

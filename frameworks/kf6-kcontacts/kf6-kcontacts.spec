@@ -1,11 +1,11 @@
-%global commit0 778bf51292cfb1f417f8d61fdb9cd9d0597e2edb
+%global commit0 7401fe82590da9b0a26559eafb308e888533f5be
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 1
 
 %global framework kcontacts
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.32.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        The KContacts Library
 # The following licenses are present in LICENSES but go unused: BSD-3-Clause, MIT, Unicode-DFS-2016

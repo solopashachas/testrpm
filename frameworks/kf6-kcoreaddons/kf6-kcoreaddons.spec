@@ -1,11 +1,11 @@
-%global commit0 e6d23dc21f1fa9b9a4ed00fc73b6b96c224ac8df
+%global commit0 c4ad4b9a28bc462df71df10f7b8f306d7b089f2a
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 1
 
 %global framework kcoreaddons
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.32.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Qt addon library with a collection of non-GUI utilities
 License:        BSD-2-Clause AND BSD-3-Clause AND CC0-1.0 AND GPL-2.0-or-later AND MPL-1.1 AND LGPL-2.0-only AND LGPL-2.1-or-later AND LGPL-3.0-only AND LGPL-2.1-only WITH Qt-LGPL-exception-1.1

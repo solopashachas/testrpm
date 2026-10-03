@@ -1,11 +1,11 @@
-%global commit0 975405122decec19e7952a304cd7c19d60f59e62
+%global commit0 10851165d7802912cd1c8cb8e2f7b268a5e84cc8
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 1
 
 %global framework kconfig
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.32.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 1 addon with advanced configuration system
 License:        BSD-2-Clause AND BSD-3-Clause AND CC0-1.0 AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND MIT

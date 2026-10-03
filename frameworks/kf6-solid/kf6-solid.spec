@@ -1,11 +1,11 @@
-%global commit0 67a2cef11590bbdf91a12d9bf70e2bab088ed3a6
+%global commit0 83cb353249e9ebf0b05007fbb38e7312a3ad2838
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 1
 
 %global framework solid
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.32.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        KDE Frameworks 6 Tier 1 integration module that provides hardware information
 License:        LGPL-2.1-or-later AND LGPL-2.1-only AND CCO-1.0 AND BSD-3-Clause AND LGPL-3.0-only
