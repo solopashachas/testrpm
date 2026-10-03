@@ -1,11 +1,11 @@
-%global commit0 8facef3017b12ca7ff9dae0e05ea225ffa11c477
+%global commit0 181c66aba2518216dcfac4f33c5dd308b93747cf
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 1
 
 %global framework kholidays
 
 Name:           kf6-%{framework}
-Version:        6.31.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
+Version:        6.32.0%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        The KHolidays Library
 
