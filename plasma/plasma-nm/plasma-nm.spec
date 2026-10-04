@@ -1,6 +1,6 @@
 %global commit0 6f156661590face0a91ceb8e2518e797e250cfcf
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 8
+%global bumpver 9
 
 Name:           plasma-nm
 Summary:        Plasma for managing network connections
@@ -71,6 +71,11 @@ Provides:       kde-plasma-nm = %{version}-%{release}
 Obsoletes:      %{name}-mobile < 6.4.80~2.git6241b73-2
 Provides:       %{name}-mobile = %{version}-%{release}
 Provides:       %{name}-mobile%{?_isa} = %{version}-%{release}
+
+%if 0%{?fedora} >= 45
+Obsoletes:      %{name}-fortisslvpn < 6.8.80~8.git6f15666-2
+Obsoletes:      %{name}-vpnc        < 6.8.80~8.git6f15666-2
+%endif
 
 %description
 Plasma applet and editor for managing your network connections in KDE 4 using
@@ -143,6 +148,7 @@ Requires:       %{name}%{?_isa} = %{version}-%{release}
 %description    sstp
 %{summary}.
 
+%if 0%{?fedora} < 45
 %package        fortisslvpn
 Summary:        Fortigate SSL VPN support for %{name}
 Requires:       %{name}%{?_isa} = %{version}-%{release}
@@ -150,7 +156,6 @@ Requires:       NetworkManager-fortisslvpn
 %description    fortisslvpn
 %{summary}.
 
-%if 0%{?fedora}
 %package        vpnc
 Summary:        Vpnc support for %{name}
 Requires:       %{name}%{?_isa} = %{version}-%{release}
@@ -191,6 +196,14 @@ rm -f %{buildroot}/usr/share/locale/*/LC_MESSAGES/plasmanetworkmanagement_vpncui
 rm -f %{buildroot}/usr/share/locale/*/LC_MESSAGES/plasmanetworkmanagement_openconnectui.mo
 %endif
 
+%if 0%{?fedora} >= 45
+rm -f %{buildroot}%{_kf6_qtplugindir}/plasma/network/vpn/plasmanetworkmanagement_fortisslvpnui.so
+rm -f %{buildroot}/usr/share/locale/*/LC_MESSAGES/plasmanetworkmanagement_fortisslvpnui.mo
+rm -f %{buildroot}%{_kf6_qtplugindir}/plasma/network/vpn/plasmanetworkmanagement_vpncui.so
+rm -f %{buildroot}/usr/share/locale/*/LC_MESSAGES/plasmanetworkmanagement_vpncui.mo
+%endif
+
+
 %find_lang plasma_applet_org.kde.plasma.networkmanagement
 %find_lang plasmanetworkmanagement-kded
 %find_lang plasmanetworkmanagement-libs
@@ -203,9 +216,11 @@ rm -f %{buildroot}/usr/share/locale/*/LC_MESSAGES/plasmanetworkmanagement_openco
 %find_lang plasmanetworkmanagement_l2tpui
 %find_lang plasmanetworkmanagement_pptpui
 %find_lang plasmanetworkmanagement_sstpui
+%if 0%{?fedora} < 45
 %find_lang plasmanetworkmanagement_fortisslvpnui
-%if 0%{?fedora}
 %find_lang plasmanetworkmanagement_vpncui
+%endif
+%if 0%{?fedora}
 %find_lang plasmanetworkmanagement_sshui
 %find_lang plasmanetworkmanagement_iodineui
 %endif
@@ -286,13 +301,15 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %files sstp -f plasmanetworkmanagement_sstpui.lang
 %{_kf6_qtplugindir}/plasma/network/vpn/plasmanetworkmanagement_sstpui.so
 
+%if 0%{?fedora} < 45
 %files fortisslvpn -f plasmanetworkmanagement_fortisslvpnui.lang
 %{_kf6_qtplugindir}/plasma/network/vpn/plasmanetworkmanagement_fortisslvpnui.so
 
-%if 0%{?fedora}
 %files vpnc -f plasmanetworkmanagement_vpncui.lang
 %{_kf6_qtplugindir}/plasma/network/vpn/plasmanetworkmanagement_vpncui.so
+%endif
 
+%if 0%{?fedora}
 %files ssh -f plasmanetworkmanagement_sshui.lang
 %{_kf6_qtplugindir}/plasma/network/vpn/plasmanetworkmanagement_sshui.so
 
