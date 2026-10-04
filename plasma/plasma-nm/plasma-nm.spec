@@ -1,6 +1,6 @@
 %global commit0 6f156661590face0a91ceb8e2518e797e250cfcf
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 9
+%global bumpver 10
 
 Name:           plasma-nm
 Summary:        Plasma for managing network connections
@@ -165,7 +165,9 @@ Obsoletes:      kde-plasma-nm-vpnc < 5.0.0-1
 Provides:       kde-plasma-nm-vpnc = %{version}-%{release}
 %description    vpnc
 %{summary}.
+%endif
 
+%if 0%{?fedora}
 %package        ssh
 Summary:        SSH suppor for %{name}
 Requires:       %{name}%{?_isa} = %{version}-%{release}
