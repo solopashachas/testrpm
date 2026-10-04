@@ -1,6 +1,6 @@
-%global commit0 4182859d41e850095bfd20ca0d97068eb8b0b712
+%global commit0 fb5c5d0a9184a0ca498ca2700cdead2e3b163b1b
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 17
+%global bumpver 18
 
 Name:           plasma-workspace
 Summary:        Plasma workspace, applications and applets
@@ -428,6 +428,7 @@ fi
 %{_kf6_datadir}/kconf_update/plasma6.0-remove-old-shortcuts.upd
 %{_kf6_datadir}/kconf_update/plasma6.3-update-clipboard-database-2-to-3.upd
 %{_kf6_datadir}/kconf_update/plasma6.4-migrate-fullscreen-notifications-to-dnd.upd
+%{_kf6_datadir}/kconf_update/plasma6.8-remove-action-menu-shortcut.upd
 %{_kf6_datadir}/kconf_update/plasmashell-6.0-keep-custom-position-of-panels.upd
 %{_kf6_datadir}/kconf_update/plasmashell-6.0-keep-default-floating-setting-for-plasma-5-panels.upd
 %{_kf6_datadir}/kconf_update/plasmashell-6.5-remove-stop-activity-shortcut.upd
@@ -500,6 +501,7 @@ fi
 %{_kf6_libdir}/kconf_update_bin/plasma6.0-remove-old-shortcuts
 %{_kf6_libdir}/kconf_update_bin/plasma6.3-update-clipboard-database-2-to-3
 %{_kf6_libdir}/kconf_update_bin/plasma6.4-migrate-fullscreen-notifications-to-dnd
+%{_kf6_libdir}/kconf_update_bin/plasma6.8-remove-action-menu-shortcut
 %{_kf6_libdir}/kconf_update_bin/plasmashell-6.0-keep-custom-position-of-panels
 %{_kf6_libdir}/kconf_update_bin/plasmashell-6.0-keep-default-floating-setting-for-plasma-5-panels
 %{_kf6_libdir}/kconf_update_bin/plasmashell-6.5-remove-stop-activity-shortcut
