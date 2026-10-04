@@ -1,6 +1,6 @@
-%global commit0 ce895c2761c331a4f6bd053b54de2a382b847078
+%global commit0 ff9b44de10b5f4046766038ae206966c303ed222
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 32
+%global bumpver 33
 
 #global tests 1
 
@@ -155,6 +155,7 @@ xvfb-run -a bash -c "%ctest" || :
 %{_kf6_plugindir}/ktexteditor/katecloseexceptplugin.so
 %{_kf6_plugindir}/ktexteditor/katecolorpickerplugin.so
 %{_kf6_plugindir}/ktexteditor/katectagsplugin.so
+%{_kf6_plugindir}/ktexteditor/katedeploymentplugin.so
 %{_kf6_plugindir}/ktexteditor/katefilebrowserplugin.so
 %{_kf6_plugindir}/ktexteditor/katefiletreeplugin.so
 %{_kf6_plugindir}/ktexteditor/kategdbplugin.so

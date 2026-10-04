@@ -1,6 +1,6 @@
-%global commit0 54488024484aa2cfcf679724e3628cc6b8d18b8a
+%global commit0 ba346c3de6bd46092febeda073700ab0f911ebeb
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework knotifications
 
