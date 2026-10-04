@@ -1,6 +1,6 @@
-%global commit0 b493f8486e775ad7a1aab55fa97a4138765e9849
+%global commit0 2298930b579ebd1077da22ec9e150ba3978bd578
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 Name:           accessibility-inspector
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
