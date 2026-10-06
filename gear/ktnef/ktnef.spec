@@ -1,6 +1,6 @@
-%global commit0 cd20fb5b1351d20e6d4ea53b77c09ab283cc114a
+%global commit0 85f61d201dab217c9088c769f5c367189b842139
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 7
 
 Name:    ktnef
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

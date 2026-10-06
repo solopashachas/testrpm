@@ -1,9 +1,9 @@
-%global commit0 4cc2e40ab681cf38ca7fb3db7e235fe5b8dc58d1
+%global commit0 cb794aef2974c754e4c6398f0ebcde8e64d09bee
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 1
 
 Name:           kirigami-app-components
-Version:        1.1.0%{?bumpver:^%{bumpver}.git%{shortcommit0}}
+Version:        1.1.1%{?bumpver:^%{bumpver}.git%{shortcommit0}}
 Release:        1%{?dist}
 Summary:        Kirigami addons and modules necessary to do a full featured KDE application
 License:        GPL-2.0-or-later AND LGPL-2.1-or-later
