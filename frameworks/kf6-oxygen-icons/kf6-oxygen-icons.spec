@@ -1,6 +1,6 @@
-%global commit0 65ccf0752df19c9cf97da4884e41bfd4e8c8ec69
+%global commit0 6c1207e8199c500f77f72c4d2a7856bc7d53d8ad
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework oxygen-icons
 
@@ -68,6 +68,7 @@ appstream-util validate-relax --nonet %{buildroot}%{_kf6_metainfodir}/org.kde.ox
 %ghost %{_datadir}/icons/oxygen/icon-theme.cache
 %{_datadir}/icons/oxygen/index.theme
 %{_datadir}/icons/oxygen/*/
+%{_datadir}/icons/oxygen/icon-settings.json
 %{_metainfodir}/org.kde.oxygenicon.metainfo.xml
 
 %changelog

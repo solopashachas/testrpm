@@ -1,6 +1,6 @@
-%global commit0 b249b8547e4e7807b1af0e6a600df3ef6a541568
+%global commit0 45e4a1e56c027641153a28e931768b8234a64e16
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 19
+%global bumpver 20
 
 Name:    mailcommon
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -99,12 +99,13 @@ Requires:       cmake(KF6Completion)
 %license LICENSES/*
 %{_kf6_datadir}/qlogging-categories6/*%{name}.*
 %{_kf6_libdir}/libKPim6MailCommon.so.*
-%{_qt6_plugindir}/designer/mailcommon6widgets.so
+%{_kf6_qmldir}/org/kde/mailcommon/
 
 %files devel
 %{_includedir}/KPim6/MailCommon/
 %{_kf6_libdir}/cmake/KPim6MailCommon/
 %{_kf6_libdir}/libKPim6MailCommon.so
+%{_qt6_plugindir}/designer/mailcommon6widgets.so
 
 
 %changelog
