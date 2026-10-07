@@ -1,6 +1,6 @@
-%global commit0 8ba85d919052e7fc540afb54fb3bd27944d6359e
+%global commit0 df9c18adc0e07f2249bd07d2166e6f6544cef24a
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kmime
 
