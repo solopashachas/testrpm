@@ -93,6 +93,7 @@ DEFAULT_RETENTION_POLICY = RetentionPolicy(
             "kwin": 5,
             "plasma-desktop": 5,
             "plasma-workspace": 5,
+            "plasma-workspace-wallpapers": 1,
         }
     ),
     always_keep_newest=True,

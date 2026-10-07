@@ -32,7 +32,7 @@ jobs:
       BATCH_ID: ${{ inputs.batch_id }}
       COMMIT_SHA: ${{ inputs.commit_sha }}
       SOURCE_BRANCH: ${{ inputs.branch }}
-      MAX_ASSETS_PER_RELEASE: '900'
+      MAX_ASSETS_PER_RELEASE: '990'
       MAX_PARALLEL_TRANSFERS: '8'
       SNAPSHOT_RETENTION_DAYS: '7'
       PUBLISH_GENERATION: ${{ github.run_id }}-${{ github.run_attempt }}
