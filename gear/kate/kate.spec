@@ -1,6 +1,6 @@
-%global commit0 ff9b44de10b5f4046766038ae206966c303ed222
+%global commit0 f125a217e81a0109159bd71a3193cf7b59c44175
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 33
+%global bumpver 34
 
 #global tests 1
 
@@ -133,10 +133,6 @@ xvfb-run -a bash -c "%ctest" || :
 %{_kf6_datadir}/icons/hicolor/*/apps/kate.*
 %{_kf6_metainfodir}/org.kde.kate.appdata.xml
 %dir %{_kf6_plugindir}/ktexteditor
-%{_kf6_plugindir}/ktexteditor/cmaketoolsplugin.so
-%{_kf6_plugindir}/ktexteditor/eslintplugin.so
-%{_kf6_plugindir}/ktexteditor/formatplugin.so
-%{_kf6_plugindir}/ktexteditor/rbqlplugin.so
 %{_mandir}/man1/kate.1*
 
 
@@ -149,8 +145,12 @@ xvfb-run -a bash -c "%ctest" || :
 %{_kf6_datadir}/katexmltools/
 %{_kf6_plugindir}/kio/kio_kateexec.so
 %{_kf6_plugindir}/ktexteditor/bookmarksplugin.so
+%{_kf6_plugindir}/ktexteditor/cmaketoolsplugin.so
 %{_kf6_plugindir}/ktexteditor/compilerexplorer.so
+%{_kf6_plugindir}/ktexteditor/eslintplugin.so
 %{_kf6_plugindir}/ktexteditor/externaltoolsplugin.so
+%{_kf6_plugindir}/ktexteditor/formatplugin.so
+%{_kf6_plugindir}/ktexteditor/gitdecorationsplugin.so
 %{_kf6_plugindir}/ktexteditor/katebuildplugin.so
 %{_kf6_plugindir}/ktexteditor/katecloseexceptplugin.so
 %{_kf6_plugindir}/ktexteditor/katecolorpickerplugin.so
@@ -177,6 +177,7 @@ xvfb-run -a bash -c "%ctest" || :
 %{_kf6_plugindir}/ktexteditor/lspclientplugin.so
 %{_kf6_plugindir}/ktexteditor/openlinkplugin.so
 %{_kf6_plugindir}/ktexteditor/rainbowparens.so
+%{_kf6_plugindir}/ktexteditor/rbqlplugin.so
 %{_kf6_plugindir}/ktexteditor/tabswitcherplugin.so
 %{_kf6_plugindir}/ktexteditor/templateplugin.so
 %{_kf6_plugindir}/ktexteditor/textfilterplugin.so
