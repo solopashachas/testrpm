@@ -1,11 +1,11 @@
-%global commit0 77581bddf8d9710e926491986540be32be97de12
+%global commit0 136531bd11f565628e224cc078fd89913c301c3e
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           kwrited
 Summary:        KDE Write Daemon
-Version:        6.7.91
-Release:        1%{?dist}
+Version:        6.8.0
+Release:        0.1%{?dist}
 
 License:        CC0-1.0 AND GPL-2.0-or-later
 URL:            https://invent.kde.org/plasma/%{name}
@@ -31,6 +31,9 @@ Requires:       kf6-knotifications
 %{_qt6_plugindir}/kf6/kded/kwrited.so
 
 %changelog
+* Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
+- Update to 6.8.0
+
 * Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
 - Update to 6.7.91
 

@@ -1,11 +1,11 @@
-%global commit0 5a0a1d47d48879c0f91ab812be4050f47163c22d
+%global commit0 ac3da7fbbc64a7f7466a65fad3f8580b87ba6837
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           plasma-keyboard
 Epoch:          1
-Version:        6.7.91
-Release:        1%{?dist}
+Version:        6.8.0
+Release:        0.1%{?dist}
 Summary:        Virtual Keyboard for Qt based desktops
 
 License:        LGPL-2.1-only AND GPL-2.0-only AND CC0-1.0 AND LGPL-3.0-only AND GPL-3.0-or-later AND GPL-2.0-or-later AND GPL-3.0-only
@@ -70,6 +70,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/org.kde.plasma.keyboa
 %{_kf6_qtplugindir}/plasma/kcms/systemsettings/kcm_plasmakeyboard.so
 
 %changelog
+* Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 1:6.8.0-0.1
+- Update to 6.8.0
+
 * Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 1:6.7.91-1
 - Update to 6.7.91
 

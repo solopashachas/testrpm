@@ -1,10 +1,10 @@
-%global commit0 b0c704bdba025f313a1052ef9413deb592ad71be
+%global commit0 ad64db51633f3ea0cfa3de890553ca2591e7cc39
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           kde-cli-tools
-Version:        6.7.91
-Release:        1%{?dist}
+Version:        6.8.0
+Release:        0.1%{?dist}
 Summary:        Tools based on KDE Frameworks 5 to better interact with the system
 
 License:        Artistic-2.0 AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-only AND LGPL-3.0-only AND (GPL-2.0-only OR GPL-3.0-only) AND (LGPL-2.1-only OR LGPL-3.0-only)
@@ -92,6 +92,9 @@ sed '/kdesu/d;/man/d' -i %{name}.lang
 %{_mandir}/man1/kdesu.1.*
 
 %changelog
+* Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
+- Update to 6.8.0
+
 * Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
 - Update to 6.7.91
 

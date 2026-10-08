@@ -1,10 +1,10 @@
-%global commit0 c8bd1d47827970a793a30c8c7c9135fa8bd1515d
+%global commit0 08753b89027ef916da40018cdf4031622e3fc6a5
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           ksystemstats
-Version:        6.7.91
-Release:        1%{?dist}
+Version:        6.8.0
+Release:        0.1%{?dist}
 Summary:        KSystemStats is a daemon that collects statistics about the running system.
 
 License:        BSD-2-Clause AND BSD-3-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-3.0-only AND LicenseRef-KDE-Accepted-GPL
@@ -44,6 +44,9 @@ KSystemStats is a daemon that collects statistics about the running system.
 %caps(cap_perfmon=ep) %{_libexecdir}/ksystemstats_xe_helper
 
 %changelog
+* Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
+- Update to 6.8.0
+
 * Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
 - Update to 6.7.91
 
