@@ -83,6 +83,7 @@ BuildRequires:  cmake(AccountsQt6)
 BuildRequires:  cmake(KAccounts6)
 BuildRequires:  cmake(packagekitqt6)
 BuildRequires:  cmake(SDL2)
+BuildRequires:  cmake(PolkitQt6-1)
 BuildRequires:  desktop-backgrounds-compat
 BuildRequires:  intltool
 BuildRequires:  libxcb-devel
