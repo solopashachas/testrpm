@@ -1,6 +1,6 @@
 %global commit0 ee88aa4f84ccec9711a7661a3418fae8e3dabef9
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:           plasma-browser-integration
 Summary:        %{name} provides components necessary to integrate browsers into the Plasma Desktop
