@@ -1,6 +1,6 @@
-%global commit0 87849e57d0c66d8ef039dbbb6407e382c194a07f
+%global commit0 0481ff4d69e41772128c9dbc7b63587df20c5bb8
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 %global framework kdav
 

@@ -1,6 +1,6 @@
-%global commit0 4b8c52bde58e7e1e1b26ce0f62f04591a28ba1dc
+%global commit0 c4e5a6df56fc0eeb9a77b19af02e8e4e377c75e7
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework ki18n
 
@@ -66,6 +66,7 @@ developing applications that use %{name}.
 %files devel
 %{_kf6_includedir}/KI18n/
 %{_kf6_includedir}/KI18nLocaleData/
+%{_kf6_includedir}/KI18nQml/
 %{_kf6_libdir}/cmake/KF6I18n/
 %{_kf6_libdir}/libKF6I18n.so
 %{_kf6_libdir}/libKF6I18nLocaleData.so
