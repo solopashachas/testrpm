@@ -1,11 +1,11 @@
-%global commit0 e95fb7e386346d33ab300821c6b377c8d540dd73
+%global commit0 e49c640fcb60685049cb7d50d1a35214ee71bba3
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:          kmenuedit
 Summary:       KDE menu editor
-Version:       6.7.91
-Release:       1%{?dist}
+Version:       6.8.0
+Release:       0.1%{?dist}
 
 License:       GPL-2.0-or-later OR GPL-2.0-only
 URL:           https://invent.kde.org/plasma/%{name}
@@ -45,6 +45,9 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %{_kf6_datadir}/qlogging-categories6/kmenuedit.categories
 
 %changelog
+* Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
+- Update to 6.8.0
+
 * Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.7.91-1
 - Update to 6.7.91
 

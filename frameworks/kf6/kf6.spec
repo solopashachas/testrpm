@@ -1,7 +1,7 @@
 Name:           kf6
 # This version MUST remain in sync with KF6 versions!
 Version:        6.30.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Filesystem and RPM macros for KDE Frameworks 6
 License:        BSD-3-Clause
 URL:            http://www.kde.org
@@ -33,6 +33,7 @@ Requires:       %{name}-srpm-macros = %{version}-%{release}
 # misc build environment dependencies
 Requires:       gnupg2
 Requires:       ninja-build
+Requires:       (cmake(Qt6LinguistTools) if qt6-qtbase-devel)
 BuildArch:      noarch
 %description    rpm-macros
 RPM macros for building KDE Frameworks 6 packages.
@@ -122,6 +123,9 @@ install -Dpm0644 %{_sourcedir}/kde.lua %{buildroot}%{_rpmluadir}/fedora/srpm/kde
 %files qch
 
 %changelog
+* Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-3
+- rebuilt
+
 * Thu Sep 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.30.0-2
 - rebuilt
 

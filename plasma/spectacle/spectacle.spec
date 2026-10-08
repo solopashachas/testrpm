@@ -1,12 +1,12 @@
-%global commit0 1829651d4f62bfda05c3a349a6b4a24f4323bc70
+%global commit0 8404990cdb0d5a17e4733dc890bbce36bef33163
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           spectacle
 Summary:        Screenshot capture utility
 Epoch:          1
-Version:        6.7.91
-Release:        1%{?dist}
+Version:        6.8.0
+Release:        0.1%{?dist}
 
 License:        LGPL-2.0-or-later AND GPL-2.0-or-later AND (LGPL-2.1-only OR LGPL-3.0-only)
 URL:            https://invent.kde.org/graphics/spectacle
@@ -93,6 +93,9 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/org.kde.spectacle
 %{_userunitdir}/app-org.kde.spectacle.service
 
 %changelog
+* Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 1:6.8.0-0.1
+- Update to 6.8.0
+
 * Thu Sep 24 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 1:6.7.91-1
 - Update to 6.7.91
 
