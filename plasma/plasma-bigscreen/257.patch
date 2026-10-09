@@ -1,0 +1,24 @@
+From 116e7e9e02f9aeba831568165c31e995616efdc3 Mon Sep 17 00:00:00 2001
+From: User8395 <therealuser8395@proton.me>
+Date: Thu, 8 Oct 2026 17:59:29 -0400
+Subject: [PATCH] webapp-viewer/main: remove KLocalizedQmlContext import
+
+---
+ webapp-viewer/main.cpp | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/webapp-viewer/main.cpp b/webapp-viewer/main.cpp
+index 53ce8776..ff523534 100644
+--- a/webapp-viewer/main.cpp
++++ b/webapp-viewer/main.cpp
+@@ -16,7 +16,6 @@
+ #include <KAboutData>
+ #include <KDBusService>
+ #include <KLocalizedContext>
+-#include <KLocalizedQmlContext>
+ #include <KLocalizedString>
+ 
+ #include "browsermanager.h"
+-- 
+GitLab
+

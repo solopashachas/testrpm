@@ -1,6 +1,6 @@
-%global commit0 a22a63e3fe2a93f4fcaf02b9b9d361d13db325ed
+%global commit0 23e651bad32cf5615c2a3d6883f47b0be65e0da4
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 7
+%global bumpver 8
 
 Name:           plasma-bigscreen
 Summary:        Plasma shell for TVs
@@ -10,6 +10,7 @@ Release:        1%{?dist}
 License:        CC0-1.0 AND GPL-2.0-or-later AND (GPL-2.0-only OR GPL-3.0-only) AND LGPL-2.0-or-later AND (LGPL-2.1-only OR LGPL-3.0-only)
 URL:            https://invent.kde.org/plasma/plasma-bigscreen
 %kde_meta
+Patch:          257.patch
 
 ExclusiveArch:  %{qt6_qtwebengine_arches}
 
