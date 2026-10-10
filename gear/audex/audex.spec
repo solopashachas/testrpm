@@ -1,6 +1,6 @@
-%global commit0 40d6cd56ef54ced96e20cfa32ac681b44a5e69f1
+%global commit0 8b7ac2135fc05aaf7a909cdf20041ebc90297490
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:           audex
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
