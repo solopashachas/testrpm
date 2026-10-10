@@ -1,10 +1,10 @@
-%global commit0 8676527c31a0869f41cb30556d0bab4643c40074
+%global commit0 0cbc96a9ab18b6d1b8863ff3cefbec51f60c62ad
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           kscreenlocker
 Version:        6.8.0
-Release:        0.1%{?dist}
+Release:        0.2%{?dist}
 Summary:        Library and components for secure lock screen architecture
 
 License:        BSD-3-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only AND LGPL-2.1-only AND LGPL-3.0-only AND (GPL-2.0-only OR GPL-3.0-only) AND (LGPL-2.1-only OR LGPL-3.0-only)
@@ -77,6 +77,9 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %{_kf6_libdir}/libKScreenLocker.so
 
 %changelog
+* Sat Oct 10 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.2
+- rebuilt
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 
