@@ -1,6 +1,6 @@
-%global commit0 95f607dddac123b0118b2395485e5796f01db175
+%global commit0 3f9c6794b5a2482dc2fb951518ddeea6239ced69
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework syndication
 
