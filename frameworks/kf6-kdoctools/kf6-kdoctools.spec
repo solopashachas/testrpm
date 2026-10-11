@@ -1,6 +1,6 @@
-%global commit0 5f524ebdd0ef15cb54244b28506f0fac20047461
+%global commit0 99f2e1f95c31bae0ee4755e3364ce074090f504a
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 %global framework kdoctools
 

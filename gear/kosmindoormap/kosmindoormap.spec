@@ -1,6 +1,6 @@
-%global commit0 c3f3cb682cb85b27d66b241d31517bfebd524e34
+%global commit0 e42a05b9a8c7a507fe2d82fc46940c6647b34b19
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 7
 
 Name:    kosmindoormap
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
