@@ -1,6 +1,6 @@
-%global commit0 3afdbfc37b4d91b6b97228140e7df2f74e873d43
+%global commit0 b295c8217de11d2dc58a16b0664ad224dc05f51b
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 5
+%global bumpver 6
 
 Name:    libkdcraw
 Summary: A C++ interface around LibRaw library

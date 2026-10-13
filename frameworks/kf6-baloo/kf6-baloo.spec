@@ -1,6 +1,6 @@
-%global commit0 e33e43f2b2dc8f192fc6465698e56b102a6a55ea
+%global commit0 8297b6cf3f60251039ac985bf495cead587165e5
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 7
+%global bumpver 8
 
 %global framework baloo
 

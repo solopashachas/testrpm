@@ -1,6 +1,6 @@
-%global commit0 081a508681dbf6341171e1bdb325eb41f1e13b36
+%global commit0 aab9af6c89a678c727aff7ed12bc1c22182d2b2a
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:           ghostwriter
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

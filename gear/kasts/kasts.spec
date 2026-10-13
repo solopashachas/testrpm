@@ -1,6 +1,6 @@
-%global commit0 844486860dbb8f51f86fcf3652d24e52134d97c1
+%global commit0 ff6f6e826eee899899f8ca2093e9aac6e79746d4
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 19
+%global bumpver 20
 
 Name:           kasts
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
