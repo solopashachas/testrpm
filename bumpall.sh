@@ -23,6 +23,7 @@ exclude_packages=(
 IFS=" " read -r -a exclude_rendered <<< "$(printf -- "--exclude=%s " "${exclude_packages[@]}")"
 
 process_spec() {
+    set -x
     baseName="$(sed -n 's/%global[[:space:]]\+\b\(framework\|base_name\)\b[[:space:]]\+\(.*\)/\2/p' "$1")"
     if [[ -z "$baseName" ]]; then
         specfile="$(basename "$1")"
