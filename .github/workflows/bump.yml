@@ -27,7 +27,7 @@ jobs:
 
       - name: Bump revisions
         run: |
-          bash bumpall.sh -g
+          bash bumpall.sh
 
       - name: Commit and push
         run: |
