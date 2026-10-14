@@ -1,5 +1,4 @@
 #!/usr/bin/bash
-set -x
 while getopts 'gfb' opt; do
     case "$opt" in
         g) export GITLAB=1 ;;
@@ -23,7 +22,6 @@ exclude_packages=(
 IFS=" " read -r -a exclude_rendered <<< "$(printf -- "--exclude=%s " "${exclude_packages[@]}")"
 
 process_spec() {
-    set -x
     baseName="$(sed -n 's/%global[[:space:]]\+\b\(framework\|base_name\)\b[[:space:]]\+\(.*\)/\2/p' "$1")"
     if [[ -z "$baseName" ]]; then
         specfile="$(basename "$1")"
@@ -37,6 +35,7 @@ process_spec() {
 
     if [[ "$GITLAB" == "1" ]]; then
         nameWithNamepsace="$(echo 'local kde_maps = require "frameworks/kf6/kde_maps"; print((kde_maps[arg[1]]:gsub("/", "%%2F")))' | luajit - "$baseName")"
+        curl --retry 5 -Ss "https://invent.kde.org/api/v4/projects/${nameWithNamepsace}/repository/commits?ref_name=${REMOTE_BRANCH}&per_page=50"
         mapfile -t commits < <(curl --retry 5 -Ss "https://invent.kde.org/api/v4/projects/${nameWithNamepsace}/repository/commits?ref_name=${REMOTE_BRANCH}&per_page=50" | jq -c '.[]')
     else
         mapfile -t commits < <(gh api --method GET "repos/KDE/$baseName/commits?sha=${REMOTE_BRANCH}&per_page=50" | jq -c '.[]')
