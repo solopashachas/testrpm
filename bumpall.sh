@@ -30,7 +30,7 @@ process_spec() {
 
     oldCommit="$(sed -n 's/%global[[:space:]]\+\bcommit0\b[[:space:]]\+\(.*\)/\1/p' "$1")"
     if [[ -z "$oldCommit" ]]; then
-        exit 1
+        return 0
     fi
 
     if [[ "$GITLAB" == "1" ]]; then
