@@ -35,7 +35,6 @@ process_spec() {
 
     if [[ "$GITLAB" == "1" ]]; then
         nameWithNamepsace="$(echo 'local kde_maps = require "frameworks/kf6/kde_maps"; print((kde_maps[arg[1]]:gsub("/", "%%2F")))' | luajit - "$baseName")"
-        curl --retry 5 -Ss "https://invent.kde.org/api/v4/projects/${nameWithNamepsace}/repository/commits?ref_name=${REMOTE_BRANCH}&per_page=50"
         mapfile -t commits < <(curl --retry 5 -Ss "https://invent.kde.org/api/v4/projects/${nameWithNamepsace}/repository/commits?ref_name=${REMOTE_BRANCH}&per_page=50" | jq -c '.[]')
     else
         mapfile -t commits < <(gh api --method GET "repos/KDE/$baseName/commits?sha=${REMOTE_BRANCH}&per_page=50" | jq -c '.[]')
