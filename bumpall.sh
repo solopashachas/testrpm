@@ -1,5 +1,5 @@
 #!/usr/bin/bash
-
+set -x
 while getopts 'gfb' opt; do
     case "$opt" in
         g) export GITLAB=1 ;;
