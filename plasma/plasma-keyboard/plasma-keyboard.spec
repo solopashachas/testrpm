@@ -1,6 +1,6 @@
-%global commit0 4572372fcbde375562e06c9aebde7a197186c6bd
+%global commit0 d2a622c8b4a0855ddc9af81e7a56640be1552093
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 7
 
 Name:           plasma-keyboard
 Epoch:          1
@@ -16,14 +16,16 @@ BuildRequires:  desktop-file-utils
 
 BuildRequires:  cmake(Qt6Core)
 BuildRequires:  cmake(Qt6Gui)
-BuildRequires:  cmake(Qt6VirtualKeyboard)
+BuildRequires:  cmake(Qt6Multimedia)
 BuildRequires:  cmake(Qt6WaylandClient)
+BuildRequires:  cmake(Qt6Quick)
 
+BuildRequires:  cmake(KF6Config)
 BuildRequires:  cmake(KF6CoreAddons)
+BuildRequires:  cmake(KF6Crash)
 BuildRequires:  cmake(KF6I18n)
 BuildRequires:  cmake(KF6KCMUtils)
-BuildRequires:  cmake(KF6Config)
-BuildRequires:  cmake(KF6Crash)
+BuildRequires:  cmake(KF6Package)
 
 BuildRequires:  cmake(PlasmaQuick)
 
@@ -32,6 +34,7 @@ BuildRequires:  pkgconfig(wayland-egl)
 BuildRequires:  pkgconfig(wayland-protocols)
 BuildRequires:  pkgconfig(wayland-server)
 BuildRequires:  pkgconfig(xkbcommon)
+BuildRequires:  cmake(PlasmaWaylandProtocols)
 BuildRequires:  qt6-qtbase-private-devel
 
 Requires:       (kcm-%{name}%{?_isa} if plasma-systemsettings%{?_isa})
@@ -48,6 +51,7 @@ Requires:       %{name} = %{epoch}:%{version}-%{release}
 %{summary}.
 
 %install -a
+rm -r %{buildroot}%{_kf6_libdir}/libplasma-keyboard-virtualkeyboardplugin.a
 %find_lang plasma-keyboard
 %find_lang kcm_plasmakeyboard
 
@@ -63,7 +67,6 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/org.kde.plasma.keyboa
 %{_kf6_datadir}/plasma/keyboard/
 %{_kf6_metainfodir}/org.kde.plasma.keyboard.metainfo.xml
 %{_kf6_qmldir}/org/kde/plasma/keyboard/
-%{_kf6_qmldir}/QtQuick/VirtualKeyboard/
 
 %files -n kcm-%{name} -f kcm_plasmakeyboard.lang
 %{_kf6_datadir}/applications/kcm_plasmakeyboard.desktop
