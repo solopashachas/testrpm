@@ -1,6 +1,6 @@
-%global commit0 20549722b50c5f10feca727073b27da42e5afc9d
+%global commit0 9333aa654e62edf96f7855e3c216cd62fc591f23
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:          kmenuedit
 Summary:       KDE menu editor

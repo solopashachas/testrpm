@@ -1,6 +1,6 @@
-%global commit0 f63497c6f9906da7b86c29787e68be479efc72a2
+%global commit0 584769bfcdd1b8ab9b246354aa22a568726e260d
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 30
+%global bumpver 31
 
 Name:    calendarsupport
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -19,14 +19,17 @@ BuildRequires:  cmake(KF6Codecs)
 BuildRequires:  cmake(KF6GuiAddons)
 BuildRequires:  cmake(KF6Holidays)
 BuildRequires:  cmake(KF6I18n)
+BuildRequires:  cmake(KF6IconThemes)
 BuildRequires:  cmake(KF6KIO)
+BuildRequires:  cmake(KF6Mime)
 BuildRequires:  cmake(KF6TextCustomEditor)
+BuildRequires:  cmake(KF6TextTemplate)
 
 BuildRequires:  cmake(KPim6Akonadi)
 BuildRequires:  cmake(KPim6AkonadiCalendar)
 BuildRequires:  cmake(KPim6CalendarUtils)
+BuildRequires:  cmake(KPim6GrantleeTheme)
 BuildRequires:  cmake(KPim6IdentityManagementCore)
-BuildRequires:  cmake(KF6Mime)
 
 BuildRequires:  cmake(Qt6PrintSupport)
 BuildRequires:  cmake(Qt6Test)

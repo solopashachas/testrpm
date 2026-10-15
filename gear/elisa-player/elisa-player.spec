@@ -1,6 +1,6 @@
-%global commit0 f56a9459c8acda5be14bc5491c639c8c76d48a72
+%global commit0 d8b595bd7c02637d8a2b6c5a2c853b878d7a3791
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 16
+%global bumpver 17
 
 %global base_name elisa
 
@@ -59,6 +59,7 @@ BuildRequires:  cmake(Qt6DBus)
 
 BuildRequires:  cmake(KF6KirigamiAddons)
 BuildRequires:  pkgconfig(libvlc)
+BuildRequires:  dragon-media-backend-devel
 
 # Runtime Dependencies
 Requires:       hicolor-icon-theme
