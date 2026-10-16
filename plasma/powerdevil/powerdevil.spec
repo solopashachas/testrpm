@@ -1,6 +1,6 @@
-%global commit0 49751e9dd287e7478f13aef2b0f8267d689ab9a1
+%global commit0 c8617eb5fc12b801719da924dc8fd8be1aca3126
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 12
+%global bumpver 13
 
 Name:           powerdevil
 Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -38,6 +38,7 @@ BuildRequires:  cmake(Qt6Widgets)
 BuildRequires:  qt6-qtbase-private-devel
 
 BuildRequires:  cmake(KF6Screen)
+BuildRequires:  cmake(KNightTime)
 BuildRequires:  cmake(LibKWorkspace)
 BuildRequires:  cmake(Plasma)
 BuildRequires:  cmake(PlasmaActivities)

@@ -1,6 +1,6 @@
-%global commit0 7e2d72cd5ea6d40bf5180389a053eac855c5d9c6
+%global commit0 9346c51dbd401a6dee65c97431eced29bf0ee02a
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 21
+%global bumpver 22
 
 Name:    ktorrent
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

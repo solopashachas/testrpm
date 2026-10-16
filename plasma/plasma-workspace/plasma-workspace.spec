@@ -1,6 +1,6 @@
-%global commit0 508d0724f06c45e7946beb6be96d3b6077e0804d
+%global commit0 9fbefe5745d3ef67176047877dbe853967c640ba
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 26
+%global bumpver 27
 
 Name:           plasma-workspace
 Summary:        Plasma workspace, applications and applets
@@ -30,6 +30,7 @@ Source102:      kde-smartcard
 Source40:       ssh-agent.conf
 Source41:       spice-vdagent.conf
 
+Patch:          https://invent.kde.org/plasma/plasma-workspace/-/merge_requests/7239.patch
 ## downstream Patches
 # default to enable open terminal action
 Patch106:       plasma-workspace-6.0.0-enable-open-terminal-action.patch

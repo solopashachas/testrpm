@@ -1,6 +1,6 @@
-%global commit0 82ed4f40165f2e230200afa38cd149663a06c09c
+%global commit0 1e24e6af46c9f135398624abdbd6e83ce80543da
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 21
+%global bumpver 22
 
 Name:           kcalutils
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -15,14 +15,10 @@ BuildRequires:  kf6-rpm-macros
 BuildRequires:  extra-cmake-modules
 
 BuildRequires:  cmake(KF6CalendarCore)
-BuildRequires:  cmake(KF6Codecs)
 BuildRequires:  cmake(KF6CoreAddons)
 BuildRequires:  cmake(KF6I18n)
 BuildRequires:  cmake(KF6IconThemes)
 BuildRequires:  cmake(KF6TextTemplate)
-BuildRequires:  cmake(KF6WidgetsAddons)
-
-BuildRequires:  cmake(KPim6IdentityManagementCore)
 
 Conflicts:      kf5-kcalendarutils < 23.08.3-2
 
@@ -34,8 +30,6 @@ Summary:        Development files for %{name}
 Conflicts:      kf5-kcalendarutils-devel < 23.08.3-2
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 Requires:       cmake(KF6CalendarCore)
-Requires:       cmake(KF6Config)
-Requires:       cmake(KF6CoreAddons)
 %description    devel
 The %{name}-devel package contains libraries and header files for
 developing applications that use %{name}.
@@ -61,7 +55,6 @@ developing applications that use %{name}.
 %license LICENSES/*
 %{_kf6_datadir}/qlogging-categories6/*%{name}.*
 %{_kf6_libdir}/libKPim6CalendarUtils.so.*
-%{_kf6_plugindir}/ktexttemplate/kcalendar_grantlee_plugin.so
 
 %files devel
 %{_includedir}/KPim6/KCalUtils/
