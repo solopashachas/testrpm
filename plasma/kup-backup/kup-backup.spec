@@ -1,6 +1,6 @@
 %global commit0 c3f63a4a8ea7003ff112b67e0553fd2cc4e25924
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 5
+%global bumpver 6
 
 %global base_name kup
 
@@ -38,6 +38,7 @@ BuildRequires:  cmake(Plasma)
 BuildRequires:  pkgconfig(libgit2)
 
 Requires:       hicolor-icon-theme
+Recommends:     rsync
 
 Obsoletes:      plasma-kup < %{version}-%{release}
 
