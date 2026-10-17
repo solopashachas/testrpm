@@ -1,6 +1,6 @@
 %global commit0 5b7f39b88d33877aeecaf9e73e80cbf755c14f12
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 1
+%global bumpver 2
 
 Name:           kglobalacceld
 Summary:        Daemon providing Global Keyboard Shortcut functionality
@@ -15,8 +15,6 @@ BuildRequires:  systemd-rpm-macros
 
 BuildRequires:  cmake(KF6Config)
 BuildRequires:  cmake(KF6CoreAddons)
-BuildRequires:  cmake(KF6Crash)
-BuildRequires:  cmake(KF6DBusAddons)
 BuildRequires:  cmake(KF6GlobalAccel)
 BuildRequires:  cmake(KF6JobWidgets)
 BuildRequires:  cmake(KF6KIO)
@@ -24,15 +22,6 @@ BuildRequires:  cmake(KF6Service)
 
 BuildRequires:  cmake(Qt6DBus)
 BuildRequires:  cmake(Qt6Gui)
-BuildRequires:  cmake(Qt6Widgets)
-BuildRequires:  qt6-qtbase-private-devel
-
-BuildRequires:  pkgconfig(xcb-keysyms)
-BuildRequires:  pkgconfig(xcb-record)
-BuildRequires:  pkgconfig(xcb-xkb)
-BuildRequires:  pkgconfig(xcb-xtest)
-BuildRequires:  pkgconfig(xcb)
-BuildRequires:  pkgconfig(xkbcommon)
 
 Requires:       kf6-filesystem
 
@@ -43,7 +32,6 @@ Requires:       kf6-filesystem
 Summary:        Developer files for %{name}
 Requires:       %{name}%{?_isa} = %{version}-%{release}
 Requires:       cmake(Qt6DBus)
-Requires:       cmake(Qt6Widgets)
 %description    devel
 %{summary}.
 
