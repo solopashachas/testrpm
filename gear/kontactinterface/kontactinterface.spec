@@ -1,6 +1,6 @@
-%global commit0 9728d2e7622fefd1a9b3316cd45a8e762f582145
+%global commit0 ce6864b24b37d82ac57aa07c9e59d169fc031489
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 7
 
 Name:    kontactinterface
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

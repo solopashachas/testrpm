@@ -1,6 +1,6 @@
-%global commit0 ce9685705e94c83dcefd3bb11f896ed8319377fa
+%global commit0 c5e7165dbd2295bd51da5259cb6e544a7baebda7
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 16
+%global bumpver 17
 
 Name:           kdeplasma-addons
 Summary:        Additional Plasmoids for Plasma 6
@@ -103,7 +103,6 @@ cd kdeds/kameleon/qmk/kameleon-qmk-helper
 %{_kf6_datadir}/kwin/effects/cube/
 %{_kf6_datadir}/kwin/scripts/virtualdesktopsonlyonprimary/
 %{_kf6_datadir}/kwin/tabbox/
-%{_kf6_datadir}/plasma/desktoptheme/default/weather/
 %{_kf6_datadir}/plasma/desktoptheme/default/widgets/*
 %{_kf6_datadir}/plasma/plasmoids/*
 %{_kf6_datadir}/plasma/wallpapers/*
