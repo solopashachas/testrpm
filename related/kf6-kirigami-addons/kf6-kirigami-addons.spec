@@ -1,6 +1,6 @@
-%global commit0 8236b0e04168fcac07793f491bafb43dc6929dc1
+%global commit0 b701e38cb4105212321deb9e815a332a5c619158
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 5
+%global bumpver 6
 
 %global base_name kirigami-addons
 
