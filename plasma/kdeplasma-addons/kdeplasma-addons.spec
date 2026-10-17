@@ -1,6 +1,6 @@
 %global commit0 c5e7165dbd2295bd51da5259cb6e544a7baebda7
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 17
+%global bumpver 18
 
 Name:           kdeplasma-addons
 Summary:        Additional Plasmoids for Plasma 6
@@ -60,6 +60,7 @@ Requires:       kf6-kitemmodels%{?_isa}
 Requires:       libplasma%{?_isa} >= %{majmin_ver_kf6}
 Requires:       plasma5support%{?_isa} >= %{majmin_ver_kf6}
 Requires:       qt6-qt5compat%{?_isa}
+Requires:       qt6-qtgraphs%{?_isa}
 Requires:       qt6-qtquick3d%{?_isa}
 
 %description
