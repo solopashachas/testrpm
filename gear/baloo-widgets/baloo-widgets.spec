@@ -1,6 +1,6 @@
-%global commit0 be42daf49f289c70f5d5979dd0af3ce1de551de4
+%global commit0 a58c650d06a9498b18e77ba069d0719c866c2275
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 Name:    baloo-widgets
 Summary: Widgets for Baloo

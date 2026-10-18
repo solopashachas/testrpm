@@ -1,6 +1,6 @@
-%global commit0 67cad8ca417c825a6c9123b05aaf9255216a4108
+%global commit0 38f09a837eed7e4984d744e148d0f8a2b99cfcbc
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 5
+%global bumpver 6
 
 %global framework kirigami
 
@@ -68,8 +68,6 @@ developing applications that use %{name}.
 %{_kf6_libdir}/libKirigamiLayoutsPrivate.so.6
 %{_kf6_libdir}/libKirigamiPlatform.so.%{version_no_git}
 %{_kf6_libdir}/libKirigamiPlatform.so.6
-%{_kf6_libdir}/libKirigamiPolyfill.so.%{version_no_git}
-%{_kf6_libdir}/libKirigamiPolyfill.so.6
 %{_kf6_libdir}/libKirigamiPrimitives.so.%{version_no_git}
 %{_kf6_libdir}/libKirigamiPrimitives.so.6
 %{_kf6_libdir}/libKirigamiPrivate.so.%{version_no_git}
@@ -95,7 +93,6 @@ developing applications that use %{name}.
 %{_kf6_libdir}/libKirigamiLayouts.so
 %{_kf6_libdir}/libKirigamiLayoutsPrivate.so
 %{_kf6_libdir}/libKirigamiPlatform.so
-%{_kf6_libdir}/libKirigamiPolyfill.so
 %{_kf6_libdir}/libKirigamiPrimitives.so
 %{_kf6_libdir}/libKirigamiPrivate.so
 %{_kf6_libdir}/libKirigamiTemplates.so
