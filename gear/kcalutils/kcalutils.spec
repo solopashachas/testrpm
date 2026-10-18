@@ -1,6 +1,6 @@
 %global commit0 e1ba2fcb4641ee9be7924474a2f72f40517259ab
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 23
+%global bumpver 24
 
 Name:           kcalutils
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -15,7 +15,6 @@ BuildRequires:  kf6-rpm-macros
 BuildRequires:  extra-cmake-modules
 
 BuildRequires:  cmake(KF6CalendarCore)
-BuildRequires:  cmake(KF6CoreAddons)
 BuildRequires:  cmake(KF6I18n)
 BuildRequires:  cmake(KF6IconThemes)
 BuildRequires:  cmake(KF6TextTemplate)
