@@ -1,6 +1,6 @@
-%global commit0 c3f63a4a8ea7003ff112b67e0553fd2cc4e25924
+%global commit0 7f15467f43ce5b3a468ea3d3e2da61d8dce71836
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 7
 
 %global base_name kup
 
@@ -15,6 +15,7 @@ URL:            https://invent.kde.org/plasma/kup
 
 BuildRequires:  desktop-file-utils
 BuildRequires:  libappstream-glib
+BuildRequires:  systemd-rpm-macros
 
 BuildRequires:  cmake(Qt6Core)
 BuildRequires:  cmake(Qt6Widgets)
@@ -58,17 +59,19 @@ appstream-util validate-relax --nonet %{buildroot}%{_kf6_metainfodir}/org.kde.ku
 %license LICENSES/*
 %doc MAINTAINER README.md
 %{_kf6_bindir}/kup-*
-%{_kf6_plugindir}/kfileitemaction/kupfileitemaction.so
-%{_kf6_plugindir}/kio/kio_bup.so
-%{_kf6_qtplugindir}/plasma/applets/org.kde.kupapplet.so
-%{_kf6_qtplugindir}/plasma/kcms/systemsettings_qwidgets/kcm_kup.so
 %{_kf6_datadir}/applications/kcm_kup.desktop
 %{_kf6_datadir}/applications/kup-daemon.desktop
 %{_kf6_datadir}/icons/hicolor/scalable/apps/kup.svg
 %{_kf6_datadir}/knotifications6/kupdaemon.notifyrc
-%{_kf6_metainfodir}/org.kde.kup.appdata.xml
 %{_kf6_datadir}/qlogging-categories6/kup.categories
+%{_kf6_metainfodir}/org.kde.kup.appdata.xml
+%{_kf6_plugindir}/kfileitemaction/kupfileitemaction.so
+%{_kf6_plugindir}/kio/kio_bup.so
+%{_kf6_qtplugindir}/plasma/applets/org.kde.kupapplet.so
+%{_kf6_qtplugindir}/plasma/kcms/systemsettings_qwidgets/kcm_kup.so
 %{_sysconfdir}/xdg/autostart/kup-daemon.desktop
+%{_userunitdir}/graphical-session.target.wants/kup-daemon.service
+%{_userunitdir}/kup-daemon.service
 
 %changelog
 %{?kde_snapshot_changelog_entry}
