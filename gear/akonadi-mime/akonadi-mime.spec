@@ -1,6 +1,6 @@
-%global commit0 f3b50207bf035051be2b8f52adac7c573e1bce33
+%global commit0 262d51949658ea87b83a300b9d4ba4a42863217d
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 11
+%global bumpver 12
 
 Name:    akonadi-mime
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
