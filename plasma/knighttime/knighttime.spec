@@ -1,10 +1,10 @@
-%global commit0 10bdba2223c5d84e67a6b1c92b1a246182a765d7
+%global commit0 860c26943a6c62322b9f11872fb0af39a32db207
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           knighttime
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 Summary:        Helpers for scheduling the dark-light cycle
 
 License:        BSD-3-Clause AND LGPL-2.1-only AND GPL-2.0-only AND CC0-1.0
@@ -58,6 +58,9 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %{_kf6_libdir}/libKNightTime.so
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 

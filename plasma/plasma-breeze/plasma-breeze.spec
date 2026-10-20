@@ -1,12 +1,12 @@
-%global commit0 cb1de02b5d4fa81d309e33a3f8cd8795ff975336
+%global commit0 23c317d08b38b160fadd3aeb21a463cb89d12fce
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 %global base_name breeze
 
 Name:           plasma-breeze
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 Summary:        Artwork, styles and assets for the Breeze visual style for the Plasma Desktop
 
 License:        BSD-3-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only AND (GPL-2.0-only OR GPL-3.0-only) AND MIT
@@ -143,6 +143,9 @@ Development files for %{name}.
 %{_kf6_libdir}/cmake/Breeze/
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 

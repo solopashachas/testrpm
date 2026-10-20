@@ -1,11 +1,11 @@
-%global commit0 c782ac91c46a03e25c6fcae663311d3a328338ef
+%global commit0 087c60377b1a1b05ab2564fc72fc49ed6b662a86
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           kdeplasma-addons
 Summary:        Additional Plasmoids for Plasma 6
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 
 License:        BSD-3-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only AND GPL-3.0-or-later AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-2.1-or-later AND LGPL-3.0-only AND LGPL-3.0-or-later AND LicenseRef-KDE-Accepted-GPL AND LicenseRef-KDE-Accepted-LGPL AND MIT
 URL:            https://invent.kde.org/plasma/%{name}
@@ -141,6 +141,9 @@ cd kdeds/kameleon/qmk/kameleon-qmk-helper
 %{_kf6_libdir}/libplasmaweatherion.so
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 
