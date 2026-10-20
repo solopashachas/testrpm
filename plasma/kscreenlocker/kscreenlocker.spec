@@ -1,6 +1,6 @@
-%global commit0 d06425095dac8caecf5d6ac1d86bcc090c0bd99b
+%global commit0 2411b3f03ba5a4d005dfd87396df462e55e3dce0
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 5
+%global bumpver 6
 
 Name:           kscreenlocker
 Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}

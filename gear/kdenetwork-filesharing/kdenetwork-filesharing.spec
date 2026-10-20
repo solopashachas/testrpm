@@ -1,6 +1,6 @@
-%global commit0 2ac1e955795f900181b461c4c0d22a50f3ec401d
+%global commit0 60cb535448822c096980ba05c85bc1b541c0c7f1
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:    kdenetwork-filesharing
 Summary: Network filesharing

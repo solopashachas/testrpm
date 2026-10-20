@@ -1,6 +1,6 @@
-%global commit0 2ed53607488cd041277bb44afa0e3fa3833ce706
+%global commit0 8433f32b9a1eaff665084dbc46b2ac6461402939
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 8
+%global bumpver 9
 
 Name:           plasma-keyboard
 Epoch:          1
@@ -54,11 +54,12 @@ Requires:       %{name} = %{epoch}:%{version}-%{release}
 rm -r %{buildroot}%{_kf6_libdir}/libplasma-keyboard-virtualkeyboardplugin.a
 %find_lang plasma-keyboard
 %find_lang kcm_plasmakeyboard
+%find_lang plasma-keyboard-virtualkeyboard
 
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/org.kde.plasma.keyboard.desktop
 
-%files -f plasma-keyboard.lang
+%files -f plasma-keyboard.lang -f plasma-keyboard-virtualkeyboard.lang
 %license LICENSES/*
 %doc README.md
 %{_kf6_bindir}/plasma-keyboard
