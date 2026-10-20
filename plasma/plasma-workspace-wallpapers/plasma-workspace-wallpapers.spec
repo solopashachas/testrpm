@@ -1,10 +1,10 @@
-%global commit0 d3b39b9964b9ba2029c34c427f54c419f0a25048
+%global commit0 13eceb8d1bed15b5ab70fd0dfc6bfde3ab8faf79
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           plasma-workspace-wallpapers
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 Summary:        Additional wallpapers for Plasma workspace
 License:        LGPLv3
 URL:            https://invent.kde.org/plasma/plasma-workspace-wallpapers
@@ -62,6 +62,9 @@ Requires:       kde-filesystem
 %{_kf6_datadir}/wallpapers/Waterfall/
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 

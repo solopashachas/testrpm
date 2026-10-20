@@ -4,8 +4,8 @@
 
 Name:           plasma-thunderbolt
 Summary:        Plasma integration for controlling Thunderbolt devices
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 
 License:        BSD-3-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-3.0-only AND LicenseRef-KDE-Accepted-GPL
 URL:            https://invent.kde.org/plasma/%{name}
@@ -46,6 +46,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/kcm_bolt.desktop
 %{_kf6_qtplugindir}/plasma/kcms/systemsettings/kcm_bolt.so
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 

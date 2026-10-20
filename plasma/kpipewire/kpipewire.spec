@@ -1,11 +1,11 @@
-%global commit0 2ea03cd509358904cf6f8cc1ec2efd3ba7815439
+%global commit0 be07f4fbd984c7a3660f6cc45f91a93ea346b5c3
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           kpipewire
 Summary:        Set of convenient classes to use PipeWire in Qt projects
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 
 License:        BSD-3-Clause AND CC0-1.0 AND LGPL-2.1-only AND LGPL-3.0-only
 URL:            https://invent.kde.org/plasma/%{name}
@@ -76,6 +76,9 @@ developing applications that use %{name}.
 %{_kf6_libdir}/libKPipeWireRecord.so
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 

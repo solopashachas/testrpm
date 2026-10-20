@@ -1,10 +1,10 @@
-%global commit0 40be1abd2831e724614a1600279d3084f4ac6c97
+%global commit0 81072bb52a2adb6a40ff11cea19145b901fd54aa
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           qqc2-breeze-style
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 Summary:        QtQuickControls2 breeze style
 
 License:        CC0-1.0 and GPL-2.0-or-later AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND (GPL-2.0-only OR GPL-3.0-only) AND (LGPL-2.1-only OR LGPL-3.0-only)
@@ -44,6 +44,9 @@ This is a pure Qt Quick/Kirigami Qt Quick Controls style.
 %{_kf6_libdir}/cmake/QQC2BreezeStyle/
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 

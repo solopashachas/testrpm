@@ -1,10 +1,10 @@
-%global commit0 4382f5c3b43885e1bc17339d09cf420e6b25003c
+%global commit0 22533fbe7fa2eec0cba822699eb688690fc7362d
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           plasma-systemmonitor
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 Summary:        An application for monitoring system resources
 
 License:        BSD-3-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-3.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND LGPL-3.0-or-later AND LicenseRef-KDE-Accepted-GPL AND LicenseRef-KDE-Accepted-LGPL
@@ -65,6 +65,9 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %{_kf6_qmldir}/org/kde/ksysguard/
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 

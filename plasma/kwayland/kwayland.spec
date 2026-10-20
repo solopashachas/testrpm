@@ -1,10 +1,10 @@
-%global commit0 c47174f3322a29d787b418d032f2f1ae21a08f8f
+%global commit0 fafc5c18bd6451dad1e9f024c45ddac563b05e17
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           kwayland
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 Summary:        KDE Frameworks 6 library that wraps Client and Server Wayland libraries
 
 License:        BSD-3-Clause AND CC0-1.0 AND LGPL-2.1-only AND LGPL-2.1-or-later AND LGPL-3.0-only AND MIT-CMU AND MIT
@@ -53,6 +53,9 @@ developing applications that use %{name}.
 %{_kf6_libdir}/pkgconfig/KWaylandClient.pc
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 

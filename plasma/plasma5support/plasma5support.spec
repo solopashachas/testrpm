@@ -1,11 +1,11 @@
-%global commit0 73c1b1c82523d0e6e0634c6e3b2f46b05f758186
+%global commit0 18b8f7dca777eb8054480d1e8040ad07cb211acf
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           plasma5support
 Summary:        Support components for porting from KF5/Qt5 to KF6/Qt6
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 
 License:        CC0-1.0 AND GPL-2.0-or-later AND LGPL-2.0-or-later
 URL:            https://invent.kde.org/plasma/%{name}
@@ -90,6 +90,9 @@ Provides:       kf6-plasma5support-devel = 1:%{version}-%{release}
 %{_kf6_libdir}/libweather_ion.so
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 

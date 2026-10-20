@@ -1,12 +1,12 @@
-%global commit0 41ba5e94a3640da9b1b8d0a36da183d18575cf9d
+%global commit0 4f438963e443a87f8248940596c9c09c8a58a1d7
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 %global base_name oxygen
 
 Name:           plasma-%{base_name}
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 Summary:        Plasma and Qt widget style and window decorations for Plasma
 
 License:        CC0-1.0 AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only AND GPL-3.0-or-later AND LGPL-2.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND (GPL-2.0-only OR GPL-3.0-only) AND (LGPL-2.1-only OR LGPL-3.0-only) AND MIT
@@ -156,6 +156,9 @@ popd
 %{_datadir}/icons/Oxygen_Zion/
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 

@@ -1,12 +1,12 @@
-%global commit0 6040efe7277fff1edc4f10c196dee42a49d0af09
+%global commit0 1372245c96056ffaec986c57447a1805291e753e
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 %global base_name kup
 
 Name:           kup-backup
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 Summary:        Backup scheduler for the Plasma desktop
 
 License:        CC0-1.0 AND GPL-2.0-only AND GPL-2.0-or-later AND GPL-3.0-only
@@ -38,6 +38,7 @@ BuildRequires:  cmake(Plasma)
 BuildRequires:  pkgconfig(libgit2)
 
 Requires:       hicolor-icon-theme
+Requires:       (rsync or bup)
 
 Obsoletes:      plasma-kup < %{version}-%{release}
 
@@ -70,6 +71,9 @@ appstream-util validate-relax --nonet %{buildroot}%{_kf6_metainfodir}/org.kde.ku
 %{_sysconfdir}/xdg/autostart/kup-daemon.desktop
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 

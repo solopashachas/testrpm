@@ -1,10 +1,10 @@
-%global commit0 fef74f1cf43c889cae166ef31159a85c1830447e
+%global commit0 186c5b0865d85f2129e2f8d271906b007c968457
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           plasma-pa
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 Summary:        Plasma applet for audio volume management using PulseAudio
 
 License:        BSD-3-Clause AND CC0-1.0 AND GPL-2.0-only AND GPL-3.0-only AND LGPL-2.0-or-later AND LGPL-2.1-only AND LGPL-3.0-only AND (GPL-2.0-only OR GPL-3.0-only) AND (LGPL-2.1-only OR LGPL-3.0-only)
@@ -62,6 +62,9 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/*.desktop
 %{_kf6_qtplugindir}/plasma/kcms/systemsettings/kcm_pulseaudio.so
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 

@@ -1,11 +1,11 @@
-%global commit0 979ebc165254640e7f7763c524afa6b3aa8aaba4
+%global commit0 892fd6c6e3ac0222823ccdcc9d54f280f1a76f4f
 %global shortcommit0 %{sub %{commit0} 1 7}
 %global bumpver 1
 
 Name:           aurorae
 Summary:        Aurorae decoration engine
-Version:        6.8.0
-Release:        0.1%{?dist}
+Version:        6.8.1
+Release:        1%{?dist}
 
 License:        GPL-2.0-or-later
 URL:            https://invent.kde.org/plasma/aurorae
@@ -59,6 +59,9 @@ decorations.
 %{_kf6_libdir}/cmake/Aurorae/
 
 %changelog
+* Tue Oct 20 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.1-1
+- Update to 6.8.1
+
 * Thu Oct 08 2026 Zakir Zamirov <268826384+solopashachas@users.noreply.github.com> - 6.8.0-0.1
 - Update to 6.8.0
 
