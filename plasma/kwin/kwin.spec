@@ -1,6 +1,6 @@
-%global commit0 2ba43b48090d291ed3ed773e8bddaf06aab974ba
+%global commit0 9e63d97ede28262468e0557d7df6dda9bdfd7c7b
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 23
+%global bumpver 24
 
 Name:           kwin
 Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -186,7 +186,6 @@ ln -sr %{buildroot}%{_kf6_bindir}/kwin_wayland %{buildroot}%{_bindir}/kwin
 %{_libexecdir}/kwin_eis_prompter
 %{_libexecdir}/kwin_killer_helper
 %{_libexecdir}/kwin-applywindowdecoration
-%{_libexecdir}/kwin-tabbox-preview
 %{_qt6_qmldir}/org/kde/kwin/
 %{_userunitdir}/plasma-kwin_wayland.service
 %dir %{_sysconfdir}/xdg/Xwayland-session.d

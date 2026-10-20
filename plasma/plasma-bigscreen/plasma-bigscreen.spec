@@ -1,6 +1,6 @@
-%global commit0 48feb03a6172821bc557c3653ccbab03b30b09fc
+%global commit0 3a169995083a089306814b9fabca5f6644855720
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 12
+%global bumpver 13
 
 Name:           plasma-bigscreen
 Summary:        Plasma shell for TVs
@@ -16,7 +16,6 @@ ExclusiveArch:  %{qt6_qtwebengine_arches}
 BuildRequires:  desktop-file-utils
 BuildRequires:  libappstream-glib
 
-BuildRequires:  cmake(KF6BluezQt)
 BuildRequires:  cmake(KF6DBusAddons)
 BuildRequires:  cmake(KF6GlobalAccel)
 BuildRequires:  cmake(KF6I18n)
