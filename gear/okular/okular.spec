@@ -1,6 +1,6 @@
-%global commit0 31cdd44495af358eb201b05622c92dfb634ce6ad
+%global commit0 60fd9fbcf5315c7d931d60f7d5270e7d1c0cc7b9
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 34
+%global bumpver 35
 
 ## uncomment to enable bootstrap mode
 #global bootstrap 1

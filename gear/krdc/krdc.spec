@@ -1,6 +1,6 @@
-%global commit0 94164279d8b503c4660675750260197a10b23e72
+%global commit0 e767aaed71a2bcc763d7b3f20ab494122a87718d
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 21
+%global bumpver 22
 
 Name:           krdc
 Summary:        Remote desktop client
@@ -110,7 +110,7 @@ desktop-file-validate %{buildroot}%{_kf6_datadir}/applications/org.kde.%{name}.d
 
 %files libs
 %{_kf6_libdir}/libkrdccore.so.%{version_no_git}
-%{_kf6_libdir}/libkrdccore.so.5*
+%{_kf6_libdir}/libkrdccore.so.6
 %{_kf6_qtplugindir}/krdc/
 
 %files devel
