@@ -1,6 +1,6 @@
-%global commit0 729d68334b7b7266f12313f3931acbfb41694f3a
+%global commit0 1a2dc35d8f3c7a17252f99d695a6b4a60c8d24a3
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 25
+%global bumpver 26
 
 Name:           kwin
 Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -189,7 +189,6 @@ ln -sr %{buildroot}%{_kf6_bindir}/kwin_wayland %{buildroot}%{_bindir}/kwin
 %{_qt6_qmldir}/org/kde/kwin/
 %{_userunitdir}/plasma-kwin_wayland.service
 %dir %{_sysconfdir}/xdg/Xwayland-session.d
-%config(noreplace) %{_sysconfdir}/xdg/kwinrulesrc
 
 %files devel
 %{_includedir}/kwin/

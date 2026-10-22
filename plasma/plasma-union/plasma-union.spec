@@ -1,6 +1,6 @@
-%global commit0 baa22ecb94ffc920f6c855f967a6dbe7b4d4f917
+%global commit0 61226a350de97b3991ba1a26005068b7be985a6a
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 21
+%global bumpver 22
 
 %global base_name union
 
