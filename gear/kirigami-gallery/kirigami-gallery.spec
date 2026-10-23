@@ -1,13 +1,13 @@
-%global commit0 4329c7775e34f6d38dcc1d19601d9352db1fcef7
+%global commit0 260d4a6908292160aef345ecf818268a25ed53aa
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 9
+%global bumpver 10
 
 Name:    kirigami-gallery
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
 Release: 1%{?dist}
 Summary: Gallery application built using Kirigami
 License: LGPL-2.1-or-later
-URL:     https://apps.kde.org/kirigami2.gallery
+URL:     https://invent.kde.org/sdk/kirigami-gallery
 %apps_source
 
 BuildRequires: desktop-file-utils
@@ -23,9 +23,11 @@ BuildRequires: cmake(Qt6QuickControls2)
 BuildRequires: cmake(Qt6Svg)
 BuildRequires: cmake(Qt6Widgets)
 
+BuildRequires: cmake(KF6CoreAddons)
+BuildRequires: cmake(KF6I18n)
 BuildRequires: cmake(KF6ItemModels)
 BuildRequires: cmake(KF6Kirigami)
-BuildRequires: cmake(KF5Package)
+
 
 Requires:   kf6-kirigami%{?_isa}
 Requires:   kf6-kitemmodels%{?_isa}

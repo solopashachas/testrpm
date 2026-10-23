@@ -1,6 +1,6 @@
-%global commit0 e1cdb8743665e47bc9460f00b800228129c61fa4
+%global commit0 3e2cd3e963bf9c49e6696e888c96b51f78c3174d
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 11
+%global bumpver 12
 
 %global klockd_name org.kde.kclockd
 %global orig_name org.kde.kclock
