@@ -1,6 +1,6 @@
-%global commit0 4119680a149863e429e1044a70b108b05f8f4a25
+%global commit0 2686274a722175011f45605d244bc931f9eee888
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 5
+%global bumpver 6
 
 %global framework kcalendarcore
 

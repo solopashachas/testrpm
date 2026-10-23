@@ -1,6 +1,6 @@
-%global commit0 fea08b062a042e01d006a97caff28b96ce2a3a03
+%global commit0 904d76764178385d403112d7af8dfb055b3930d4
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 3
+%global bumpver 4
 
 Name:    kopeninghours
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
