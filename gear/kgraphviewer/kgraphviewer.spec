@@ -1,6 +1,6 @@
-%global commit0 92f57e25c33b790f4d72fc88029d56cb204e151f
+%global commit0 710bbf32a9fa4c8c3f6c4d3405d65d4dc3aedda7
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 Name:           kgraphviewer
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -24,7 +24,6 @@ BuildRequires:  cmake(KF6Parts)
 BuildRequires:  cmake(KF6WidgetsAddons)
 
 BuildRequires:  cmake(Qt6Core)
-BuildRequires:  cmake(Qt6Core5Compat)
 BuildRequires:  cmake(Qt6DBus)
 BuildRequires:  cmake(Qt6PrintSupport)
 BuildRequires:  cmake(Qt6Svg)
