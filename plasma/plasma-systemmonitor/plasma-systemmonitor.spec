@@ -1,6 +1,6 @@
 %global commit0 e61718e45200479a1fc282849baad5742dca651f
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 7
+%global bumpver 8
 
 Name:           plasma-systemmonitor
 Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}

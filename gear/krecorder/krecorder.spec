@@ -1,6 +1,6 @@
 %global commit0 e66d5f18aa07602de01e240eb5652be756fd8406
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 5
+%global bumpver 6
 
 Name:           krecorder
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

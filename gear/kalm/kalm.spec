@@ -1,6 +1,6 @@
 %global commit0 212e0c64287774f755377c450c3171138d8fa75e
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 5
+%global bumpver 6
 
 Name:           kalm
 Version:        26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
