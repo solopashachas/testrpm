@@ -1,6 +1,6 @@
-%global commit0 dc055e0358480f4d84464db5fae6eeea599c0044
+%global commit0 3c807c213b139a1e1a3e34ad9b416e1ace356ce9
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 4
+%global bumpver 5
 
 Name:           kinfocenter
 Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}

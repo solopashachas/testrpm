@@ -1,6 +1,6 @@
-%global commit0 3d896254291e99557f429266a544e5b4e9295522
+%global commit0 9ab643c9d903715dc5a17ab02ab1f8ae4a9072cd
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 34
+%global bumpver 35
 
 Name:    neochat
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -50,6 +50,7 @@ BuildRequires: cmake(KUnifiedPush)
 BuildRequires: cmake(QCoro6Core)
 BuildRequires: cmake(QCoro6Network)
 BuildRequires: cmake(QuotientQt6)
+BuildRequires: cmake(KF6KirigamiAppComponents)
 
 BuildRequires: pkgconfig(icu-uc)
 BuildRequires: pkgconfig(libcmark)

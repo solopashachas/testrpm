@@ -1,6 +1,6 @@
-%global commit0 7f15467f43ce5b3a468ea3d3e2da61d8dce71836
+%global commit0 8b5a255b7aaed2cf1f97f77767da7ea282347f79
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 8
+%global bumpver 9
 
 %global base_name kup
 
