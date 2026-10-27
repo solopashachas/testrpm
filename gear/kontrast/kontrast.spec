@@ -1,6 +1,6 @@
-%global commit0 7ae7666c58106f21f61f0283d5cd1adc3709e4f5
+%global commit0 79c5a2128e496f9785544f2fd719d7b6295e33e7
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 6
+%global bumpver 7
 
 Name:          kontrast
 Version:       26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

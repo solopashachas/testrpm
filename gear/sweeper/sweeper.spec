@@ -1,6 +1,6 @@
-%global commit0 4f41c8a9de1b690e51fd32143762812c313a9989
+%global commit0 963af37eb150726fa15f0a8e3a8ba2954eb9e424
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 2
+%global bumpver 3
 
 Name:    sweeper
 Summary: Clean unwanted traces the user leaves on the system
