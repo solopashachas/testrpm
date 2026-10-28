@@ -1,6 +1,6 @@
-%global commit0 049f78a12dceefcd9e311f23841cf670938907c9
+%global commit0 7020017321c46d88ab13dd8ba74c57307fe66ac3
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 8
+%global bumpver 9
 
 Name:           dragon-media-backend
 Version:        0.83.0%{?bumpver:^%{bumpver}.git%{shortcommit0}}
@@ -63,11 +63,12 @@ Dragon Media Backend.
 %files
 %license LICENSES/*.txt
 %doc README.md
+%{_kf6_datadir}/qlogging-categories6/dragonmediabackend.categories
 %{_kf6_libdir}/libDragonMediaBackend.so.0
 %{_kf6_libdir}/libDragonMediaBackend.so.0.*
-%{_qt6_plugindir}/DragonMediaBackend/
+%{_kf6_metainfodir}/org.kde.dragonmediabackend.metainfo.xml
 %{_kf6_qmldir}/org/kde/dragonmediabackend/
-%{_kf6_datadir}/qlogging-categories6/dragonmediabackend.categories
+%{_qt6_plugindir}/DragonMediaBackend/
 
 %files devel
 %{_includedir}/DragonMediaBackend/

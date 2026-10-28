@@ -1,6 +1,6 @@
-%global commit0 a316d3a5dc156982968da08bfbb79f8ecdbc6a65
+%global commit0 1245e43bf27ad5cf2cc752efabe8db2fbfd3a3a9
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 20
+%global bumpver 21
 
 Name:    libksieve
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
