@@ -1,6 +1,6 @@
-%global commit0 7c7934337d8c6d483921e097558c0cce1f202af9
+%global commit0 eb3967a5558af0a82d885d0c29d8c80967346d41
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 12
+%global bumpver 13
 
 Name:    akonadi-search
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -12,7 +12,6 @@ URL:     https://invent.kde.org/pim/akonadi-search
 %apps_source
 
 BuildRequires:  cargo
-BuildRequires:  cargo-rpm-macros
 BuildRequires:  extra-cmake-modules
 BuildRequires:  kf6-rpm-macros
 BuildRequires:  rust
@@ -61,20 +60,9 @@ developing applications that use %{name}.
 %prep
 %{!?bumpver:%{gpgverify} --keyring='%{SOURCE2}' --signature='%{SOURCE1}' --data='%{SOURCE0}'}
 %autosetup -n %{sourcerootdir} -p1
-%cargo_prep
-find -name "Cargo.lock" -print -delete
-
-
-%generate_buildrequires
-cd agent/rs/htmlparser
-%cargo_generate_buildrequires
-
 
 %build
-cd agent/rs/htmlparser
-%cargo_license_summary
-%cargo_license
-cd ../../..
+export CARGO_HOME=.cargo
 %cmake_kf6
 %cmake_build
 
