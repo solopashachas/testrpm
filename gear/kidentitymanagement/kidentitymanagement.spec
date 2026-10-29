@@ -1,6 +1,6 @@
-%global commit0 659d0a77842ca3d41153855b1d15ec6bf45371be
+%global commit0 93596978ef0bed5fc1e94452cbda940252f4393e
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 19
+%global bumpver 20
 
 Name:    kidentitymanagement
 Version: 26.11.70%{?bumpver:~%{bumpver}.git%{shortcommit0}}

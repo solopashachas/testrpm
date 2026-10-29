@@ -1,6 +1,6 @@
-%global commit0 1d1085e9640e3d54448fd4b29df366565a0210df
+%global commit0 96d52574897008f2f2767a4869f03e5a0a801a65
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 25
+%global bumpver 26
 
 Name:           krdc
 Summary:        Remote desktop client
@@ -29,6 +29,7 @@ BuildRequires:  cmake(KF6KCMUtils)
 BuildRequires:  cmake(KF6KIO)
 BuildRequires:  cmake(KF6Notifications)
 BuildRequires:  cmake(KF6NotifyConfig)
+BuildRequires:  cmake(KF6Solid)
 BuildRequires:  cmake(KF6StatusNotifierItem)
 BuildRequires:  cmake(KF6Wallet)
 BuildRequires:  cmake(KF6WidgetsAddons)

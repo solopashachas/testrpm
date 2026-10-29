@@ -1,6 +1,6 @@
-%global commit0 a7a21667caae857ef1f3e4e260cba0849f223bac
+%global commit0 8bd0212900d662570778bead400ea7f3925ecb72
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 11
+%global bumpver 12
 
 Name:           dragon
 Summary:        Media player
@@ -16,6 +16,7 @@ BuildRequires:  libappstream-glib
 BuildRequires:  cmake(KF6Config)
 BuildRequires:  cmake(KF6CoreAddons)
 BuildRequires:  cmake(KF6Crash)
+BuildRequires:  cmake(KF6Declarative)
 BuildRequires:  cmake(KF6GuiAddons)
 BuildRequires:  cmake(KF6I18n)
 BuildRequires:  cmake(KF6KIO)
@@ -29,6 +30,7 @@ BuildRequires:  cmake(Qt6Multimedia)
 BuildRequires:  pkgconfig(libavcodec)
 
 Requires:       kf6-kconfig%{?_isa}
+Requires:       kf6-kdeclarative%{?_isa}
 Requires:       kf6-kguiaddons%{?_isa}
 Requires:       kf6-kirigami%{?_isa}
 
