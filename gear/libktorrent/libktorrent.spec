@@ -1,6 +1,6 @@
-%global commit0 ca7b95c2a5f4769dd129617a5a9ca57364f6e2c5
+%global commit0 7243a92a0235ac6689379e8bf7729a88ec211a0b
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 25
+%global bumpver 26
 
 Name:           libktorrent
 Summary:        Torrent downloading library for KDE 6 applications
