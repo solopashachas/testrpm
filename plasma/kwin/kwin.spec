@@ -1,6 +1,6 @@
 %global commit0 246116fb92c10d814261cd9fcfb4c74c2f9ff4fa
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 35
+%global bumpver 36
 
 Name:           kwin
 Version:        6.8.80%{?bumpver:~%{bumpver}.git%{shortcommit0}}
@@ -112,7 +112,6 @@ Requires:       plasma-milou%{?_isa} >= %{majmin_ver_kf6}
 Requires:       qt6-qt5compat%{?_isa}
 Requires:       qt6-qtdeclarative%{?_isa}
 Requires:       qt6-qtmultimedia%{?_isa}
-Requires:       qt6-qtwayland%{?_isa}
 Requires:       xorg-x11-server-Xwayland%{?_isa}
 %{?_qt6:Requires: %{_qt6}%{?_isa} = %{_qt6_version}}
 
