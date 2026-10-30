@@ -21,7 +21,7 @@
 
 Name:           mlt
 Version:        7.42.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Toolkit for broadcasters, video editors, media players, transcoders
 
 # mlt/src/win32/fnmatch.{c,h} are BSD-licensed.
@@ -284,6 +284,9 @@ test "$(pkg-config --modversion mlt++-7)" = "%{version}"
 
 
 %changelog
+* Fri Oct 30 2026 Pavel Solovev <daron439@gmail.com> - 7.42.0-2
+- rebuilt
+
 * Fri Oct 30 2026 Pavel Solovev <daron439@gmail.com> - 7.42.0-1
 - new version
 
