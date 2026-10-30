@@ -1,6 +1,6 @@
-%global commit0 b16845c05566aad6bedcf54a565e8891e5803303
+%global commit0 2bcdd302b3720f6b95bf1b45865121ac65e63be5
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 27
+%global bumpver 29
 
 %global base_name union
 
@@ -28,6 +28,7 @@ BuildRequires:  cmake(KF6GuiAddons)
 BuildRequires:  cmake(KF6IconThemes)
 BuildRequires:  cmake(KF6Kirigami)
 BuildRequires:  cmake(KF6KirigamiPlatform)
+BuildRequires:  cmake(KF6WindowSystem)
 
 BuildRequires:  cmake(cxx-rust-cssparser)
 

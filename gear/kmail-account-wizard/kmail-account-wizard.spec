@@ -1,6 +1,6 @@
-%global commit0 802cae1501f18c4dd652e219ca7def0188ed4505
+%global commit0 f32fa4f5c1f5e282d3e77561266cd2fd72ff9fe5
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 11
+%global bumpver 13
 
 #global tests 1
 
@@ -41,6 +41,8 @@ BuildRequires: cmake(Qt6Quick)
 BuildRequires: cmake(Qt6QuickControls2)
 BuildRequires: cmake(Qt6Test)
 BuildRequires: cmake(Qt6Widgets)
+
+BuildRequires: cmake(KF6KirigamiAddons)
 
 Requires:      kf6-kirigami%{?_isa}
 Requires:      kf6-kirigami-addons%{?_isa}
