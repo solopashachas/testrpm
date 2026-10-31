@@ -1,6 +1,6 @@
-%global commit0 c13f11d566f10db3a8e0780bd47f6919c75631cd
+%global commit0 b0d240653371d2f1a19bfd5b9ef8829a54e2c574
 %global shortcommit0 %{sub %{commit0} 1 7}
-%global bumpver 29
+%global bumpver 30
 
 %global _lto_cflags %{nil}
 
